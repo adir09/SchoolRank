@@ -1,4 +1,3 @@
-
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
@@ -969,8 +968,9 @@
       <div class="login-wrapper">
         <div class="login-title">התחברות למערכת</div>
         <div class="login-sub">
-          אם אתה נכנס כתלמיד – פשוט תכתוב בשם המשתמש <b>תלמיד</b>.<br>
-          הסיסמה לא באמת חשובה כאן.
+          אתה יכול לכתוב כל שם משתמש וכל סיסמה – המערכת תשמור אותם במחשב שלך.<br>
+          לדוגמה: <b>תלמיד</b> או כל שם אחר שבא לך.<br>
+          רק אם תכתוב <b>adir</b> עם סיסמה <b>1234</b> – תיכנס כאדמין.
         </div>
 
         <div class="form-field">
@@ -1311,12 +1311,6 @@
 </div>
 
 <script>
-  // ---------- משתמשים ----------
-  const users = [
-    { username: "adir",    password: "1234", role: "admin"   },
-    { username: "student", password: "1234", role: "student" }
-  ];
-
   // ---------- נתוני דמו ----------
   const teachers = [
     { id: 1, name: "רות כהן",   subject: "מתמטיקה" },
@@ -1438,9 +1432,6 @@
 
   function getDisplayNameForUser(user) {
     if (!user) return "תלמיד";
-    if (user.username === "תלמיד") return "תלמיד";
-    if (user.username === "student") return "student";
-    if (user.username === "adir") return "adir";
     return user.username;
   }
 
@@ -1489,11 +1480,9 @@
       const raw = localStorage.getItem("tf_user");
       if (!raw) return null;
       const data = JSON.parse(raw);
-      if (data.username === "תלמיד") {
-        return { username: "תלמיד", role: "student" };
-      }
-      const user = users.find(u => u.username === data.username && u.role === data.role);
-      return user || null;
+
+      if (!data.username || !data.role) return null;
+      return { username: data.username, role: data.role };
     } catch (e) {
       return null;
     }
@@ -1625,21 +1614,20 @@
     const usernameRaw = document.getElementById("login-username").value.trim();
     const password = document.getElementById("login-password").value.trim();
 
-    let user = null;
-
-    // תלמיד בעברית – סיסמה לא חשובה
-    if (usernameRaw === "תלמיד") {
-      user = { username: "תלמיד", role: "student" };
-    } else if (usernameRaw === "adir" && password === "1234") {
-      user = { username: "adir", role: "admin" };
-    } else if (usernameRaw === "student" && password === "1234") {
-      user = { username: "student", role: "student" };
-    }
-
-    if (!user) {
-      alert("שם משתמש או סיסמה לא נכונים.");
+    if (!usernameRaw) {
+      alert("צריך לכתוב שם משתמש.");
       playUISound("warn");
       return;
+    }
+
+    let user = null;
+
+    // אדמין יחיד – adir / 1234
+    if (usernameRaw === "adir" && password === "1234") {
+      user = { username: "adir", role: "admin" };
+    } else {
+      // כל שילוב אחר → תלמיד רגיל
+      user = { username: usernameRaw, role: "student" };
     }
 
     appState.currentUser = user;
@@ -2215,7 +2203,7 @@
       playUISound("click");
       alert(
         "מה יש פה:\n\n" +
-        "• התחברות – כתיבת 'תלמיד' כסוג משתמש. הסיסמה לא חשובה.\n" +
+        "• התחברות – כל שם משתמש וסיסמה, נשמרים בדפדפן. adir/1234 נכנס כאדמין.\n" +
         "• בית – כרטיסיות לכל פעולה.\n" +
         "• מורים – רשימה, חיפוש, ניקוד התנהגותי.\n" +
         "• פרופיל מורה – מחמאות/הערות וציון התנהגותי.\n" +
