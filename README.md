@@ -1363,7 +1363,7 @@
 
   // ---------- נתוני דמו ----------
   let teachers = [
-    { id: 1, name: "אורן", subject: "אנגלית" },
+    { id: 1, name: "לאורן", subject: "אנגלית" },
     { id: 2, name: "אורית", subject: "מתמטיקה" },
     { id: 3, name: "רעות", subject: "לשון" },
     { id: 4, name: "אבי", subject: "השכלה כללית" },
