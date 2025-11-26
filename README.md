@@ -1,4 +1,3 @@
-
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
@@ -939,7 +938,7 @@
       <span style="font-size:11px;color:#7f8c8d;">סיכום חכם לפי המשובים שלך</span>
     </div>
     <div class="notif-sub">
-‎      אין פה ספאם, רק תובנות קצרות.
+      אין פה ספאם, רק תובנות קצרות.
     </div>
     <div id="notif-list" class="notif-list"></div>
   </div>
@@ -969,9 +968,8 @@
       <div class="login-wrapper">
         <div class="login-title">התחברות למערכת</div>
         <div class="login-sub">
-‎          אתה יכול לכתוב כל שם משתמש וכל סיסמה – המערכת תשמור אותם במחשב שלך.<br>
-‎          לדוגמה: <b>תלמיד</b> או כל שם אחר שבא לך.<br>
-‎          רק אם תכתוב <b>adir</b> עם סיסמה <b>1234</b> – תיכנס כאדמין.
+          אתה יכול לכתוב כל שם משתמש וכל סיסמה – המערכת תשמור אותם במחשב שלך.<br>
+          לדוגמה: <b>תלמיד</b> או כל שם אחר שבא לך.<br>
         </div>
 
         <div class="form-field">
@@ -985,7 +983,7 @@
         </div>
 
         <button class="btn btn-full btn-green" id="login-button">
-‎          התחברות
+          התחברות
         </button>
       </div>
     </section>
@@ -994,7 +992,7 @@
     <section id="screen-home" class="screen">
       <div class="greeting" id="home-greeting">מה אתה רוצה לעשות היום?</div>
       <div class="sub-greeting" id="home-sub">
-‎        מערכת משוב. לא מושלמת, אבל לפחות היא בצד שלך.
+        מערכת משוב. לא מושלמת, אבל לפחות היא בצד שלך.
       </div>
 
       <div class="tiles-grid" id="home-tiles">
@@ -1091,17 +1089,17 @@
 
       <div class="button-row">
         <button class="btn btn-green" id="btn-profile-compliment">
-‎          👍 הוסף מחמאה
+          👍 הוסף מחמאה
         </button>
         <button class="btn btn-red" id="btn-profile-remark">
-‎          ⚠️ הוסף הערה
+          ⚠️ הוסף הערה
         </button>
       </div>
 
       <h3 style="font-size:15px;margin:10px 0 4px;">משובים אחרונים שכתבת למורה הזה</h3>
       <div id="teacher-feedback-list" class="feedback-list"></div>
       <div id="teacher-feedback-empty" class="feedback-empty">
-‎        אין עדיין משוב. או שהכול מושלם, או שפשוט לא התפנית לכתוב.
+        אין עדיין משוב. או שהכול מושלם, או שפשוט לא התפנית לכתוב.
       </div>
     </section>
 
@@ -1126,12 +1124,12 @@
 
       <div class="form-footer">
         <div class="hint-text">
-‎          אם זה מאוד עצבני, המערכת תציע לך רגע לחשוב לפני השליחה.
+          אם זה מאוד עצבני, המערכת תציע לך רגע לחשוב לפני השליחה.
         </div>
       </div>
 
       <button class="btn btn-full" id="feedback-submit-button">
-‎        שליחת משוב
+        שליחת משוב
       </button>
     </section>
 
@@ -1168,7 +1166,7 @@
             <span id="reports-week-remarks">0</span>
           </div>
           <div class="report-highlight" id="reports-week-summary-text">
-‎            עדיין אין נתונים לשבוע הזה.
+            עדיין אין נתונים לשבוע הזה.
           </div>
         </div>
 
@@ -1176,7 +1174,7 @@
           <div><strong>פעילות אחרונה</strong></div>
           <div id="reports-latest-list" class="feedback-list"></div>
           <div id="reports-empty" class="feedback-empty">
-‎            עדיין אין כלום. או שהכול ורוד, או שפשוט לא נכנסת.
+            עדיין אין כלום. או שהכול ורוד, או שפשוט לא נכנסת.
           </div>
         </div>
       </div>
@@ -1204,10 +1202,10 @@
             <input type="text" id="admin-new-subject" class="text-input" placeholder="מקצוע">
           </div>
           <button class="btn btn-green btn-full" id="admin-add-teacher">
-‎            הוסף מורה
+            הוסף מורה
           </button>
           <div class="admin-note">
-‎            הנתונים נשמרים כרגע רק בדפדפן. מחיקה ידנית מהיסטוריית הדפדפן תמחק גם כאן.
+            הנתונים נשמרים כרגע רק בזיכרון הדפדפן. רענון מוחק הכול.
           </div>
         </div>
 
@@ -1312,49 +1310,98 @@
 </div>
 
 <script>
-‎  // ---------- קבועים ל-localStorage ----------
-  const LS_TEACHERS_KEY = "tf_teachers";
-  const LS_FEEDBACK_KEY = "tf_feedback";
-  const LS_USER_KEY     = "tf_user";
-  const LS_STATS_KEY    = "tf_student_stats";
+  // ---------- פונקציות שמירה וטעינה ----------
+  function saveTeachersToStorage() {
+    try {
+      localStorage.setItem("tf_teachers", JSON.stringify(teachers));
+    } catch (e) {
+      console.error("שגיאה בשמירת המורים:", e);
+    }
+  }
 
-  // teachers & feedback נשמרים ונטענים
-  const defaultTeachers = [
-    { id: 1, name: "לאורן", subject: "אנגלית" },
+  function loadTeachersFromStorage() {
+    try {
+      const raw = localStorage.getItem("tf_teachers");
+      if (raw) {
+        const data = JSON.parse(raw);
+        if (Array.isArray(data) && data.length > 0) {
+          return data;
+        }
+      }
+    } catch (e) {
+      console.error("שגיאה בטעינת המורים:", e);
+    }
+    return null;
+  }
+
+  function saveFeedbackToStorage() {
+    try {
+      localStorage.setItem("tf_feedback", JSON.stringify(feedbackEntries));
+    } catch (e) {
+      console.error("שגיאה בשמירת המשובים:", e);
+    }
+  }
+
+  function loadFeedbackFromStorage() {
+    try {
+      const raw = localStorage.getItem("tf_feedback");
+      if (raw) {
+        const data = JSON.parse(raw);
+        if (Array.isArray(data)) {
+          // המרת תאריכים מסטרינג לאובייקט Date
+          return data.map(entry => ({
+            ...entry,
+            date: new Date(entry.date)
+          }));
+        }
+      }
+    } catch (e) {
+      console.error("שגיאה בטעינת המשובים:", e);
+    }
+    return [];
+  }
+
+  // ---------- נתוני דמו ----------
+  let teachers = [
+    { id: 1, name: "אורן", subject: "אנגלית" },
     { id: 2, name: "אורית", subject: "מתמטיקה" },
-    { id: 3, name: "רעות",  subject: "לשון" },
-    { id: 4, name: "אבי",   subject: "השכלה כללית" },
-    { id: 5, name: "נטע",   subject: "היסטוריה" },
+    { id: 3, name: "רעות", subject: "לשון" },
+    { id: 4, name: "אבי", subject: "השכלה כללית" },
+    { id: 5, name: "נטע", subject: "היסטוריה" },
     { id: 6, name: "מרינה", subject: "תנך" },
-    { id: 7, name: "אור",   subject: "כימיה" },
+    { id: 7, name: "אור", subject: "כימיה" },
     { id: 8, name: "יהודה", subject: "ספורט" }
   ];
 
-  let teachers = [];
+  // משובים בזיכרון
   let feedbackEntries = [];
+
+  // סטטיסטיקת תלמידים ללוח מדרגים
   let studentStats = {};
 
   const quickTagSets = {
     compliment: [
-‎      "מסביר ברור",
-‎      "יחס טוב לתלמידים",
-‎      "שומר על סדר בכיתה",
-‎      "נותן משוב מועיל",
-‎      "יוצר אווירה טובה"
+      "מסביר ברור",
+      "יחס טוב לתלמידים",
+      "שומר על סדר בכיתה",
+      "נותן משוב מועיל",
+      "יוצר אווירה טובה"
     ],
     remark: [
-‎      "הסבר לא ברור",
-‎      "ציון לא הוגן",
-‎      "דיבור לא מכבד",
-‎      "מאחר לשיעור",
-‎      "יותר מדי שיעורי בית"
+      "הסבר לא ברור",
+      "ציון לא הוגן",
+      "דיבור לא מכבד",
+      "מאחר לשיעור",
+      "יותר מדי שיעורי בית"
     ]
   };
 
+  // מילים חריפות לבדיקה בסיסית
   const harshWords = [
-‎    "מטומטם","דפוק","חרא","זבל","סתום","טיפש","מגעיל","אפס","חסרי כבוד","חרא של","מזעזע"
+    "מטומטם","דפוק","חרא","זבל","סתום","טיפש","מגעיל","אפס","חסרי כבוד","חרא של","מזעזע"
   ];
 
+  // ---------- State ----------
   const appState = {
     currentScreen: "login",
     currentUser: null,
@@ -1362,7 +1409,7 @@
     feedbackType: null  // "compliment" | "remark"
   };
 
-  // ---------- Sound ----------
+  // ---------- Sound (Web Audio) ----------
   let audioCtx = null;
   function playUISound(type) {
     try {
@@ -1387,109 +1434,9 @@
       osc.start(now);
       gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
       osc.stop(now + 0.12);
-    } catch (e) {}
-  }
-
-  // ---------- Storage helpers ----------
-  function saveTeachersToStorage() {
-    try {
-      localStorage.setItem(LS_TEACHERS_KEY, JSON.stringify(teachers));
-    } catch (e) {}
-  }
-
-  function loadTeachersFromStorage() {
-    try {
-      const raw = localStorage.getItem(LS_TEACHERS_KEY);
-      if (!raw) {
-        teachers = defaultTeachers.slice();
-        saveTeachersToStorage();
-        return;
-      }
-      const arr = JSON.parse(raw);
-      if (!Array.isArray(arr) || arr.length === 0) {
-        teachers = defaultTeachers.slice();
-        saveTeachersToStorage();
-        return;
-      }
-      teachers = arr;
     } catch (e) {
-      teachers = defaultTeachers.slice();
-      saveTeachersToStorage();
+      // אם הדפדפן מתבאס – מתעלמים
     }
-  }
-
-  function saveFeedbackToStorage() {
-    try {
-      localStorage.setItem(LS_FEEDBACK_KEY, JSON.stringify(feedbackEntries));
-    } catch (e) {}
-  }
-
-  function loadFeedbackFromStorage() {
-    try {
-      const raw = localStorage.getItem(LS_FEEDBACK_KEY);
-      if (!raw) {
-        feedbackEntries = [];
-        return;
-      }
-      const arr = JSON.parse(raw);
-      if (!Array.isArray(arr)) {
-        feedbackEntries = [];
-        return;
-      }
-      feedbackEntries = arr.map(f => ({
-        ...f,
-        date: new Date(f.date)
-      }));
-    } catch (e) {
-      feedbackEntries = [];
-    }
-  }
-
-  function saveStudentStats() {
-    try {
-      localStorage.setItem(LS_STATS_KEY, JSON.stringify(studentStats));
-    } catch (e) {}
-  }
-
-  function loadStudentStats() {
-    try {
-      const raw = localStorage.getItem(LS_STATS_KEY);
-      if (!raw) {
-        studentStats = {};
-        return;
-      }
-      const data = JSON.parse(raw);
-      studentStats = data || {};
-    } catch (e) {
-      studentStats = {};
-    }
-  }
-
-  function saveUserToStorage(user) {
-    try {
-      localStorage.setItem(LS_USER_KEY, JSON.stringify({
-        username: user.username,
-        role: user.role
-      }));
-    } catch (e) {}
-  }
-
-  function loadUserFromStorage() {
-    try {
-      const raw = localStorage.getItem(LS_USER_KEY);
-      if (!raw) return null;
-      const data = JSON.parse(raw);
-      if (!data.username || !data.role) return null;
-      return { username: data.username, role: data.role };
-    } catch (e) {
-      return null;
-    }
-  }
-
-  function clearUserStorage() {
-    try {
-      localStorage.removeItem(LS_USER_KEY);
-    } catch (e) {}
   }
 
   // ---------- Helpers ----------
@@ -1516,7 +1463,7 @@
     const entries = feedbackEntries.filter(f => f.teacherId === id);
     const compliments = entries.filter(f => f.type === "compliment").length;
     const remarks     = entries.filter(f => f.type === "remark").length;
-    const score       = compliments - remarks;
+    const score       = compliments - remarks; // ניקוד התנהגותי
     return { compliments, remarks, score };
   }
 
@@ -1539,14 +1486,6 @@
   function getDisplayNameForUser(user) {
     if (!user) return "תלמיד";
     return user.username;
-  }
-
-  function ensureStudentInStats(user) {
-    const name = getDisplayNameForUser(user);
-    if (!studentStats[name]) {
-      studentStats[name] = { compliments: 0, remarks: 0 };
-      saveStudentStats();
-    }
   }
 
   function updateUserUIForCurrentUser() {
@@ -1578,6 +1517,62 @@
     schoolStatusTile.style.display = appState.currentUser.role === "admin" ? "block" : "none";
 
     ensureStudentInStats(appState.currentUser);
+  }
+
+  function saveUserToStorage(user) {
+    try {
+      localStorage.setItem("tf_user", JSON.stringify({
+        username: user.username,
+        role: user.role
+      }));
+    } catch (e) {}
+  }
+
+  function loadUserFromStorage() {
+    try {
+      const raw = localStorage.getItem("tf_user");
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+
+      if (!data.username || !data.role) return null;
+      return { username: data.username, role: data.role };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function clearUserStorage() {
+    try {
+      localStorage.removeItem("tf_user");
+    } catch (e) {}
+  }
+
+  function loadStudentStats() {
+    try {
+      const raw = localStorage.getItem("tf_student_stats");
+      if (!raw) {
+        studentStats = {};
+        return;
+      }
+      const data = JSON.parse(raw);
+      studentStats = data || {};
+    } catch (e) {
+      studentStats = {};
+    }
+  }
+
+  function saveStudentStats() {
+    try {
+      localStorage.setItem("tf_student_stats", JSON.stringify(studentStats));
+    } catch (e) {}
+  }
+
+  function ensureStudentInStats(user) {
+    const name = getDisplayNameForUser(user);
+    if (!studentStats[name]) {
+      studentStats[name] = { compliments: 0, remarks: 0 };
+      saveStudentStats();
+    }
   }
 
   // ---------- Notifications ----------
@@ -1622,7 +1617,7 @@
 
     if (worstTeacher) {
       notifs.push(
-‎        `למורה ${worstTeacher.teacher.name} יש כרגע ניקוד התנהגותי ${worstTeacher.score}. כנראה שיש שם כמה דברים שלא עובדים לך.`
+        `למורה ${worstTeacher.teacher.name} יש כרגע ניקוד התנהגותי ${worstTeacher.score}. כנראה שיש שם כמה דברים שלא עובדים לך.`
       );
     }
 
@@ -1680,9 +1675,11 @@
 
     let user = null;
 
+    // אדמין יחיד – adir / 1234
     if (usernameRaw === "adir" && password === "1234") {
       user = { username: "adir", role: "admin" };
     } else {
+      // כל שילוב אחר → תלמיד רגיל
       user = { username: usernameRaw, role: "student" };
     }
 
@@ -1703,7 +1700,7 @@
     showScreen("login");
   }
 
-‎  // ---------- בדיקת משוב חריף ----------
+  // ---------- בדיקת משוב חריף ----------
   function isHarshText(text) {
     if (!text) return false;
     const lower = text.toLowerCase();
@@ -1718,9 +1715,9 @@
 
     const label = type === "compliment" ? "מחמאה" : "הערה";
     const msg =
-‎      `הטקסט שכתבת די חריף עבור ${label}.\n\n` +
-‎      `אתה בטוח שאתה רוצה לשלוח את זה ככה?\n` +
-‎      `אם לא – לחץ ביטול ותוכל לערוך.`;
+      `הטקסט שכתבת די חריף עבור ${label}.\n\n` +
+      `אתה בטוח שאתה רוצה לשלוח את זה ככה?\n` +
+      `אם לא – לחץ ביטול ותוכל לערוך.`;
 
     return confirm(msg);
   }
@@ -1730,11 +1727,6 @@
     const container = document.getElementById("teacher-list");
     const searchValue = document.getElementById("teacher-search").value.trim().toLowerCase();
     container.innerHTML = "";
-
-    if (teachers.length === 0) {
-      container.innerHTML = "<div class='feedback-empty'>אין מורים ברשימה.</div>";
-      return;
-    }
 
     const filtered = teachers.filter(t => {
       if (!searchValue) return true;
@@ -1846,12 +1838,12 @@
     const isCompliment = type === "compliment";
 
     titleEl.textContent = isCompliment
-‎      ? `הוספת מחמאה למורה ${teacher.name}`
-‎      : `הוספת הערה על המורה ${teacher.name}`;
+      ? `הוספת מחמאה למורה ${teacher.name}`
+      : `הוספת הערה על המורה ${teacher.name}`;
 
     subtitleEl.textContent = isCompliment
-‎      ? "תכתוב מה היה טוב – הסבר, יחס, תמיכה, כל דבר שעזר."
-‎      : "תשמור על כנות, אבל תשאיר את זה ברור ומכבד.";
+      ? "תכתוב מה היה טוב – הסבר, יחס, תמיכה, כל דבר שעזר."
+      : "תשמור על כנות, אבל תשאיר את זה ברור ומכבד.";
 
     textarea.value = "";
 
@@ -1991,6 +1983,7 @@
           appState.selectedTeacherId = null;
         }
 
+        // שמירה לאחר מחיקה
         saveTeachersToStorage();
         saveFeedbackToStorage();
 
@@ -2100,8 +2093,16 @@
 
   // ---------- Events ----------
   document.addEventListener("DOMContentLoaded", () => {
-    loadTeachersFromStorage();
-    loadFeedbackFromStorage();
+    // טעינת נתונים מהזיכרון המקומי
+    const savedTeachers = loadTeachersFromStorage();
+    if (savedTeachers) {
+      teachers = savedTeachers;
+    } else {
+      // אם אין נתונים שמורים, שמור את המורים הראשוניים
+      saveTeachersToStorage();
+    }
+
+    feedbackEntries = loadFeedbackFromStorage();
     loadStudentStats();
 
     const storedUser = loadUserFromStorage();
@@ -2240,6 +2241,9 @@
         user: userName
       });
 
+      // שמירת המשובים
+      saveFeedbackToStorage();
+
       if (!studentStats[userName]) {
         studentStats[userName] = { compliments: 0, remarks: 0 };
       }
@@ -2249,7 +2253,6 @@
         studentStats[userName].remarks++;
       }
       saveStudentStats();
-      saveFeedbackToStorage();
 
       submitBtn.classList.remove("btn-pulse-success");
       void submitBtn.offsetWidth;
@@ -2258,8 +2261,8 @@
       playUISound("success");
 
       alert(type === "compliment"
-‎        ? `מחמאה נשמרה למורה ${teacher.name}.`
-‎        : `הערה נשמרה למורה ${teacher.name}.`
+        ? `מחמאה נשמרה למורה ${teacher.name}.`
+        : `הערה נשמרה למורה ${teacher.name}.`
       );
 
       updateNotifBadge();
@@ -2269,18 +2272,18 @@
     document.getElementById("help-button").addEventListener("click", () => {
       playUISound("click");
       alert(
-‎        "מה יש פה:\n\n" +
-‎        "• התחברות – כל שם משתמש וסיסמה, נשמרים בדפדפן. adir/1234 נכנס כאדמין.\n" +
-‎        "• בית – כרטיסיות לכל פעולה.\n" +
-‎        "• מורים – רשימה, חיפוש, ניקוד התנהגותי.\n" +
-‎        "• פרופיל מורה – מחמאות/הערות וציון התנהגותי.\n" +
-‎        "• משוב – תגיות מוכנות + טקסט חופשי, עם בדיקה אם הטון חריף מדי.\n" +
-‎        "• דוחות – סיכום כללי + סיכום שבועי.\n" +
-‎        "• לוח מדרגים – מי נותן הכי הרבה משובים במחשב הזה.\n" +
-‎        "• התראות – סיכום חכם של מה שקרה לאחרונה.\n" +
-‎        "• אדמין – הוספת ומחיקת מורים.\n" +
-‎        "• מצב בית ספר – תמונת מצב לפי מורים ומקצועות.\n\n" +
-‎        "הכול נשמר מקומית בדפדפן שלך."
+        "מה יש פה:\n\n" +
+        "• התחברות – כל שם משתמש וסיסמה, נשמרים בדפדפן. adir/1234 נכנס כאדמין.\n" +
+        "• בית – כרטיסיות לכל פעולה.\n" +
+        "• מורים – רשימה, חיפוש, ניקוד התנהגותי.\n" +
+        "• פרופיל מורה – מחמאות/הערות וציון התנהגותי.\n" +
+        "• משוב – תגיות מוכנות + טקסט חופשי, עם בדיקה אם הטון חריף מדי.\n" +
+        "• דוחות – סיכום כללי + סיכום שבועי.\n" +
+        "• לוח מדרגים – מי נותן הכי הרבה משובים במחשב הזה.\n" +
+        "• התראות – סיכום חכם של מה שקרה לאחרונה.\n" +
+        "• אדמין – הוספת ומחיקת מורים.\n" +
+        "• מצב בית ספר – תמונת מצב לפי מורים ומקצועות.\n\n" +
+        "הנתונים נשמרים בזיכרון המקומי של הדפדפן."
       );
     });
 
@@ -2304,9 +2307,11 @@
       const newId = teachers.length ? Math.max(...teachers.map(t => t.id)) + 1 : 1;
       teachers.push({ id: newId, name, subject });
 
+      // שמירת המורים החדשים
+      saveTeachersToStorage();
+
       nameInput.value = "";
       subjectInput.value = "";
-      saveTeachersToStorage();
       renderAdminTeacherList();
       renderTeacherList();
       renderSchoolStatusScreen();
