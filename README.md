@@ -1214,6 +1214,7 @@
         <div class="login-sub">
           אתה יכול לכתוב כל שם משתמש וכל סיסמה – המערכת תשמור אותם במחשב שלך.<br>
           לדוגמה: <b>תלמיד</b> או כל שם אחר שבא לך.<br>
+         
         </div>
 
         <div class="form-field">
@@ -1748,7 +1749,7 @@
     { id: 8, name: "יהודה", subject: "ספורט" }
   ];
 
-  // משובים בזיכרון
+  // משובים בזיכרון - משובים גלובליים שרואים כל המשתמשים
   let feedbackEntries = [];
 
   // סטטיסטיקת תלמידים ללוח מדרגים
@@ -2163,6 +2164,7 @@
     statRemarksEl.textContent = stats.remarks;
     statBehaviorEl.textContent = formatScore(stats.score);
 
+    // מראה את כל המשובים למורה הזה, מכל המשתמשים
     const entries = feedbackEntries
       .filter(f => f.teacherId === teacher.id)
       .sort((a, b) => b.date - a.date);
@@ -2190,7 +2192,7 @@
           ${e.tags.map(tag => `<span class="tag-pill">${tag}</span>`).join("")}
         </div>
         <div class="feedback-meta-line">
-          <span>${typeEmoji} ${typeLabel}</span>
+          <span>${typeEmoji} ${typeLabel} - נכתב על ידי: ${e.user}</span>
           <span>${formatDateShort(e.date)}</span>
         </div>
       `;
@@ -2217,7 +2219,7 @@
       : `הוספת הערה על המורה ${teacher.name}`;
 
     subtitleEl.textContent = isCompliment
-      ? "תכתוב מה היה טוב – הסבר, יחס, תמיכה, כל דבר שעזר."
+      ? "תכתוב מה היה טוב – הסבר, יחס, תמ支持ה, כל דבר שעזר."
       : "תשמור על כנות, אבל תשאיר את זה ברור ומכבד.";
 
     textarea.value = "";
@@ -2243,13 +2245,15 @@
 
   // ---------- Render: Reports ----------
   function renderReportsScreen() {
-    const totalCompliments = feedbackEntries.filter(f => f.type === "compliment").length;
-    const totalRemarks     = feedbackEntries.filter(f => f.type === "remark").length;
+    // הדוחות האישיים - מראה רק את המשובים של המשתמש הנוכחי
+    const userEntries = feedbackEntries.filter(f => f.user === getDisplayNameForUser(appState.currentUser));
+    const totalCompliments = userEntries.filter(f => f.type === "compliment").length;
+    const totalRemarks     = userEntries.filter(f => f.type === "remark").length;
 
     document.getElementById("reports-total-compliments").textContent = totalCompliments;
     document.getElementById("reports-total-remarks").textContent = totalRemarks;
 
-    const weekEntries = getWeeklyEntries();
+    const weekEntries = getWeeklyEntries().filter(f => f.user === getDisplayNameForUser(appState.currentUser));
     const weekCompl = weekEntries.filter(f => f.type === "compliment").length;
     const weekRem   = weekEntries.filter(f => f.type === "remark").length;
 
@@ -2271,7 +2275,7 @@
     const emptyEl = document.getElementById("reports-empty");
     latestContainer.innerHTML = "";
 
-    if (feedbackEntries.length === 0) {
+    if (userEntries.length === 0) {
       emptyEl.style.display = "block";
       latestContainer.style.display = "none";
       return;
@@ -2280,7 +2284,7 @@
     emptyEl.style.display = "none";
     latestContainer.style.display = "flex";
 
-    const latest = [...feedbackEntries].sort((a, b) => b.date - a.date).slice(0, 10);
+    const latest = [...userEntries].sort((a, b) => b.date - a.date).slice(0, 10);
 
     latest.forEach(e => {
       const teacher = getTeacherById(e.teacherId);
@@ -2619,7 +2623,7 @@
         user: userName
       });
 
-      // שמירת המשובים
+      // שמירת המשובים הגלובליים
       saveFeedbackToStorage();
 
       if (!studentStats[userName]) {
@@ -2639,8 +2643,8 @@
       playUISound("success");
 
       alert(type === "compliment"
-        ? `מחמאה נשמרה למורה ${teacher.name}.`
-        : `הערה נשמרה למורה ${teacher.name}.`
+        ? `מחמאה נשמרה למורה ${teacher.name}. כל המשתמשים יראו אותה.`
+        : `הערה נשמרה למורה ${teacher.name}. כל המשתמשים יראו אותה.`
       );
 
       updateNotifBadge();
@@ -2661,7 +2665,8 @@
         "• התראות – סיכום חכם של מה שקרה לאחרונה.\n" +
         "• אדמין – הוספת ומחיקת מורים.\n" +
         "• מצב בית ספר – תמונת מצב לפי מורים ומקצועות.\n\n" +
-        "הנתונים נשמרים בזיכרון המקומי של הדפדפן."
+        "הנתונים נשמרים בזיכרון המקומי של הדפדפן.\n\n" +
+        "חשוב: המשובים הם גלובליים - כל המשתמשים רואים את כל המשובים!"
       );
     });
 
