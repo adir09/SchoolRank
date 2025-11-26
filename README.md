@@ -3,217 +3,170 @@
   <meta charset="UTF-8">
   <title>מערכת משוב למורים</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      --bg: #121212;
-      --bg-alt: #181818;
-      --card-bg: #1f1f1f;
-      --card-alt: #252525;
-      --green-dark: #1f6f4a;
-      --green-light: #27ae60;
-      --red: #e74c3c;
-      --blue: #2980b9;
-      --text-main: #f5f5f5;
-      --text-muted: #999;
-      --border-soft: #333;
-      --shadow-soft: 0 3px 10px rgba(0,0,0,0.6);
-      --radius-card: 12px;
-      --transition-fast: 0.15s ease-out;
+      --bg: #0f172a;
+      --bg-alt: #1e293b;
+      --card-bg: #1e293b;
+      --card-alt: #334155;
+      --green-dark: #059669;
+      --green-light: #10b981;
+      --red: #ef4444;
+      --orange: #f59e0b;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-soft: #475569;
+      --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+      --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+      --radius-card: 16px;
+      --radius-small: 8px;
+      --transition-fast: 0.2s ease-out;
+      --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #1f2933 0, #050505 55%);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
       color: var(--text-main);
+      line-height: 1.6;
+      min-height: 100vh;
       direction: rtl;
     }
 
     .app {
-      max-width: 960px;
+      max-width: 1200px;
       margin: 0 auto;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      background: linear-gradient(to bottom, #151515, #050505);
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
     }
 
     /* Header */
     .app-header {
-      background: linear-gradient(90deg, #0b3d28, #13291b);
+      background: linear-gradient(90deg, #0c4a6e 0%, #075985 100%);
       color: #fff;
-      padding: 10px 16px;
+      padding: 12px 20px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #0f5132;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.7);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       position: sticky;
       top: 0;
-      z-index: 20;
+      z-index: 100;
     }
 
     .app-header-left {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
-    .menu-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.2);
+    .logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #10b981, #059669);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 18px;
-      cursor: pointer;
-      background: rgba(0,0,0,0.4);
-      transition: background var(--transition-fast), transform var(--transition-fast);
-    }
-
-    .menu-icon:hover {
-      background: rgba(0,0,0,0.7);
-      transform: translateY(-1px);
+      color: white;
+      box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
     }
 
     .app-title {
-      font-size: 16px;
-      font-weight: 600;
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #e0f2fe, #bae6fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .app-header-right {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       align-items: center;
     }
 
     .icon-button {
-      width: 32px;
-      height: 32px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.25);
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
       display: inline-flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       font-size: 16px;
-      background: rgba(0,0,0,0.4);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
       position: relative;
-      transition: background var(--transition-fast), transform var(--transition-fast);
+      transition: all var(--transition-fast);
+      color: #e2e8f0;
     }
 
     .icon-button:hover {
-      background: rgba(0,0,0,0.7);
-      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
     }
 
     .notif-badge {
       position: absolute;
-      top: -4px;
-      inset-inline-start: -4px;
-      min-width: 14px;
-      height: 14px;
+      top: -5px;
+      inset-inline-start: -5px;
+      min-width: 18px;
+      height: 18px;
       border-radius: 999px;
-      background: #e74c3c;
+      background: var(--red);
       color: #fff;
-      font-size: 9px;
+      font-size: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0 3px;
-      box-shadow: 0 0 0 2px #0b3d28;
+      padding: 0 4px;
+      box-shadow: 0 0 0 2px var(--bg-alt);
+      font-weight: 700;
     }
 
     .user-chip {
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(0,0,0,0.5);
-      border: 1px solid rgba(255,255,255,0.15);
+      font-size: 13px;
+      padding: 8px 16px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       cursor: pointer;
-      transition: background var(--transition-fast), transform var(--transition-fast);
+      transition: all var(--transition-fast);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .user-chip:hover {
-      background: rgba(0,0,0,0.8);
-      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
     }
 
-    .user-chip span {
-      opacity: 0.9;
-    }
-
-    /* Notifications panel */
-    .notif-panel {
-      position: fixed;
-      top: 56px;
-      inset-inline-end: 16px;
-      width: min(320px, 90vw);
-      max-height: 60vh;
-      background: #181b1e;
-      border-radius: 14px;
-      box-shadow: 0 14px 40px rgba(0,0,0,0.9);
-      border: 1px solid #28323a;
-      padding: 10px 10px 8px;
-      display: flex;
-      flex-direction: column;
-      opacity: 0;
-      transform: translateY(-6px);
-      pointer-events: none;
-      transition: opacity 0.2s ease-out, transform 0.2s ease-out;
-      z-index: 40;
-    }
-
-    .notif-panel.open {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-
-    .notif-header {
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .notif-sub {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-    }
-
-    .notif-list {
-      overflow-y: auto;
-      padding-right: 2px;
-    }
-
-    .notif-item {
-      background: #1f2327;
-      border-radius: 10px;
-      padding: 6px 8px;
-      font-size: 12px;
-      margin-bottom: 6px;
-      border: 1px solid rgba(255,255,255,0.03);
-    }
-
-    .notif-empty {
-      font-size: 11px;
-      color: var(--text-muted);
-      padding: 4px 0;
+    .user-chip i {
+      font-size: 14px;
     }
 
     /* Main content */
     .app-main {
-      padding: 16px;
+      padding: 20px;
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -221,7 +174,7 @@
 
     .screen {
       display: none;
-      animation: fadeIn 0.18s ease-out;
+      animation: fadeIn 0.3s ease-out;
     }
 
     .screen.active {
@@ -229,76 +182,112 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
+      from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
     /* Login */
     .login-wrapper {
-      max-width: 380px;
-      margin: 40px auto;
-      background: radial-gradient(circle at top, #262b2f 0, #111 55%);
-      border-radius: 16px;
-      padding: 20px 18px 18px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-      border: 1px solid #233128;
+      max-width: 440px;
+      margin: 60px auto;
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-wrapper::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #10b981, #3b82f6);
     }
 
     .login-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 4px;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
       text-align: center;
+      background: linear-gradient(90deg, #10b981, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .login-sub {
-      font-size: 12px;
+      font-size: 14px;
       color: var(--text-muted);
       text-align: center;
-      margin-bottom: 16px;
-      line-height: 1.5;
+      margin-bottom: 24px;
+      line-height: 1.6;
     }
 
     .form-field {
-      margin-bottom: 10px;
+      margin-bottom: 16px;
     }
 
     .form-label {
-      font-size: 12px;
-      margin-bottom: 4px;
+      font-size: 14px;
+      margin-bottom: 6px;
       color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .text-input {
       width: 100%;
-      padding: 9px 11px;
-      border-radius: 999px;
+      padding: 12px 16px;
+      border-radius: 12px;
       border: 1px solid var(--border-soft);
-      background: #101010;
+      background: rgba(15, 23, 42, 0.6);
       color: var(--text-main);
-      font-size: 13px;
+      font-size: 15px;
       outline: none;
-      transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+      transition: all var(--transition-fast);
     }
 
     .text-input:focus {
       border-color: var(--green-light);
-      box-shadow: 0 0 0 2px rgba(39,174,96,0.3);
-      background: #121212;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+      background: rgba(15, 23, 42, 0.8);
     }
 
     .btn {
-      border-radius: 999px;
+      border-radius: 12px;
       border: none;
-      padding: 10px 14px;
-      font-size: 14px;
+      padding: 12px 20px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), opacity var(--transition-fast);
+      gap: 8px;
+      transition: all var(--transition-fast);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(rgba(255,255,255,0.1), transparent);
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+    }
+
+    .btn:hover::before {
+      opacity: 1;
     }
 
     .btn-full {
@@ -307,15 +296,58 @@
     }
 
     .btn-green {
-      background: linear-gradient(135deg,#27ae60,#1f8a4b);
+      background: linear-gradient(135deg, #10b981, #059669);
       color: #fff;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.9);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-green:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
     }
 
     .btn-red {
-      background: linear-gradient(135deg,#e74c3c,#c0392b);
+      background: linear-gradient(135deg, #ef4444, #dc2626);
       color: #fff;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.9);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-red:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-blue {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-blue:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-purple {
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+
+    .btn-purple:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+    }
+
+    .btn-orange {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-orange:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
     }
 
     .btn-outline {
@@ -325,114 +357,133 @@
     }
 
     .btn-small {
-      padding: 4px 8px;
-      font-size: 11px;
-      box-shadow: none;
+      padding: 8px 12px;
+      font-size: 13px;
     }
 
     .btn:active {
-      transform: scale(0.97);
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+      transform: scale(0.98);
     }
 
     .btn:disabled {
       opacity: 0.6;
       cursor: default;
-      box-shadow: none;
+      transform: none !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
     }
 
     .btn-pulse-success {
-      animation: pulseSuccess 0.35s ease-out;
+      animation: pulseSuccess 0.5s ease-out;
     }
 
     @keyframes pulseSuccess {
-      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(39,174,96,0.7); }
-      70% { transform: scale(1.02); box-shadow: 0 0 0 12px rgba(39,174,96,0); }
-      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(39,174,96,0); }
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1.02); box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
 
     /* Home */
     .greeting {
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 4px;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, #e0f2fe, #bae6fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .sub-greeting {
-      font-size: 13px;
+      font-size: 16px;
       color: var(--text-muted);
-      margin-bottom: 16px;
+      margin-bottom: 24px;
     }
 
     .tiles-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
     }
 
     .tile {
-      background: var(--card-bg);
+      background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-alt) 100%);
       border-radius: var(--radius-card);
-      padding: 14px 16px;
+      padding: 20px;
       box-shadow: var(--shadow-soft);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       cursor: pointer;
-      transform: translateY(0) scale(1);
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+      transition: all var(--transition-smooth);
       position: relative;
       overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      min-height: 140px;
     }
 
-    .tile::after {
-      content: "";
+    .tile::before {
+      content: '';
       position: absolute;
-      inset: 0;
-      opacity: 0.12;
-      pointer-events: none;
-      transition: opacity var(--transition-fast);
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 4px;
     }
 
-    .tile-primary::after { background: linear-gradient(135deg, #27ae60, #1e8449); }
-    .tile-warn::after    { background: linear-gradient(135deg, #e67e22, #d35400); }
-    .tile-danger::after  { background: linear-gradient(135deg, #c0392b, #e74c3c); }
-    .tile-neutral::after { background: linear-gradient(135deg, #2980b9, #1c4f7a); }
-    .tile-admin::after   { background: linear-gradient(135deg, #8e44ad, #6c3483); }
+    .tile-primary::before { background: linear-gradient(90deg, #10b981, #059669); }
+    .tile-warn::before    { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .tile-danger::before  { background: linear-gradient(90deg, #ef4444, #dc2626); }
+    .tile-neutral::before { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+    .tile-admin::before   { background: linear-gradient(90deg, #8b5cf6, #7c3aed); }
 
     .tile:hover {
-      transform: translateY(-2px) scale(1.01);
-      box-shadow: 0 10px 24px rgba(0,0,0,0.8);
-      background: var(--card-alt);
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-hover);
     }
 
-    .tile:hover::after {
-      opacity: 0.18;
+    .tile-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 12px;
     }
+
+    .tile-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: white;
+    }
+
+    .tile-primary .tile-icon { background: linear-gradient(135deg, #10b981, #059669); }
+    .tile-warn .tile-icon    { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .tile-danger .tile-icon  { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .tile-neutral .tile-icon { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .tile-admin .tile-icon   { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
 
     .tile-title {
-      font-size: 15px;
+      font-size: 18px;
       font-weight: 700;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       color: #fff;
-      position: relative;
-      z-index: 1;
     }
 
     .tile-desc {
-      font-size: 12px;
-      color: rgba(255,255,255,0.82);
-      position: relative;
-      z-index: 1;
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.5;
     }
 
     .tile-footer-note {
-      margin-top: 8px;
-      font-size: 11px;
-      color: rgba(255,255,255,0.65);
-      position: relative;
-      z-index: 1;
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     /* Generic layout */
@@ -440,471 +491,573 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
-      margin-top: 4px;
+      margin-bottom: 20px;
+      margin-top: 10px;
     }
 
     .section-title {
-      font-size: 18px;
-      font-weight: 600;
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #e0f2fe, #bae6fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .back-link {
-      font-size: 13px;
+      font-size: 14px;
       color: var(--green-light);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      transition: color var(--transition-fast), transform var(--transition-fast);
-    }
-
-    .back-link span {
-      font-size: 16px;
+      gap: 6px;
+      transition: all var(--transition-fast);
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(16, 185, 129, 0.1);
     }
 
     .back-link:hover {
       color: #7bed9f;
-      transform: translateY(-1px);
+      transform: translateY(-2px);
+      background: rgba(16, 185, 129, 0.2);
     }
 
     .chip {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      background: #20272b;
-      border-radius: 999px;
-      padding: 4px 8px;
+      gap: 8px;
+      font-size: 13px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 8px 16px;
       color: #c2cbd1;
-      border: 1px solid #324047;
-      margin-top: 2px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 4px;
+      backdrop-filter: blur(10px);
     }
 
     .chip-dot {
-      width: 8px;
-      height: 8px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
     }
 
-    .chip-dot.green { background: #2ecc71; }
-    .chip-dot.red   { background: #e74c3c; }
-    .chip-dot.purple   { background: #9b59b6; }
+    .chip-dot.green { background: #10b981; }
+    .chip-dot.red   { background: #ef4444; }
+    .chip-dot.purple   { background: #8b5cf6; }
+    .chip-dot.blue   { background: #3b82f6; }
+    .chip-dot.orange   { background: #f59e0b; }
 
     /* Search */
     .search-bar {
-      margin-bottom: 10px;
+      margin-bottom: 20px;
+      position: relative;
     }
 
     .search-input {
       width: 100%;
-      padding: 9px 11px;
-      border-radius: 999px;
+      padding: 14px 20px 14px 50px;
+      border-radius: 12px;
       border: 1px solid var(--border-soft);
-      font-size: 14px;
+      font-size: 15px;
       outline: none;
-      background: #111;
+      background: rgba(15, 23, 42, 0.6);
       color: var(--text-main);
-      transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+      transition: all var(--transition-fast);
     }
 
     .search-input:focus {
       border-color: var(--green-light);
-      box-shadow: 0 0 0 2px rgba(39,174,96,0.25);
-      background: #171717;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    .search-icon {
+      position: absolute;
+      top: 50%;
+      right: 16px;
+      transform: translateY(-50%);
+      color: var(--text-muted);
     }
 
     /* Teacher cards */
     .teacher-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 12px;
     }
 
     .teacher-card {
-      background: var(--card-bg);
+      background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-alt) 100%);
       border-radius: var(--radius-card);
-      padding: 10px 12px;
+      padding: 16px 20px;
       box-shadow: var(--shadow-soft);
       display: flex;
       justify-content: space-between;
       align-items: center;
       cursor: pointer;
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
-      border: 1px solid rgba(255,255,255,0.04);
+      transition: all var(--transition-smooth);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .teacher-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, #10b981, #3b82f6);
+      opacity: 0;
+      transition: opacity var(--transition-fast);
     }
 
     .teacher-card:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.8);
-      background: var(--card-alt);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .teacher-card:hover::before {
+      opacity: 1;
     }
 
     .teacher-main {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
     }
 
     .teacher-name {
-      font-size: 14px;
+      font-size: 16px;
       font-weight: 600;
     }
 
     .teacher-subject {
-      font-size: 12px;
+      font-size: 14px;
       color: var(--text-muted);
     }
 
     .teacher-meta {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      gap: 4px;
+      align-items: flex-end;
+      gap: 6px;
     }
 
     .feedback-counts {
       display: flex;
-      gap: 6px;
-      font-size: 11px;
+      gap: 8px;
+      font-size: 12px;
       align-items: center;
     }
 
     .count-pill {
-      padding: 3px 7px;
-      border-radius: 999px;
+      padding: 4px 10px;
+      border-radius: 20px;
       font-weight: 600;
       display: inline-flex;
       align-items: center;
       gap: 4px;
+      font-size: 12px;
     }
 
     .count-pill.pos {
-      background: rgba(39,174,96,0.12);
-      color: #2ecc71;
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
     }
 
     .count-pill.neg {
-      background: rgba(192,57,43,0.12);
-      color: #e74c3c;
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
     }
 
     .meta-tag {
-      font-size: 11px;
+      font-size: 12px;
       color: var(--text-muted);
     }
 
     /* Teacher Profile */
     .stat-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 10px;
-      margin: 10px 0 14px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin: 20px 0 24px;
     }
 
     .stat-card {
-      background: var(--card-bg);
+      background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-alt) 100%);
       border-radius: var(--radius-card);
-      padding: 10px 12px;
+      padding: 20px;
       box-shadow: var(--shadow-soft);
-      border: 1px solid rgba(255,255,255,0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      text-align: center;
+      transition: all var(--transition-fast);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
     }
 
     .stat-label {
-      font-size: 12px;
+      font-size: 14px;
       color: var(--text-muted);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
 
     .stat-value {
-      font-size: 18px;
+      font-size: 32px;
       font-weight: 700;
+      margin-bottom: 4px;
     }
 
+    .stat-compliments .stat-value { color: #10b981; }
+    .stat-remarks .stat-value { color: #ef4444; }
+    .stat-behavior .stat-value { color: #3b82f6; }
+
     .stat-hint {
-      font-size: 11px;
+      font-size: 12px;
       color: var(--text-muted);
-      margin-top: 2px;
     }
 
     .button-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 10px;
-      margin-bottom: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
     }
 
     /* Feedback list */
     .feedback-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-top: 6px;
+      gap: 12px;
+      margin-top: 16px;
     }
 
     .feedback-empty {
-      font-size: 12px;
+      font-size: 14px;
       color: var(--text-muted);
-      margin-top: 4px;
+      margin-top: 20px;
+      text-align: center;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-card);
     }
 
     .feedback-item {
-      background: var(--card-bg);
-      border-radius: 10px;
-      padding: 8px 10px;
+      background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-alt) 100%);
+      border-radius: var(--radius-card);
+      padding: 16px;
       box-shadow: var(--shadow-soft);
-      font-size: 12px;
+      font-size: 14px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      border: 1px solid rgba(255,255,255,0.03);
+      gap: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all var(--transition-fast);
+    }
+
+    .feedback-item:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
     }
 
     .feedback-meta-line {
       display: flex;
       justify-content: space-between;
-      gap: 8px;
-      font-size: 11px;
+      gap: 12px;
+      font-size: 12px;
       color: var(--text-muted);
     }
 
     .feedback-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 4px;
+      gap: 6px;
     }
 
     .tag-pill {
-      padding: 2px 6px;
-      border-radius: 999px;
-      background: #262626;
-      font-size: 10px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      font-size: 11px;
       color: #ddd;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     /* Feedback form */
     .feedback-header {
-      margin-bottom: 10px;
+      margin-bottom: 20px;
+      padding: 20px;
+      background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-alt) 100%);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .feedback-header-title {
-      font-size: 17px;
+      font-size: 20px;
       font-weight: 600;
-      margin-bottom: 2px;
+      margin-bottom: 6px;
     }
 
     .feedback-header-sub {
-      font-size: 12px;
+      font-size: 14px;
       color: var(--text-muted);
     }
 
     .quick-tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      margin: 10px 0;
+      gap: 10px;
+      margin: 20px 0;
     }
 
     .quick-tag {
-      font-size: 11px;
-      padding: 5px 9px;
-      border-radius: 999px;
+      font-size: 13px;
+      padding: 8px 16px;
+      border-radius: 20px;
       border: 1px solid var(--border-soft);
-      background: #111;
+      background: rgba(15, 23, 42, 0.6);
       cursor: pointer;
-      transition: background var(--transition-fast), border var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+      transition: all var(--transition-fast);
     }
 
     .quick-tag:hover {
-      transform: translateY(-1px);
+      transform: translateY(-2px);
     }
 
     .quick-tag.selected-positive {
-      background: rgba(39,174,96,0.2);
-      border-color: var(--green-light);
-      color: #2ecc71;
+      background: rgba(16, 185, 129, 0.2);
+      border-color: #10b981;
+      color: #10b981;
     }
 
     .quick-tag.selected-negative {
-      background: rgba(192,57,43,0.2);
-      border-color: var(--red);
-      color: #e74c3c;
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #ef4444;
     }
 
     .textarea {
       width: 100%;
-      min-height: 90px;
+      min-height: 120px;
       resize: vertical;
-      border-radius: 10px;
+      border-radius: 12px;
       border: 1px solid var(--border-soft);
-      padding: 8px 10px;
-      font-size: 13px;
+      padding: 16px;
+      font-size: 15px;
       outline: none;
-      margin-bottom: 8px;
-      background: #111;
+      margin-bottom: 16px;
+      background: rgba(15, 23, 42, 0.6);
       color: var(--text-main);
-      transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+      transition: all var(--transition-fast);
+      font-family: inherit;
     }
 
     .textarea:focus {
       border-color: var(--green-light);
-      box-shadow: 0 0 0 2px rgba(39,174,96,0.25);
-      background: #171717;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+      background: rgba(15, 23, 42, 0.8);
     }
 
     .form-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
-      margin-top: 4px;
+      gap: 12px;
+      margin-top: 12px;
     }
 
     .hint-text {
-      font-size: 11px;
+      font-size: 13px;
       color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     /* Reports */
     .reports-section {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 16px;
     }
 
     .report-summary-card {
-      background: var(--card-bg);
+      background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-alt) 100%);
       border-radius: var(--radius-card);
-      padding: 10px 12px;
+      padding: 20px;
       box-shadow: var(--shadow-soft);
-      font-size: 13px;
-      border: 1px solid rgba(255,255,255,0.03);
+      font-size: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all var(--transition-fast);
+    }
+
+    .report-summary-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
     }
 
     .report-row {
       display: flex;
       justify-content: space-between;
-      font-size: 12px;
-      margin-top: 4px;
+      font-size: 14px;
+      margin-top: 8px;
       color: var(--text-muted);
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .report-row:last-child {
+      border-bottom: none;
     }
 
     .report-highlight {
-      margin-top: 6px;
-      font-size: 12px;
-      color: #ecf0f1;
+      margin-top: 12px;
+      font-size: 14px;
+      color: #e2e8f0;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
     }
 
     /* Admin screen */
     .admin-grid {
       display: grid;
       grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-      gap: 12px;
+      gap: 20px;
     }
 
     .admin-panel {
-      background: var(--card-bg);
+      background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-alt) 100%);
       border-radius: var(--radius-card);
-      padding: 10px 12px;
+      padding: 20px;
       box-shadow: var(--shadow-soft);
-      border: 1px solid rgba(255,255,255,0.05);
-      font-size: 13px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 14px;
+      transition: all var(--transition-fast);
+    }
+
+    .admin-panel:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
     }
 
     .admin-panel-title {
-      font-size: 14px;
+      font-size: 18px;
       font-weight: 600;
-      margin-bottom: 6px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .admin-form-row {
       display: flex;
-      gap: 8px;
-      margin-bottom: 8px;
+      gap: 12px;
+      margin-bottom: 16px;
     }
 
     .admin-form-row .text-input {
-      font-size: 12px;
-      padding-block: 7px;
+      font-size: 14px;
+      padding-block: 12px;
     }
 
     .admin-note {
-      font-size: 11px;
+      font-size: 12px;
       color: var(--text-muted);
-      margin-top: 4px;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     /* School status */
     .status-table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 6px;
-      font-size: 12px;
+      margin-top: 12px;
+      font-size: 14px;
     }
 
     .status-table th,
     .status-table td {
-      padding: 6px 6px;
+      padding: 10px 12px;
       text-align: right;
-      border-bottom: 1px solid #262626;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .status-table th {
-      font-size: 11px;
-      color: #bdc3c7;
-      background: #191d21;
+      font-size: 13px;
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.05);
       position: sticky;
       top: 0;
       z-index: 1;
+      font-weight: 600;
     }
 
     .status-table td {
-      color: #ecf0f1;
+      color: #e2e8f0;
     }
 
     .status-score-pos {
-      color: #2ecc71;
+      color: #10b981;
+      font-weight: 600;
     }
     .status-score-neg {
-      color: #e74c3c;
+      color: #ef4444;
+      font-weight: 600;
     }
     .status-score-zero {
-      color: #bdc3c7;
+      color: #cbd5e1;
     }
 
     .scroll-card {
-      max-height: 220px;
+      max-height: 300px;
       overflow-y: auto;
-      margin-top: 4px;
+      margin-top: 8px;
+      border-radius: 8px;
     }
 
     /* Leaderboard */
     .leaderboard-table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 6px;
-      font-size: 12px;
+      margin-top: 12px;
+      font-size: 14px;
     }
 
     .leaderboard-table th,
     .leaderboard-table td {
-      padding: 6px 6px;
+      padding: 10px 12px;
       text-align: right;
-      border-bottom: 1px solid #262626;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
     .leaderboard-table th {
-      font-size: 11px;
-      color: #bdc3c7;
-      background: #191d21;
+      font-size: 13px;
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.05);
       position: sticky;
       top: 0;
       z-index: 1;
+      font-weight: 600;
     }
 
     .leaderboard-bar-wrapper {
       width: 100%;
-      background: #111;
+      background: rgba(255, 255, 255, 0.1);
       border-radius: 999px;
       overflow: hidden;
       height: 8px;
@@ -912,20 +1065,106 @@
 
     .leaderboard-bar {
       height: 100%;
-      background: linear-gradient(90deg,#27ae60,#2980b9);
+      background: linear-gradient(90deg, #10b981, #3b82f6);
       border-radius: 999px;
-      transition: width 0.25s ease-out;
+      transition: width 0.5s ease-out;
     }
 
-    @media (max-width: 700px) {
+    /* Notifications panel */
+    .notif-panel {
+      position: fixed;
+      top: 70px;
+      inset-inline-end: 20px;
+      width: min(380px, 90vw);
+      max-height: 70vh;
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+      transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+    }
+
+    .notif-panel.open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .notif-header {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .notif-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .notif-list {
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .notif-item {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 13px;
+      margin-bottom: 8px;
+      border: 1px solid rgba(255,255,255,0.03);
+      transition: all var(--transition-fast);
+    }
+
+    .notif-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .notif-empty {
+      font-size: 13px;
+      color: var(--text-muted);
+      padding: 20px;
+      text-align: center;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
       .admin-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .tiles-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .button-row {
+        grid-template-columns: 1fr;
+      }
+      
+      .stat-row {
         grid-template-columns: 1fr;
       }
     }
 
     @media (max-width: 480px) {
-      .app-header { padding-inline: 10px; }
-      .app-main  { padding-inline: 12px; }
+      .app-header { padding-inline: 16px; }
+      .app-main  { padding-inline: 16px; }
+      
+      .admin-form-row {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
@@ -935,7 +1174,7 @@
   <div id="notif-panel" class="notif-panel" aria-hidden="true">
     <div class="notif-header">
       <span>התראות</span>
-      <span style="font-size:11px;color:#7f8c8d;">סיכום חכם לפי המשובים שלך</span>
+      <span style="font-size:12px;color:#94a3b8;">סיכום חכם לפי המשובים שלך</span>
     </div>
     <div class="notif-sub">
       אין פה ספאם, רק תובנות קצרות.
@@ -946,18 +1185,23 @@
   <!-- Top Bar -->
   <header class="app-header">
     <div class="app-header-left">
-      <div class="menu-icon" title="תפריט">≡</div>
+      <div class="logo">
+        <i class="fas fa-chalkboard-teacher"></i>
+      </div>
       <div class="app-title">מערכת משוב למורים</div>
     </div>
     <div class="app-header-right">
       <div class="icon-button" title="התראות" id="notif-button" aria-label="התראות">
-        🔔
+        <i class="fas fa-bell"></i>
         <span id="notif-badge" class="notif-badge" style="display:none;"></span>
       </div>
       <div class="user-chip" id="user-chip" title="לחץ להתנתקות">
+        <i class="fas fa-user"></i>
         <span>לא מחובר</span>
       </div>
-      <div class="icon-button" title="עזרה" id="help-button" aria-label="עזרה">?</div>
+      <div class="icon-button" title="עזרה" id="help-button" aria-label="עזרה">
+        <i class="fas fa-question"></i>
+      </div>
     </div>
   </header>
 
@@ -973,17 +1217,24 @@
         </div>
 
         <div class="form-field">
-          <div class="form-label">שם משתמש</div>
+          <div class="form-label">
+            <i class="fas fa-user"></i>
+            <span>שם משתמש</span>
+          </div>
           <input type="text" id="login-username" class="text-input" placeholder="לדוגמה: תלמיד">
         </div>
 
         <div class="form-field">
-          <div class="form-label">סיסמה</div>
+          <div class="form-label">
+            <i class="fas fa-lock"></i>
+            <span>סיסמה</span>
+          </div>
           <input type="password" id="login-password" class="text-input" placeholder="אפשר כל דבר">
         </div>
 
         <button class="btn btn-full btn-green" id="login-button">
-          התחברות
+          <i class="fas fa-sign-in-alt"></i>
+          <span>התחברות</span>
         </button>
       </div>
     </section>
@@ -997,45 +1248,115 @@
 
       <div class="tiles-grid" id="home-tiles">
         <div class="tile tile-primary" data-action="view-teachers">
-          <div class="tile-title">צפייה במורים</div>
-          <div class="tile-desc">לעבור על כל המורים, לראות מי זוכה בנקודות.</div>
-          <div class="tile-footer-note">הצגה לפי שם, מקצוע ומשובים.</div>
+          <div class="tile-header">
+            <div>
+              <div class="tile-title">צפייה במורים</div>
+              <div class="tile-desc">לעבור על כל המורים, לראות מי זוכה בנקודות.</div>
+            </div>
+            <div class="tile-icon">
+              <i class="fas fa-users"></i>
+            </div>
+          </div>
+          <div class="tile-footer-note">
+            <i class="fas fa-info-circle"></i>
+            <span>הצגה לפי שם, מקצוע ומשובים.</span>
+          </div>
         </div>
 
         <div class="tile tile-primary" data-action="quick-compliment">
-          <div class="tile-title">הוספת מחמאה</div>
-          <div class="tile-desc">הסביר ברור, היה נחמד, היה אנושי – מגיע לו.</div>
-          <div class="tile-footer-note">בחירת מורה והוספת מחמאה.</div>
+          <div class="tile-header">
+            <div>
+              <div class="tile-title">הוספת מחמאה</div>
+              <div class="tile-desc">הסביר ברור, היה נחמד, היה אנושי – מגיע לו.</div>
+            </div>
+            <div class="tile-icon">
+              <i class="fas fa-heart"></i>
+            </div>
+          </div>
+          <div class="tile-footer-note">
+            <i class="fas fa-info-circle"></i>
+            <span>בחירת מורה והוספת מחמאה.</span>
+          </div>
         </div>
 
         <div class="tile tile-danger" data-action="quick-remark">
-          <div class="tile-title">הוספת הערה</div>
-          <div class="tile-desc">לא ברור, לא הוגן, או פשוט לא. כותבים את זה.</div>
-          <div class="tile-footer-note">בחירת מורה והוספת הערה.</div>
+          <div class="tile-header">
+            <div>
+              <div class="tile-title">הוספת הערה</div>
+              <div class="tile-desc">לא ברור, לא הוגן, או פשוט לא. כותבים את זה.</div>
+            </div>
+            <div class="tile-icon">
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+          </div>
+          <div class="tile-footer-note">
+            <i class="fas fa-info-circle"></i>
+            <span>בחירת מורה והוספת הערה.</span>
+          </div>
         </div>
 
         <div class="tile tile-neutral" data-action="view-reports">
-          <div class="tile-title">הדוחות שלי</div>
-          <div class="tile-desc">כל מה שכבר כתבת – טוב ורע – במקום אחד.</div>
-          <div class="tile-footer-note">כולל סיכום שבועי קצר.</div>
+          <div class="tile-header">
+            <div>
+              <div class="tile-title">הדוחות שלי</div>
+              <div class="tile-desc">כל מה שכבר כתבת – טוב ורע – במקום אחד.</div>
+            </div>
+            <div class="tile-icon">
+              <i class="fas fa-chart-bar"></i>
+            </div>
+          </div>
+          <div class="tile-footer-note">
+            <i class="fas fa-info-circle"></i>
+            <span>כולל סיכום שבועי קצר.</span>
+          </div>
         </div>
 
         <div class="tile tile-neutral" data-action="leaderboard">
-          <div class="tile-title">לוח מדרגים</div>
-          <div class="tile-desc">מי הכי פעיל במתן משובים.</div>
-          <div class="tile-footer-note">נשמר מקומית בדפדפן.</div>
+          <div class="tile-header">
+            <div>
+              <div class="tile-title">לוח מדרגים</div>
+              <div class="tile-desc">מי הכי פעיל במתן משובים.</div>
+            </div>
+            <div class="tile-icon">
+              <i class="fas fa-trophy"></i>
+            </div>
+          </div>
+          <div class="tile-footer-note">
+            <i class="fas fa-info-circle"></i>
+            <span>נשמר מקומית בדפדפן.</span>
+          </div>
         </div>
 
         <div class="tile tile-admin" data-action="admin" id="admin-tile" style="display:none;">
-          <div class="tile-title">ניהול מורים (אדמין)</div>
-          <div class="tile-desc">הוספת מורים, מחיקה וניהול רשימה.</div>
-          <div class="tile-footer-note">זמין רק למשתמש אדמין.</div>
+          <div class="tile-header">
+            <div>
+              <div class="tile-title">ניהול מורים (אדמין)</div>
+              <div class="tile-desc">הוספת מורים, מחיקה וניהול רשימה.</div>
+            </div>
+            <div class="tile-icon">
+              <i class="fas fa-cog"></i>
+            </div>
+          </div>
+          <div class="tile-footer-note">
+            <i class="fas fa-info-circle"></i>
+            <span>זמין רק למשתמש אדמין.</span>
+          </div>
         </div>
 
         <div class="tile tile-admin" data-action="school-status" id="school-status-tile" style="display:none;">
-          <div class="tile-title">מצב בית ספר</div>
-          <div class="tile-desc">תמונה כללית: מורים, מקצועות וניקוד התנהגותי.</div>
-          <div class="tile-footer-note">רק לאדמין, בצד ה"גדולים".</div>
+          <div class="tile-header">
+            <div>
+              <div class="tile-title">מצב בית ספר</div>
+              <div class="tile-desc">תמונה כללית: מורים, מקצועות וניקוד התנהגותי.</div>
+            </div>
+            <div class="tile-icon">
+              <i class="fas fa-school"></i>
+            </div>
+          </div>
+          <div class="tile-footer-note">
+            <i class="fas fa-info-circle"></i>
+            <span>רק לאדמין, בצד ה"גדולים".</span>
+          </div>
         </div>
       </div>
     </section>
@@ -1045,12 +1366,16 @@
       <div class="section-header">
         <div class="section-title">רשימת מורים</div>
         <div class="back-link" data-back-to="home">
-          <span>←</span> חזרה
+          <i class="fas fa-arrow-right"></i>
+          <span>חזרה</span>
         </div>
       </div>
       <div class="search-bar">
         <input id="teacher-search" class="search-input" type="text"
                placeholder="חיפוש לפי שם או מקצוע...">
+        <div class="search-icon">
+          <i class="fas fa-search"></i>
+        </div>
       </div>
       <div class="teacher-list" id="teacher-list"></div>
     </section>
@@ -1060,7 +1385,8 @@
       <div class="section-header">
         <div class="section-title" id="teacher-profile-name">שם מורה</div>
         <div class="back-link" data-back-to="teachers">
-          <span>←</span> חזרה
+          <i class="fas fa-arrow-right"></i>
+          <span>חזרה</span>
         </div>
       </div>
 
@@ -1070,18 +1396,27 @@
       </div>
 
       <div class="stat-row">
-        <div class="stat-card">
-          <div class="stat-label">סה״כ מחמאות</div>
+        <div class="stat-card stat-compliments">
+          <div class="stat-label">
+            <i class="fas fa-heart"></i>
+            <span>סה״כ מחמאות</span>
+          </div>
           <div class="stat-value" id="stat-compliments">0</div>
           <div class="stat-hint">כמה פעמים באמת היה טוב.</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">סה״כ הערות</div>
+        <div class="stat-card stat-remarks">
+          <div class="stat-label">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>סה״כ הערות</span>
+          </div>
           <div class="stat-value" id="stat-remarks">0</div>
           <div class="stat-hint">פחות הרגעים הזוהרים.</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">ניקוד התנהגותי</div>
+        <div class="stat-card stat-behavior">
+          <div class="stat-label">
+            <i class="fas fa-star"></i>
+            <span>ניקוד התנהגותי</span>
+          </div>
           <div class="stat-value" id="stat-behavior">0</div>
           <div class="stat-hint">מחמאות פחות הערות. כמה המאזן חיובי.</div>
         </div>
@@ -1089,17 +1424,23 @@
 
       <div class="button-row">
         <button class="btn btn-green" id="btn-profile-compliment">
-          👍 הוסף מחמאה
+          <i class="fas fa-heart"></i>
+          <span>הוסף מחמאה</span>
         </button>
         <button class="btn btn-red" id="btn-profile-remark">
-          ⚠️ הוסף הערה
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>הוסף הערה</span>
         </button>
       </div>
 
-      <h3 style="font-size:15px;margin:10px 0 4px;">משובים אחרונים שכתבת למורה הזה</h3>
+      <h3 style="font-size:18px;margin:20px 0 12px;display:flex;align-items:center;gap:8px;">
+        <i class="fas fa-history"></i>
+        <span>משובים אחרונים שכתבת למורה הזה</span>
+      </h3>
       <div id="teacher-feedback-list" class="feedback-list"></div>
       <div id="teacher-feedback-empty" class="feedback-empty">
-        אין עדיין משוב. או שהכול מושלם, או שפשוט לא התפנית לכתוב.
+        <i class="fas fa-inbox"></i>
+        <div>אין עדיין משוב. או שהכול מושלם, או שפשוט לא התפנית לכתוב.</div>
       </div>
     </section>
 
@@ -1108,7 +1449,8 @@
       <div class="section-header">
         <div class="section-title">הוספת משוב</div>
         <div class="back-link" id="feedback-back">
-          <span>←</span> חזרה
+          <i class="fas fa-arrow-right"></i>
+          <span>חזרה</span>
         </div>
       </div>
 
@@ -1124,12 +1466,14 @@
 
       <div class="form-footer">
         <div class="hint-text">
-          אם זה מאוד עצבני, המערכת תציע לך רגע לחשוב לפני השליחה.
+          <i class="fas fa-lightbulb"></i>
+          <span>אם זה מאוד עצבני, המערכת תציע לך רגע לחשוב לפני השליחה.</span>
         </div>
       </div>
 
       <button class="btn btn-full" id="feedback-submit-button">
-        שליחת משוב
+        <i class="fas fa-paper-plane"></i>
+        <span>שליחת משוב</span>
       </button>
     </section>
 
@@ -1138,13 +1482,17 @@
       <div class="section-header">
         <div class="section-title">הדוחות שלי</div>
         <div class="back-link" data-back-to="home">
-          <span>←</span> חזרה
+          <i class="fas fa-arrow-right"></i>
+          <span>חזרה</span>
         </div>
       </div>
 
       <div class="reports-section">
         <div class="report-summary-card">
-          <div><strong>סיכום כללי</strong></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <i class="fas fa-chart-pie"></i>
+            <strong>סיכום כללי</strong>
+          </div>
           <div class="report-row">
             <span>סה״כ מחמאות</span>
             <span id="reports-total-compliments">0</span>
@@ -1156,7 +1504,10 @@
         </div>
 
         <div class="report-summary-card">
-          <div><strong>סיכום שבועי</strong></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <i class="fas fa-calendar-week"></i>
+            <strong>סיכום שבועי</strong>
+          </div>
           <div class="report-row">
             <span>מחמאות בשבוע האחרון</span>
             <span id="reports-week-compliments">0</span>
@@ -1171,10 +1522,14 @@
         </div>
 
         <div class="report-summary-card">
-          <div><strong>פעילות אחרונה</strong></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <i class="fas fa-clock"></i>
+            <strong>פעילות אחרונה</strong>
+          </div>
           <div id="reports-latest-list" class="feedback-list"></div>
           <div id="reports-empty" class="feedback-empty">
-            עדיין אין כלום. או שהכול ורוד, או שפשוט לא נכנסת.
+            <i class="fas fa-inbox"></i>
+            <div>עדיין אין כלום. או שהכול ורוד, או שפשוט לא נכנסת.</div>
           </div>
         </div>
       </div>
@@ -1185,7 +1540,8 @@
       <div class="section-header">
         <div class="section-title">ניהול מורים</div>
         <div class="back-link" data-back-to="home">
-          <span>←</span> חזרה
+          <i class="fas fa-arrow-right"></i>
+          <span>חזרה</span>
         </div>
       </div>
 
@@ -1194,23 +1550,31 @@
         <span>מצב אדמין – רק אתה רואה את זה</span>
       </div>
 
-      <div class="admin-grid" style="margin-top:10px;">
+      <div class="admin-grid" style="margin-top:20px;">
         <div class="admin-panel">
-          <div class="admin-panel-title">הוספת מורה חדש</div>
+          <div class="admin-panel-title">
+            <i class="fas fa-user-plus"></i>
+            <span>הוספת מורה חדש</span>
+          </div>
           <div class="admin-form-row">
             <input type="text" id="admin-new-name" class="text-input" placeholder="שם המורה">
             <input type="text" id="admin-new-subject" class="text-input" placeholder="מקצוע">
           </div>
           <button class="btn btn-green btn-full" id="admin-add-teacher">
-            הוסף מורה
+            <i class="fas fa-plus"></i>
+            <span>הוסף מורה</span>
           </button>
           <div class="admin-note">
-            הנתונים נשמרים כרגע רק בזיכרון הדפדפן. רענון מוחק הכול.
+            <i class="fas fa-info-circle"></i>
+            <span>הנתונים נשמרים כרגע רק בזיכרון הדפדפן. רענון מוחק הכול.</span>
           </div>
         </div>
 
         <div class="admin-panel">
-          <div class="admin-panel-title">רשימת מורים (אדמין)</div>
+          <div class="admin-panel-title">
+            <i class="fas fa-list"></i>
+            <span>רשימת מורים (אדמין)</span>
+          </div>
           <div id="admin-teacher-list" class="teacher-list"></div>
         </div>
       </div>
@@ -1221,7 +1585,8 @@
       <div class="section-header">
         <div class="section-title">מצב בית ספר</div>
         <div class="back-link" data-back-to="home">
-          <span>←</span> חזרה
+          <i class="fas fa-arrow-right"></i>
+          <span>חזרה</span>
         </div>
       </div>
 
@@ -1230,9 +1595,12 @@
         <span>תמונה כללית – מורים, מקצועות וניקוד התנהגותי</span>
       </div>
 
-      <div class="reports-section" style="margin-top:10px;">
+      <div class="reports-section" style="margin-top:20px;">
         <div class="report-summary-card">
-          <div><strong>סיכום לפי מורים</strong></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <i class="fas fa-chalkboard-teacher"></i>
+            <strong>סיכום לפי מורים</strong>
+          </div>
           <div class="scroll-card">
             <table class="status-table" aria-label="טבלת סיכום מורים">
               <thead>
@@ -1251,7 +1619,10 @@
         </div>
 
         <div class="report-summary-card">
-          <div><strong>סיכום לפי מקצועות</strong></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <i class="fas fa-book"></i>
+            <strong>סיכום לפי מקצועות</strong>
+          </div>
           <div class="scroll-card">
             <table class="status-table" aria-label="טבלת סיכום מקצועות">
               <thead>
@@ -1275,7 +1646,8 @@
       <div class="section-header">
         <div class="section-title">לוח מדרגים</div>
         <div class="back-link" data-back-to="home">
-          <span>←</span> חזרה
+          <i class="fas fa-arrow-right"></i>
+          <span>חזרה</span>
         </div>
       </div>
 
@@ -1284,9 +1656,12 @@
         <span>מי נותן הכי הרבה משובים (נשמר רק במחשב הזה)</span>
       </div>
 
-      <div class="reports-section" style="margin-top:10px;">
+      <div class="reports-section" style="margin-top:20px;">
         <div class="report-summary-card">
-          <div><strong>טבלת תלמידים</strong></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <i class="fas fa-trophy"></i>
+            <strong>טבלת תלמידים</strong>
+          </div>
           <div class="scroll-card">
             <table class="leaderboard-table" aria-label="לוח מדרגים">
               <thead>
@@ -1363,7 +1738,7 @@
 
   // ---------- נתוני דמו ----------
   let teachers = [
-    { id: 1, name: "לאורן", subject: "אנגלית" },
+    { id: 1, name: "אורן", subject: "אנגלית" },
     { id: 2, name: "אורית", subject: "מתמטיקה" },
     { id: 3, name: "רעות", subject: "לשון" },
     { id: 4, name: "אבי", subject: "השכלה כללית" },
@@ -1494,14 +1869,14 @@
     const schoolStatusTile = document.getElementById("school-status-tile");
 
     if (!appState.currentUser) {
-      chip.innerHTML = "<span>לא מחובר</span>";
+      chip.innerHTML = '<i class="fas fa-user"></i><span>לא מחובר</span>';
       adminTile.style.display = "none";
       schoolStatusTile.style.display = "none";
       return;
     }
 
     const roleLabel = appState.currentUser.role === "admin" ? "אדמין" : "תלמיד";
-    chip.innerHTML = `<span>מחובר: ${roleLabel}</span>`;
+    chip.innerHTML = `<i class="fas fa-user"></i><span>מחובר: ${roleLabel}</span>`;
 
     const greeting = document.getElementById("home-greeting");
     greeting.textContent = "מה אתה רוצה לעשות היום?";
@@ -1735,7 +2110,7 @@
     });
 
     if (filtered.length === 0) {
-      container.innerHTML = "<div class='feedback-empty'>לא נמצאו מורים. או שטעית בהקלדה, או שמשרד החינוך מחק את כולם.</div>";
+      container.innerHTML = "<div class='feedback-empty'><i class='fas fa-search'></i><div>לא נמצאו מורים. או שטעית בהקלדה, או שמשרד החינוך מחק את כולם.</div></div>";
       return;
     }
 
@@ -1751,8 +2126,8 @@
         </div>
         <div class="teacher-meta">
           <div class="feedback-counts">
-            <div class="count-pill pos">👍 ${stats.compliments}</div>
-            <div class="count-pill neg">⚠️ ${stats.remarks}</div>
+            <div class="count-pill pos"><i class="fas fa-heart"></i> ${stats.compliments}</div>
+            <div class="count-pill neg"><i class="fas fa-exclamation-triangle"></i> ${stats.remarks}</div>
           </div>
           <div class="meta-tag">ניקוד התנהגותי: ${formatScore(stats.score)}</div>
           <div class="meta-tag">לחיצה לפתיחת פרופיל</div>
@@ -1935,7 +2310,7 @@
     container.innerHTML = "";
 
     if (teachers.length === 0) {
-      container.innerHTML = "<div class='feedback-empty'>אין מורים ברשימה. מצב אוטופי.</div>";
+      container.innerHTML = "<div class='feedback-empty'><i class='fas fa-users'></i><div>אין מורים ברשימה. מצב אוטופי.</div></div>";
       return;
     }
 
@@ -1951,10 +2326,13 @@
         </div>
         <div class="teacher-meta">
           <div class="feedback-counts">
-            <div class="count-pill pos">👍 ${stats.compliments}</div>
-            <div class="count-pill neg">⚠️ ${stats.remarks}</div>
+            <div class="count-pill pos"><i class="fas fa-heart"></i> ${stats.compliments}</div>
+            <div class="count-pill neg"><i class="fas fa-exclamation-triangle"></i> ${stats.remarks}</div>
           </div>
-          <button class="btn btn-red btn-small" data-delete-id="${t.id}">מחיקת מורה</button>
+          <button class="btn btn-red btn-small" data-delete-id="${t.id}">
+            <i class="fas fa-trash"></i>
+            <span>מחיקת מורה</span>
+          </button>
         </div>
       `;
       container.appendChild(card);
@@ -2063,7 +2441,7 @@
     });
 
     if (entries.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" style="font-size:12px;color:#bbb;">אין עדיין נתונים. תתחיל לכתוב משובים ואז נבנה טבלה.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="font-size:14px;color:#94a3b8;padding:20px;text-align:center;"><i class="fas fa-trophy"></i> אין עדיין נתונים. תתחיל לכתוב משובים ואז נבנה טבלה.</td></tr>`;
       return;
     }
 
