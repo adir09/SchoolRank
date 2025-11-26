@@ -1229,7 +1229,6 @@
         <div class="login-sub">
           אתה יכול לכתוב כל שם משתמש וכל סיסמה – המערכת תשמור אותם במחשב שלך.<br>
           לדוגמה: <b>תלמיד</b> או כל שם אחר שבא לך.<br>
-          
         </div>
 
         <div class="form-field">
@@ -1255,8 +1254,8 @@
         
         <div style="margin-top: 16px; padding: 12px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.3);">
           <div style="font-size: 12px; color: #93c5fd; display: flex; align-items: center; gap: 6px;">
-            <i class="fas fa-cloud"></i>
-            <span>המערכת מחוברת לשרת - כל המשובים נשמרים ונראים לכל המשתמשים!</span>
+            <i class="fas fa-database"></i>
+            <span>המערכת שומרת נתונים בדפדפן שלך - עובד גם בלי אינטרנט!</span>
           </div>
         </div>
       </div>
@@ -1589,7 +1588,7 @@
           </button>
           <div class="admin-note">
             <i class="fas fa-info-circle"></i>
-            <span>הנתונים נשמרים בשרת ונראים לכל המשתמשים.</span>
+            <span>הנתונים נשמרים בדפדפן שלך.</span>
           </div>
         </div>
 
@@ -1708,69 +1707,72 @@
 </div>
 
 <script>
-  // ---------- הגדרות JSONBin ----------
-  const JSONBIN_BASE_URL = 'https://api.jsonbin.io/v3/b';
-  const JSONBIN_MASTER_KEY = '$2a$10$Qtw.8XGZJR6Q6Z9Q8Q8Q8e'; // מפתח ציבורי - לא לדאוג, זה רק לקריאה
-  const BIN_ID = '67a0b8a2acd3cb34a2879c0a'; // ID של ה-bin שלנו
+  // ---------- הגדרות אחסון ----------
+  const STORAGE_KEYS = {
+    TEACHERS: 'teacher_feedback_teachers',
+    FEEDBACK: 'teacher_feedback_entries',
+    STUDENT_STATS: 'teacher_feedback_student_stats'
+  };
 
-  // ---------- פונקציות שמירה וטעינה מהשרת ----------
-  async function loadDataFromServer() {
+  // ---------- פונקציות שמירה וטעינה מ-LocalStorage ----------
+  function loadDataFromStorage() {
+    console.log('🔄 טוען נתונים מה-LocalStorage...');
+    
     try {
-      console.log('🔄 טוען נתונים מהשרת...');
-      const response = await fetch(`${JSONBIN_BASE_URL}/${BIN_ID}/latest`, {
-        method: 'GET',
-        headers: {
-          'X-Master-Key': JSONBIN_MASTER_KEY,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('שגיאה בטעינת נתונים מהשרת');
-      }
-
-      const data = await response.json();
-      console.log('✅ נתונים נטענו מהשרת:', data.record);
+      const teachers = JSON.parse(localStorage.getItem(STORAGE_KEYS.TEACHERS)) || [
+        { id: 1, name: "אורן", subject: "אנגלית" },
+        { id: 2, name: "אורית", subject: "מתמטיקה" },
+        { id: 3, name: "רעות", subject: "לשון" },
+        { id: 4, name: "אבי", subject: "השכלה כללית" },
+        { id: 5, name: "נטע", subject: "היסטוריה" },
+        { id: 6, name: "מרינה", subject: "תנך" },
+        { id: 7, name: "אור", subject: "כימיה" },
+        { id: 8, name: "יהודה", subject: "ספורט" }
+      ];
       
-      return data.record || {
-        teachers: [],
-        feedback: [],
-        studentStats: {}
-      };
+      const feedbackEntries = JSON.parse(localStorage.getItem(STORAGE_KEYS.FEEDBACK)) || [];
+      const studentStats = JSON.parse(localStorage.getItem(STORAGE_KEYS.STUDENT_STATS)) || {};
+
+      console.log('✅ נתונים נטענו בהצלחה:', {
+        teachers: teachers.length,
+        feedbackEntries: feedbackEntries.length,
+        studentStats: Object.keys(studentStats).length
+      });
+      
+      return { teachers, feedbackEntries, studentStats };
     } catch (error) {
       console.error('❌ שגיאה בטעינת נתונים:', error);
       // אם יש שגיאה, מחזירים נתוני ברירת מחדל
       return {
-        teachers: [],
-        feedback: [],
+        teachers: [
+          { id: 1, name: "אורן", subject: "אנגלית" },
+          { id: 2, name: "אורית", subject: "מתמטיקה" },
+          { id: 3, name: "רעות", subject: "לשון" },
+          { id: 4, name: "אבי", subject: "השכלה כללית" },
+          { id: 5, name: "נטע", subject: "היסטוריה" },
+          { id: 6, name: "מרינה", subject: "תנך" },
+          { id: 7, name: "אור", subject: "כימיה" },
+          { id: 8, name: "יהודה", subject: "ספורט" }
+        ],
+        feedbackEntries: [],
         studentStats: {}
       };
     }
   }
 
-  async function saveDataToServer(data) {
+  function saveDataToStorage(data) {
     try {
-      console.log('💾 שומר נתונים לשרת...', data);
-      const response = await fetch(`${JSONBIN_BASE_URL}/${BIN_ID}`, {
-        method: 'PUT',
-        headers: {
-          'X-Master-Key': JSONBIN_MASTER_KEY,
-          'Content-Type': 'application/json',
-          'X-Bin-Versioning': 'false'
-        },
-        body: JSON.stringify(data)
-      });
-
-      if (!response.ok) {
-        throw new Error('שגיאה בשמירת נתונים לשרת');
-      }
-
-      const result = await response.json();
-      console.log('✅ נתונים נשמרו בהצלחה:', result);
+      console.log('💾 שומר נתונים ב-LocalStorage...', data);
+      
+      localStorage.setItem(STORAGE_KEYS.TEACHERS, JSON.stringify(data.teachers));
+      localStorage.setItem(STORAGE_KEYS.FEEDBACK, JSON.stringify(data.feedbackEntries));
+      localStorage.setItem(STORAGE_KEYS.STUDENT_STATS, JSON.stringify(data.studentStats));
+      
+      console.log('✅ נתונים נשמרו בהצלחה ב-LocalStorage');
       return true;
     } catch (error) {
       console.error('❌ שגיאה בשמירת נתונים:', error);
-      alert('שגיאה בשמירת נתונים לשרת. הנתונים לא נשמרו.');
+      alert('שגיאה בשמירת נתונים. הנתונים לא נשמרו.');
       return false;
     }
   }
@@ -2142,7 +2144,7 @@
     // מראה את כל המשובים למורה הזה, מכל המשתמשים
     const entries = feedbackEntries
       .filter(f => f.teacherId === teacher.id)
-      .sort((a, b) => b.date - a.date);
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
 
     listEl.innerHTML = "";
     if (entries.length === 0) {
@@ -2451,46 +2453,36 @@
   async function saveAllData() {
     const data = {
       teachers,
-      feedback: feedbackEntries,
+      feedbackEntries,
       studentStats
     };
-    return await saveDataToServer(data);
+    return saveDataToStorage(data);
   }
 
   // ---------- Events ----------
   document.addEventListener("DOMContentLoaded", async () => {
-    // הצגת הודעת טעינה
+    // טעינת נתונים מה-LocalStorage
     const loginButton = document.getElementById("login-button");
     const originalLoginText = loginButton.innerHTML;
     
-    // טעינת נתונים מהשרת
     loginButton.innerHTML = '<div class="loading"></div> טוען נתונים...';
     loginButton.disabled = true;
 
     try {
-      const data = await loadDataFromServer();
-      teachers = data.teachers.length > 0 ? data.teachers : [
-        { id: 1, name: "אורן", subject: "אנגלית" },
-        { id: 2, name: "אורית", subject: "מתמטיקה" },
-        { id: 3, name: "רעות", subject: "לשון" },
-        { id: 4, name: "אבי", subject: "השכלה כללית" },
-        { id: 5, name: "נטע", subject: "היסטוריה" },
-        { id: 6, name: "מרינה", subject: "תנך" },
-        { id: 7, name: "אור", subject: "כימיה" },
-        { id: 8, name: "יהודה", subject: "ספורט" }
-      ];
-      
-      feedbackEntries = data.feedback || [];
-      studentStats = data.studentStats || {};
+      const data = loadDataFromStorage();
+      teachers = data.teachers;
+      feedbackEntries = data.feedbackEntries;
+      studentStats = data.studentStats;
 
-      // אם אין מורים, שמור את המורים הראשוניים
-      if (data.teachers.length === 0) {
-        await saveAllData();
-      }
+      console.log('✅ נתונים נטענו בהצלחה:', {
+        teachers: teachers.length,
+        feedbackEntries: feedbackEntries.length,
+        studentStats: Object.keys(studentStats).length
+      });
 
     } catch (error) {
       console.error('שגיאה בטעינת נתונים:', error);
-      alert('שגיאה בטעינת נתונים מהשרת. המערכת תעבוד עם נתונים מקומיים.');
+      alert('שגיאה בטעינת נתונים. המערכת תעבוד עם נתונים חדשים.');
     } finally {
       loginButton.innerHTML = originalLoginText;
       loginButton.disabled = false;
@@ -2633,7 +2625,7 @@
         studentStats[userName].remarks++;
       }
 
-      // שמירה לשרת
+      // שמירה ל-LocalStorage
       const originalText = submitBtn.innerHTML;
       submitBtn.innerHTML = '<div class="loading"></div> שומר...';
       submitBtn.disabled = true;
@@ -2651,8 +2643,8 @@
         playUISound("success");
 
         alert(type === "compliment"
-          ? `מחמאה נשמרה למורה ${teacher.name}. כל המשתמשים יראו אותה!`
-          : `הערה נשמרה למורה ${teacher.name}. כל המשתמשים יראו אותה!`
+          ? `מחמאה נשמרה למורה ${teacher.name}.`
+          : `הערה נשמרה למורה ${teacher.name}.`
         );
 
         updateNotifBadge();
@@ -2674,7 +2666,7 @@
         "• התראות – סיכום חכם של מה שקרה לאחרונה.\n" +
         "• אדמין – הוספת ומחיקת מורים.\n" +
         "• מצב בית ספר – תמונת מצב לפי מורים ומקצועות.\n\n" +
-        "🚀 חשוב: המשובים נשמרים בשרת ונראים לכל המשתמשים!"
+        "💾 חשוב: המשובים נשמרים בדפדפן שלך - עובד גם בלי אינטרנט!"
       );
     });
 
@@ -2698,7 +2690,7 @@
       const newId = teachers.length ? Math.max(...teachers.map(t => t.id)) + 1 : 1;
       teachers.push({ id: newId, name, subject });
 
-      // שמירת המורים החדשים לשרת
+      // שמירת המורים החדשים
       const success = await saveAllData();
 
       if (success) {
@@ -2708,7 +2700,7 @@
         renderTeacherList();
         renderSchoolStatusScreen();
         playUISound("success");
-        alert("המורה נוסף לרשימה ונראה לכל המשתמשים!");
+        alert("המורה נוסף לרשימה!");
       }
     });
 
