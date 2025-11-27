@@ -1,4 +1,5 @@
-
+```html
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
@@ -6,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* CSS מקוצר - כולל רק את החלקים החיוניים */
+    /* CSS מקוצר - כולל את כל החלקים החיוניים */
     :root {
       --bg: #0f172a;
       --bg-alt: #1e293b;
@@ -51,7 +52,6 @@
       display: flex;
       flex-direction: column;
       background: rgba(15, 23, 42, 0.8);
-      backdrop-filter: blur(10px);
     }
 
     .app-header {
@@ -278,6 +278,20 @@
       transform: translateY(-2px);
     }
 
+    .btn-blue {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+    }
+
+    .btn-blue:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-small {
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+
     .btn:disabled {
       opacity: 0.6;
       cursor: default;
@@ -393,6 +407,19 @@
     .back-link:hover {
       color: #7bed9f;
       transform: translateY(-2px);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 8px 16px;
+      color: #c2cbd1;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 4px;
     }
 
     .search-bar {
@@ -736,6 +763,115 @@
       padding: 20px;
       text-align: center;
     }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .admin-panel {
+      background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-alt) 100%);
+      border-radius: var(--radius-card);
+      padding: 20px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .admin-panel-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .admin-form-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .admin-note {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .reports-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .report-summary-card {
+      background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-alt) 100%);
+      border-radius: var(--radius-card);
+      padding: 20px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .report-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin-top: 8px;
+      color: var(--text-muted);
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .report-highlight {
+      margin-top: 12px;
+      font-size: 14px;
+      color: #e2e8f0;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    .leaderboard-table th,
+    .leaderboard-table td {
+      padding: 10px 12px;
+      text-align: right;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .leaderboard-table th {
+      font-size: 13px;
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.05);
+      position: sticky;
+      top: 0;
+      font-weight: 600;
+    }
+
+    .leaderboard-bar-wrapper {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+      height: 8px;
+    }
+
+    .leaderboard-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #3b82f6);
+      border-radius: 999px;
+    }
   </style>
 </head>
 <body>
@@ -973,6 +1109,149 @@
       </button>
     </section>
 
+    <!-- Screen: Reports -->
+    <section id="screen-reports" class="screen">
+      <div class="section-header">
+        <div class="section-title">הדוחות שלי</div>
+        <div class="back-link" data-back-to="home">
+          <i class="fas fa-arrow-right"></i>
+          <span>חזרה</span>
+        </div>
+      </div>
+
+      <div class="reports-section">
+        <div class="report-summary-card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <i class="fas fa-chart-pie"></i>
+            <strong>סיכום כללי</strong>
+          </div>
+          <div class="report-row">
+            <span>סה״כ מחמאות</span>
+            <span id="reports-total-compliments">0</span>
+          </div>
+          <div class="report-row">
+            <span>סה״כ הערות</span>
+            <span id="reports-total-remarks">0</span>
+          </div>
+        </div>
+
+        <div class="report-summary-card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <i class="fas fa-calendar-week"></i>
+            <strong>סיכום שבועי</strong>
+          </div>
+          <div class="report-row">
+            <span>מחמאות בשבוע האחרון</span>
+            <span id="reports-week-compliments">0</span>
+          </div>
+          <div class="report-row">
+            <span>הערות בשבוע האחרון</span>
+            <span id="reports-week-remarks">0</span>
+          </div>
+          <div class="report-highlight" id="reports-week-summary-text">
+            עדיין אין נתונים לשבוע הזה.
+          </div>
+        </div>
+
+        <div class="report-summary-card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <i class="fas fa-clock"></i>
+            <strong>פעילות אחרונה</strong>
+          </div>
+          <div id="reports-latest-list" class="feedback-list"></div>
+          <div id="reports-empty" class="feedback-empty">
+            <i class="fas fa-inbox"></i>
+            <div>עדיין אין משובים.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen: Leaderboard -->
+    <section id="screen-leaderboard" class="screen">
+      <div class="section-header">
+        <div class="section-title">לוח מדרגים</div>
+        <div class="back-link" data-back-to="home">
+          <i class="fas fa-arrow-right"></i>
+          <span>חזרה</span>
+        </div>
+      </div>
+
+      <div class="chip">
+        <i class="fas fa-trophy"></i>
+        <span>מי נותן הכי הרבה משובים</span>
+      </div>
+
+      <div class="reports-section" style="margin-top:20px;">
+        <div class="report-summary-card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <i class="fas fa-users"></i>
+            <strong>טבלת תלמידים</strong>
+          </div>
+          <div>
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>שם משתמש</th>
+                  <th>מחמאות</th>
+                  <th>הערות</th>
+                  <th>סה״כ</th>
+                  <th>פעילות</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen: Admin -->
+    <section id="screen-admin" class="screen">
+      <div class="section-header">
+        <div class="section-title">ניהול מורים</div>
+        <div class="back-link" data-back-to="home">
+          <i class="fas fa-arrow-right"></i>
+          <span>חזרה</span>
+        </div>
+      </div>
+
+      <div class="chip">
+        <i class="fas fa-shield-alt"></i>
+        <span>מצב אדמין – רק אתה רואה את זה</span>
+      </div>
+
+      <div class="admin-grid">
+        <div class="admin-panel">
+          <div class="admin-panel-title">
+            <i class="fas fa-user-plus"></i>
+            <span>הוספת מורה חדש</span>
+          </div>
+          <div class="admin-form-row">
+            <input type="text" id="admin-new-name" class="text-input" placeholder="שם המורה">
+            <input type="text" id="admin-new-subject" class="text-input" placeholder="מקצוע">
+          </div>
+          <button class="btn btn-green btn-full" id="admin-add-teacher">
+            <i class="fas fa-plus"></i>
+            <span>הוסף מורה</span>
+          </button>
+          <div class="admin-note">
+            <i class="fas fa-info-circle"></i>
+            <span>הנתונים נשמרים בשרת ונראים לכל המשתמשים.</span>
+          </div>
+        </div>
+
+        <div class="admin-panel">
+          <div class="admin-panel-title">
+            <i class="fas fa-list"></i>
+            <span>רשימת מורים (אדמין)</span>
+          </div>
+          <div id="admin-teacher-list" class="teacher-list"></div>
+        </div>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -1016,7 +1295,9 @@
         teachers = data.record?.teachers || [
           { id: 1, name: "אורן", subject: "אנגלית" },
           { id: 2, name: "אורית", subject: "מתמטיקה" },
-          { id: 3, name: "רעות", subject: "לשון" }
+          { id: 3, name: "רעות", subject: "לשון" },
+          { id: 4, name: "אבי", subject: "השכלה כללית" },
+          { id: 5, name: "נטע", subject: "היסטוריה" }
         ];
         feedbackEntries = data.record?.feedback || [];
         studentStats = data.record?.studentStats || {};
@@ -1027,7 +1308,9 @@
       teachers = [
         { id: 1, name: "אורן", subject: "אנגלית" },
         { id: 2, name: "אורית", subject: "מתמטיקה" },
-        { id: 3, name: "רעות", subject: "לשון" }
+        { id: 3, name: "רעות", subject: "לשון" },
+        { id: 4, name: "אבי", subject: "השכלה כללית" },
+        { id: 5, name: "נטע", subject: "היסטוריה" }
       ];
       feedbackEntries = [];
       studentStats = {};
@@ -1079,6 +1362,9 @@
     if (name === "teachers") renderTeacherList();
     if (name === "teacher-profile") renderTeacherProfile();
     if (name === "feedback") renderFeedbackScreen();
+    if (name === "reports") renderReportsScreen();
+    if (name === "leaderboard") renderLeaderboardScreen();
+    if (name === "admin") renderAdminScreen();
   }
 
   function getTeacherById(id) {
@@ -1095,6 +1381,10 @@
 
   function getDisplayNameForUser(user) {
     return user?.username || "תלמיד";
+  }
+
+  function formatDateShort(date) {
+    return new Date(date).toLocaleDateString("he-IL");
   }
 
   // ---------- Login ----------
@@ -1161,6 +1451,7 @@
             <div class="count-pill pos"><i class="fas fa-heart"></i> ${stats.compliments}</div>
             <div class="count-pill neg"><i class="fas fa-exclamation-triangle"></i> ${stats.remarks}</div>
           </div>
+          <div style="font-size:12px;color:#94a3b8;">ניקוד: ${stats.score > 0 ? '+' : ''}${stats.score}</div>
         </div>
       `;
       card.addEventListener("click", () => {
@@ -1180,7 +1471,7 @@
     const stats = getTeacherStats(teacher.id);
     document.getElementById("stat-compliments").textContent = stats.compliments;
     document.getElementById("stat-remarks").textContent = stats.remarks;
-    document.getElementById("stat-behavior").textContent = stats.score;
+    document.getElementById("stat-behavior").textContent = stats.score > 0 ? '+' + stats.score : stats.score;
 
     const entries = feedbackEntries
       .filter(f => f.teacherId === teacher.id)
@@ -1210,7 +1501,7 @@
         </div>
         <div class="feedback-meta-line">
           <span>${e.type === "compliment" ? "👍 מחמאה" : "⚠️ הערה"} - ${e.user}</span>
-          <span>${new Date(e.date).toLocaleDateString("he-IL")}</span>
+          <span>${formatDateShort(e.date)}</span>
         </div>
       `;
       listEl.appendChild(item);
@@ -1253,6 +1544,157 @@
     document.getElementById("feedback-text").value = "";
   }
 
+  function renderReportsScreen() {
+    const userEntries = feedbackEntries.filter(f => f.user === getDisplayNameForUser(appState.currentUser));
+    const totalCompliments = userEntries.filter(f => f.type === "compliment").length;
+    const totalRemarks = userEntries.filter(f => f.type === "remark").length;
+
+    document.getElementById("reports-total-compliments").textContent = totalCompliments;
+    document.getElementById("reports-total-remarks").textContent = totalRemarks;
+
+    // נתונים שבועיים
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const weekEntries = userEntries.filter(f => new Date(f.date) >= weekAgo);
+    const weekCompliments = weekEntries.filter(f => f.type === "compliment").length;
+    const weekRemarks = weekEntries.filter(f => f.type === "remark").length;
+
+    document.getElementById("reports-week-compliments").textContent = weekCompliments;
+    document.getElementById("reports-week-remarks").textContent = weekRemarks;
+
+    const weekSummary = document.getElementById("reports-week-summary-text");
+    if (weekEntries.length === 0) {
+      weekSummary.textContent = "אין נתונים לשבוע הזה.";
+    } else if (weekCompliments > weekRemarks) {
+      weekSummary.textContent = "שבוע חיובי! יותר מחמאות מהערות.";
+    } else {
+      weekSummary.textContent = "שבוע ביקורתי. יותר הערות ממחמאות.";
+    }
+
+    // פעילות אחרונה
+    const latestContainer = document.getElementById("reports-latest-list");
+    const emptyEl = document.getElementById("reports-empty");
+    
+    latestContainer.innerHTML = "";
+    
+    if (userEntries.length === 0) {
+      emptyEl.style.display = "block";
+      latestContainer.style.display = "none";
+      return;
+    }
+
+    emptyEl.style.display = "none";
+    latestContainer.style.display = "flex";
+
+    const latest = userEntries
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 5);
+
+    latest.forEach(e => {
+      const teacher = getTeacherById(e.teacherId);
+      const item = document.createElement("div");
+      item.className = "feedback-item";
+      item.innerHTML = `
+        <div>${e.text || "<i>אין טקסט</i>"}</div>
+        <div class="feedback-tags">
+          ${e.tags.map(tag => `<span class="tag-pill">${tag}</span>`).join("")}
+        </div>
+        <div class="feedback-meta-line">
+          <span>${e.type === "compliment" ? "👍" : "⚠️"} ${teacher?.name || "מורה"}</span>
+          <span>${formatDateShort(e.date)}</span>
+        </div>
+      `;
+      latestContainer.appendChild(item);
+    });
+  }
+
+  function renderLeaderboardScreen() {
+    const tbody = document.getElementById("leaderboard-body");
+    tbody.innerHTML = "";
+
+    const entries = Object.keys(studentStats).map(name => {
+      const stats = studentStats[name];
+      const total = stats.compliments + stats.remarks;
+      return { name, ...stats, total };
+    }).sort((a, b) => b.total - a.total);
+
+    if (entries.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align:center;padding:20px;color:#94a3b8;">
+            <i class="fas fa-trophy"></i> אין עדיין נתונים
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    const maxTotal = Math.max(...entries.map(e => e.total));
+
+    entries.forEach((e, index) => {
+      const widthPercent = Math.max(5, (e.total / maxTotal) * 100);
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${e.name}</td>
+        <td>${e.compliments}</td>
+        <td>${e.remarks}</td>
+        <td>${e.total}</td>
+        <td>
+          <div class="leaderboard-bar-wrapper">
+            <div class="leaderboard-bar" style="width:${widthPercent}%"></div>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderAdminScreen() {
+    const container = document.getElementById("admin-teacher-list");
+    container.innerHTML = "";
+
+    if (teachers.length === 0) {
+      container.innerHTML = "<div class='feedback-empty'>אין מורים ברשימה.</div>";
+      return;
+    }
+
+    teachers.forEach(t => {
+      const stats = getTeacherStats(t.id);
+      const card = document.createElement("div");
+      card.className = "teacher-card";
+      card.innerHTML = `
+        <div class="teacher-main">
+          <div class="teacher-name">${t.name}</div>
+          <div class="teacher-subject">${t.subject}</div>
+          <div style="font-size:12px;color:#94a3b8;">משובים: ${stats.compliments + stats.remarks}</div>
+        </div>
+        <div class="teacher-meta">
+          <button class="btn btn-red btn-small" data-delete-id="${t.id}">
+            <i class="fas fa-trash"></i>
+            <span>מחיקה</span>
+          </button>
+        </div>
+      `;
+      
+      const deleteBtn = card.querySelector("button[data-delete-id]");
+      deleteBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        if (confirm(`למחוק את המורה ${t.name}? כל המשובים עליו יימחקו.`)) {
+          // מחיקת המורה
+          teachers = teachers.filter(teacher => teacher.id !== t.id);
+          // מחיקת המשובים הקשורים
+          feedbackEntries = feedbackEntries.filter(f => f.teacherId !== t.id);
+          
+          await saveAllData();
+          renderAdminScreen();
+          renderTeacherList();
+        }
+      });
+      
+      container.appendChild(card);
+    });
+  }
+
   // ---------- Event Listeners ----------
   document.addEventListener("DOMContentLoaded", async () => {
     // טעינת נתונים
@@ -1284,12 +1726,12 @@
           appState.feedbackType = "remark";
           showScreen("teachers");
         } else if (action === "view-reports") {
-          alert("מסך הדוחות - בפיתוח");
+          showScreen("reports");
         } else if (action === "leaderboard") {
-          alert("לוח מדרגים - בפיתוח");
+          showScreen("leaderboard");
         } else if (action === "admin") {
           if (appState.currentUser?.role === "admin") {
-            alert("מסך אדמין - בפיתוח");
+            showScreen("admin");
           } else {
             alert("רק אדמין יכול להיכנס לכאן.");
           }
@@ -1383,6 +1825,34 @@
       }
     });
 
+    // Admin - Add teacher
+    document.getElementById("admin-add-teacher").addEventListener("click", async () => {
+      const nameInput = document.getElementById("admin-new-name");
+      const subjectInput = document.getElementById("admin-new-subject");
+      const name = nameInput.value.trim();
+      const subject = subjectInput.value.trim();
+
+      if (!name || !subject) {
+        alert("צריך למלא גם שם וגם מקצוע.");
+        return;
+      }
+
+      const newId = teachers.length > 0 ? Math.max(...teachers.map(t => t.id)) + 1 : 1;
+      teachers.push({ id: newId, name, subject });
+
+      const success = await saveAllData();
+      
+      if (success) {
+        nameInput.value = "";
+        subjectInput.value = "";
+        renderAdminScreen();
+        renderTeacherList();
+        alert("המורה נוסף בהצלחה!");
+      } else {
+        alert("הייתה בעיה בשמירה, אבל המורה נוסף מקומית.");
+      }
+    });
+
     // Help button
     document.getElementById("help-button").addEventListener("click", () => {
       alert("מערכת משוב למורים\n\n• התחברות עם כל שם משתמש\n• adir/1234 לאדמין\n• כל המשובים נשמרים בשרת ונראים לכולם");
@@ -1397,3 +1867,4 @@
 </script>
 </body>
 </html>
+```
