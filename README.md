@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -1867,4 +1867,3 @@
 </script>
 </body>
 </html>
-```
