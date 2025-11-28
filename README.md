@@ -841,24 +841,205 @@
       border-radius: 999px;
     }
 
+    .feedback-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
     .delete-feedback-btn {
-      background: rgba(239, 68, 68, 0.1);
+      background: rgba(239, 68, 68, 0.2);
       color: #ef4444;
       border: 1px solid rgba(239, 68, 68, 0.3);
-      padding: 4px 8px;
       border-radius: 6px;
+      padding: 4px 8px;
       font-size: 11px;
       cursor: pointer;
       transition: all 0.2s;
     }
 
     .delete-feedback-btn:hover {
+      background: rgba(239, 68, 68, 0.3);
+    }
+
+    /* אנימציות חדשות */
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes checkmark {
+      0% {
+        transform: scale(0);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.2);
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .feedback-toast {
+      position: fixed;
+      top: 100px;
+      right: 50%;
+      transform: translateX(50%);
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 10000;
+      animation: slideInUp 0.5s ease-out;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .feedback-toast.fade-out {
+      animation: fadeOut 0.5s ease-out forwards;
+    }
+
+    .feedback-toast.compliment {
+      border-left: 4px solid #10b981;
+    }
+
+    .feedback-toast.remark {
+      border-left: 4px solid #ef4444;
+    }
+
+    .toast-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      animation: checkmark 0.6s ease-out;
+    }
+
+    .toast-icon.compliment {
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+    }
+
+    .toast-icon.remark {
       background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .toast-message {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .pulse-animation {
+      animation: pulse 0.6s ease-in-out;
+    }
+
+    .shake-animation {
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .floating-particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .particle.heart {
+      background: #ef4444;
+      animation: floatUp 1.5s ease-out forwards;
+    }
+
+    .particle.star {
+      background: #f59e0b;
+      animation: floatUp 2s ease-out forwards;
+    }
+
+    .particle.sparkle {
+      background: #3b82f6;
+      animation: floatUp 1.8s ease-out forwards;
+    }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100px) rotate(180deg);
+        opacity: 0;
+      }
     }
   </style>
 </head>
 <body>
 <div class="app">
+  <!-- Floating Particles Container -->
+  <div id="floating-particles" class="floating-particles"></div>
+
   <!-- Notifications panel -->
   <div id="notif-panel" class="notif-panel" aria-hidden="true">
     <div class="notif-header">
@@ -1232,21 +1413,22 @@
           </div>
           <div id="admin-teacher-list" class="teacher-list"></div>
         </div>
+      </div>
 
-        <div class="admin-panel" style="grid-column: 1 / -1;">
-          <div class="admin-panel-title">
-            <i class="fas fa-comments"></i>
-            <span>ניהול משובים (אדמין)</span>
-          </div>
-          <div class="search-bar">
-            <input id="admin-feedback-search" class="search-input" type="text" placeholder="חיפוש משובים...">
-            <div class="search-icon"><i class="fas fa-search"></i></div>
-          </div>
-          <div id="admin-feedback-list" class="feedback-list"></div>
-          <div id="admin-feedback-empty" class="feedback-empty">
-            <i class="fas fa-inbox"></i>
-            <div>אין משובים.</div>
-          </div>
+      <!-- New Admin Section: Manage Feedback -->
+      <div class="admin-panel" style="margin-top: 20px;">
+        <div class="admin-panel-title">
+          <i class="fas fa-comments"></i>
+          <span>ניהול משובים</span>
+        </div>
+        <div class="search-bar">
+          <input id="admin-feedback-search" class="search-input" type="text" placeholder="חיפוש משובים...">
+          <div class="search-icon"><i class="fas fa-search"></i></div>
+        </div>
+        <div id="admin-feedback-list" class="feedback-list"></div>
+        <div id="admin-feedback-empty" class="feedback-empty">
+          <i class="fas fa-inbox"></i>
+          <div>אין משובים.</div>
         </div>
       </div>
     </section>
@@ -1300,6 +1482,92 @@
 
   function deleteCookie(name) {
     document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+  }
+
+  // ---------- Animation Functions ----------
+  function showFeedbackAnimation(type, teacherName) {
+    // Create toast notification
+    const toast = document.createElement('div');
+    toast.className = `feedback-toast ${type}`;
+    
+    const iconClass = type === 'compliment' ? 'fas fa-heart' : 'fas fa-exclamation-triangle';
+    const title = type === 'compliment' ? 'מחמאה נשלחה!' : 'הערה נשלחה';
+    const message = type === 'compliment' 
+      ? `המחמאה למורה ${teacherName} נשמרה בהצלחה`
+      : `ההערה למורה ${teacherName} נרשמה במערכת`;
+    
+    toast.innerHTML = `
+      <div class="toast-icon ${type}">
+        <i class="${iconClass}"></i>
+      </div>
+      <div class="toast-content">
+        <div class="toast-title">${title}</div>
+        <div class="toast-message">${message}</div>
+      </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Add pulse animation to the submit button
+    const submitBtn = document.getElementById('feedback-submit-button');
+    if (submitBtn) {
+      submitBtn.classList.add('pulse-animation');
+      setTimeout(() => {
+        submitBtn.classList.remove('pulse-animation');
+      }, 600);
+    }
+    
+    // Create floating particles for compliments
+    if (type === 'compliment') {
+      createFloatingParticles();
+    }
+    
+    // Remove toast after 3 seconds
+    setTimeout(() => {
+      toast.classList.add('fade-out');
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 500);
+    }, 3000);
+  }
+  
+  function createFloatingParticles() {
+    const container = document.getElementById('floating-particles');
+    const types = ['heart', 'star', 'sparkle'];
+    
+    // Create 15 particles
+    for (let i = 0; i < 15; i++) {
+      setTimeout(() => {
+        const particle = document.createElement('div');
+        const type = types[Math.floor(Math.random() * types.length)];
+        
+        particle.className = `particle ${type}`;
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `${80 + Math.random() * 20}%`;
+        particle.style.animationDelay = `${Math.random() * 0.5}s`;
+        
+        container.appendChild(particle);
+        
+        // Remove particle after animation
+        setTimeout(() => {
+          if (particle.parentNode) {
+            particle.parentNode.removeChild(particle);
+          }
+        }, 2000);
+      }, i * 100);
+    }
+  }
+  
+  function showErrorAnimation() {
+    const submitBtn = document.getElementById('feedback-submit-button');
+    if (submitBtn) {
+      submitBtn.classList.add('shake-animation');
+      setTimeout(() => {
+        submitBtn.classList.remove('shake-animation');
+      }, 500);
+    }
   }
 
   // ---------- פונקציות שמירה וטעינה ----------
@@ -1395,46 +1663,9 @@
         .eq('id', feedbackId);
 
       if (error) throw error;
-
-      // עדכן סטטיסטיקות - צריך להוריד את הספירה
-      const feedback = feedbackEntries.find(f => f.id === feedbackId);
-      if (feedback) {
-        await updateStudentStatsAfterDelete(feedback.user_name, feedback.type);
-      }
-
       return true;
     } catch (error) {
       console.error('❌ שגיאה במחיקת משוב:', error);
-      return false;
-    }
-  }
-
-  async function updateStudentStatsAfterDelete(userName, type) {
-    try {
-      const { data: existingStat, error: checkError } = await supabase
-        .from('student_stats')
-        .select('*')
-        .eq('user_name', userName)
-        .single();
-
-      if (checkError) throw checkError;
-
-      if (existingStat) {
-        const updateData = type === 'compliment' 
-          ? { compliments: Math.max(0, existingStat.compliments - 1) }
-          : { remarks: Math.max(0, existingStat.remarks - 1) };
-
-        const { error: updateError } = await supabase
-          .from('student_stats')
-          .update(updateData)
-          .eq('user_name', userName);
-
-        if (updateError) throw updateError;
-      }
-
-      return true;
-    } catch (error) {
-      console.error('❌ שגיאה בעדכון סטטיסטיקות אחרי מחיקה:', error);
       return false;
     }
   }
@@ -1735,6 +1966,13 @@
     entries.slice(0, 10).forEach(e => {
       const item = document.createElement("div");
       item.className = "feedback-item";
+      
+      // אם המשתמש הוא אדמין, הוסף כפתור מחיקה
+      const deleteButton = appState.currentUser?.role === "admin" ? 
+        `<button class="delete-feedback-btn" data-feedback-id="${e.id}">
+          <i class="fas fa-trash"></i> מחק
+        </button>` : '';
+      
       item.innerHTML = `
         <div>${e.text || "<i>אין טקסט</i>"}</div>
         <div class="feedback-tags">
@@ -1744,7 +1982,25 @@
           <span>${e.type === "compliment" ? "👍 מחמאה" : "⚠️ הערה"} - ${e.user_name}</span>
           <span>${formatDateShort(e.created_at)}</span>
         </div>
+        ${deleteButton ? `<div class="feedback-actions">${deleteButton}</div>` : ''}
       `;
+      
+      // הוסף מאזין לכפתור המחיקה אם קיים
+      if (appState.currentUser?.role === "admin") {
+        const deleteBtn = item.querySelector('.delete-feedback-btn');
+        deleteBtn.addEventListener('click', async (event) => {
+          event.stopPropagation();
+          const feedbackId = parseInt(deleteBtn.dataset.feedbackId);
+          if (confirm('למחוק את המשוב?')) {
+            const success = await deleteFeedback(feedbackId);
+            if (success) {
+              await loadData();
+              renderTeacherProfile();
+            }
+          }
+        });
+      }
+      
       listEl.appendChild(item);
     });
   }
@@ -1935,70 +2191,68 @@
       container.appendChild(card);
     });
 
-    // רינדור רשימת המשובים למחיקה
+    // Render feedback management section
     renderAdminFeedbackList();
   }
 
   function renderAdminFeedbackList() {
     const container = document.getElementById("admin-feedback-list");
-    const emptyEl = document.getElementById("admin-feedback-empty");
-    const searchValue = document.getElementById("admin-feedback-search").value.trim().toLowerCase();
+    const searchValue = document.getElementById("admin-feedback-search")?.value.trim().toLowerCase() || '';
     
-    let filtered = feedbackEntries;
-    
-    if (searchValue) {
-      filtered = feedbackEntries.filter(f => 
-        f.text?.toLowerCase().includes(searchValue) ||
-        f.user_name?.toLowerCase().includes(searchValue) ||
-        f.tags?.some(tag => tag.toLowerCase().includes(searchValue))
-      );
-    }
+    const filtered = feedbackEntries.filter(f => {
+      if (!searchValue) return true;
+      const teacher = getTeacherById(f.teacher_id);
+      const teacherName = teacher ? teacher.name.toLowerCase() : '';
+      const userName = f.user_name.toLowerCase();
+      const text = f.text ? f.text.toLowerCase() : '';
+      
+      return teacherName.includes(searchValue) || 
+             userName.includes(searchValue) || 
+             text.includes(searchValue);
+    });
 
     container.innerHTML = "";
 
     if (filtered.length === 0) {
-      emptyEl.style.display = "block";
+      document.getElementById("admin-feedback-empty").style.display = "block";
       container.style.display = "none";
       return;
     }
 
-    emptyEl.style.display = "none";
+    document.getElementById("admin-feedback-empty").style.display = "none";
     container.style.display = "flex";
 
-    filtered.slice(0, 20).forEach(f => {
-      const teacher = getTeacherById(f.teacher_id);
+    filtered.slice(0, 20).forEach(e => {
+      const teacher = getTeacherById(e.teacher_id);
       const item = document.createElement("div");
       item.className = "feedback-item";
       item.innerHTML = `
-        <div>${f.text || "<i>אין טקסט</i>"}</div>
+        <div><strong>${teacher?.name || "מורה לא ידוע"} - ${e.type === "compliment" ? "מחמאה" : "הערה"}</strong></div>
+        <div>${e.text || "<i>אין טקסט</i>"}</div>
         <div class="feedback-tags">
-          ${f.tags ? f.tags.map(tag => `<span class="tag-pill">${tag}</span>`).join("") : ''}
+          ${e.tags ? e.tags.map(tag => `<span class="tag-pill">${tag}</span>`).join("") : ''}
         </div>
         <div class="feedback-meta-line">
-          <div>
-            <span>${f.type === "compliment" ? "👍 מחמאה" : "⚠️ הערה"} - ${f.user_name}</span>
-            <span> - ${teacher?.name || "מורה לא ידוע"}</span>
-          </div>
-          <div style="display: flex; gap: 8px; align-items: center;">
-            <span>${formatDateShort(f.created_at)}</span>
-            <button class="delete-feedback-btn" data-feedback-id="${f.id}">
-              <i class="fas fa-trash"></i>
-              מחק
-            </button>
-          </div>
+          <span>מאת: ${e.user_name}</span>
+          <span>${formatDateShort(e.created_at)}</span>
+        </div>
+        <div class="feedback-actions">
+          <button class="delete-feedback-btn" data-feedback-id="${e.id}">
+            <i class="fas fa-trash"></i> מחק משוב
+          </button>
         </div>
       `;
       
-      const deleteBtn = item.querySelector(".delete-feedback-btn");
-      deleteBtn.addEventListener("click", async (e) => {
-        e.stopPropagation();
-        if (confirm("למחוק את המשוב?")) {
-          const success = await deleteFeedback(f.id);
+      const deleteBtn = item.querySelector('.delete-feedback-btn');
+      deleteBtn.addEventListener('click', async () => {
+        if (confirm('למחוק את המשוב?')) {
+          const success = await deleteFeedback(e.id);
           if (success) {
             await loadData();
-            renderAdminScreen();
-          } else {
-            alert("הייתה בעיה במחיקת המשוב.");
+            renderAdminFeedbackList();
+            if (appState.currentScreen === "teacher-profile") {
+              renderTeacherProfile();
+            }
           }
         }
       });
@@ -2065,7 +2319,9 @@
 
     // Search
     document.getElementById("teacher-search").addEventListener("input", renderTeacherList);
-    document.getElementById("admin-feedback-search").addEventListener("input", renderAdminFeedbackList);
+
+    // Admin feedback search
+    document.getElementById("admin-feedback-search")?.addEventListener("input", renderAdminFeedbackList);
 
     // Teacher profile buttons
     document.getElementById("btn-profile-compliment").addEventListener("click", () => {
@@ -2083,13 +2339,13 @@
       showScreen("teacher-profile");
     });
 
-    // Submit feedback - ללא הודעות הצלחה
+    // ---------- Modified Submit Feedback Function ----------
     document.getElementById("feedback-submit-button").addEventListener("click", async () => {
       const teacherId = appState.selectedTeacherId;
       const type = appState.feedbackType;
       
       if (!teacherId || !type) {
-        alert("משהו נתקע. תנסה שוב.");
+        showErrorAnimation();
         return;
       }
 
@@ -2104,7 +2360,7 @@
       ).map(btn => btn.textContent);
 
       if (tags.length === 0 && !text) {
-        alert("תבחר תגית או תכתוב משהו.");
+        showErrorAnimation();
         return;
       }
 
@@ -2119,10 +2375,15 @@
       });
 
       if (success) {
-        // ללא הודעת הצלחה - מעבר אוטומטי חזרה
-        showScreen("teacher-profile");
+        // Show animation instead of alert
+        showFeedbackAnimation(type, teacher.name);
+        
+        // Return to teacher profile after a short delay
+        setTimeout(() => {
+          showScreen("teacher-profile");
+        }, 1000);
       } else {
-        alert("הייתה בעיה בשמירה, נסה שוב.");
+        showErrorAnimation();
       }
     });
 
