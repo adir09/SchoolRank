@@ -165,10 +165,15 @@
 
     .screen {
       display: none;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.25s var(--transition-fast), transform 0.25s var(--transition-fast);
     }
 
     .screen.active {
       display: block;
+      opacity: 1;
+      transform: translateY(0);
     }
 
     .login-wrapper {
@@ -627,12 +632,14 @@
       background: rgba(16, 185, 129, 0.2);
       border-color: #10b981;
       color: #10b981;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
     }
 
     .quick-tag.selected-negative {
       background: rgba(239, 68, 68, 0.2);
       border-color: #ef4444;
       color: #ef4444;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.35);
     }
 
     .textarea {
@@ -862,6 +869,17 @@
       background: rgba(239, 68, 68, 0.3);
     }
 
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.15);
+      font-size: 13px;
+      color: #e5e7eb;
+    }
+
     /* אנימציות חדשות */
     @keyframes slideInUp {
       from {
@@ -1032,6 +1050,14 @@
         transform: translateY(-100px) rotate(180deg);
         opacity: 0;
       }
+    }
+
+    .tile:active,
+    .teacher-card:active,
+    .btn:active,
+    .icon-button:active,
+    .user-chip:active {
+      transform: translateY(0) scale(0.97);
     }
   </style>
 </head>
@@ -1449,6 +1475,16 @@
   let feedbackEntries = [];
   let studentStats = {};
 
+  // ---------- Sounds & FX ----------
+  const sounds = {
+    send: new Audio('https://assets.mixkit.co/sfx/download/mixkit-correct-answer-tone-2870.wav'),
+    error: new Audio('https://assets.mixkit.co/sfx/download/mixkit-click-error-1110.wav'),
+    click: new Audio('https://assets.mixkit.co/sfx/download/mixkit-select-click-1109.wav')
+  };
+  sounds.send.volume = 0.4;
+  sounds.error.volume = 0.4;
+  sounds.click.volume = 0.35;
+
   const quickTagSets = {
     compliment: ["מסביר ברור", "יחס טוב", "שומר על סדר", "נותן משוב מועיל"],
     remark: ["הסבר לא ברור", "ציון לא הוגן", "דיבור לא מכבד", "מאחר לשיעור"]
@@ -1620,7 +1656,10 @@
         { id: 2, name: "אורית", subject: "מתמטיקה" },
         { id: 3, name: "רעות", subject: "לשון" },
         { id: 4, name: "אבי", subject: "השכלה כללית" },
-        { id: 5, name: "נטע", subject: "היסטוריה" }
+        { id: 5, name: "נטע", subject: "היסטוריה" },
+        { id: 6, name: "מרינה", subject: "תנ\"ך" },
+        { id: 7, name: "אור", subject: "כימיה" },
+        { id: 8, name: "יהודה", subject: "ספורט" }
       ];
       feedbackEntries = [];
       studentStats = {};
@@ -1632,26 +1671,41 @@
     try {
       const { data, error } = await supabase
         .from('feedback')
-        .insert([
-          {
-            teacher_id: feedback.teacherId,
-            type: feedback.type,
-            tags: feedback.tags,
-            text: feedback.text,
-            user_name: feedback.user
-          }
-        ])
-        .select();
+        .insert([{
+          teacher_id: feedback.teacherId,
+          type: feedback.type,
+          tags: feedback.tags,
+          text: feedback.text,
+          user_name: feedback.user
+        }])
+        .select()
+        .single();
 
       if (error) throw error;
 
-      // עדכן סטטיסטיקות
+      // ------- עדכון מיידי במצב מקומי בלי רענון -------
+      if (data) {
+        // דוחפים לראש הרשימה המקומית
+        feedbackEntries.unshift(data);
+      }
+
+      // עדכון סטטיסטיקות מקומי ללוח מדרגים
+      if (!studentStats[feedback.user]) {
+        studentStats[feedback.user] = { compliments: 0, remarks: 0 };
+      }
+      if (feedback.type === 'compliment') {
+        studentStats[feedback.user].compliments++;
+      } else {
+        studentStats[feedback.user].remarks++;
+      }
+
+      // עדכון טבלה student_stats ב-DB
       await updateStudentStats(feedback.user, feedback.type);
-      
-      return true;
+
+      return data;
     } catch (error) {
       console.error('❌ שגיאה בשמירת משוב:', error);
-      return false;
+      return null;
     }
   }
 
@@ -1764,7 +1818,7 @@
         { event: '*', schema: 'public', table: 'feedback' },
         (payload) => {
           console.log('שינוי במשובים:', payload);
-          loadData(); // טען מחדש את הנתונים
+          loadData(); // טען מחדש את הנתונים (גיבוי)
         }
       )
       .subscribe();
@@ -1776,7 +1830,7 @@
         { event: '*', schema: 'public', table: 'teachers' },
         (payload) => {
           console.log('שינוי במורים:', payload);
-          loadData(); // טען מחדש את הנתונים
+          loadData(); // טען מחדש את הנתונים (גיבוי)
         }
       )
       .subscribe();
@@ -1927,6 +1981,7 @@
         </div>
       `;
       card.addEventListener("click", () => {
+        if (sounds.click) sounds.click.play().catch(() => {});
         appState.selectedTeacherId = t.id;
         showScreen("teacher-profile");
       });
@@ -1990,6 +2045,7 @@
         const deleteBtn = item.querySelector('.delete-feedback-btn');
         deleteBtn.addEventListener('click', async (event) => {
           event.stopPropagation();
+          if (sounds.click) sounds.click.play().catch(() => {});
           const feedbackId = parseInt(deleteBtn.dataset.feedbackId);
           if (confirm('למחוק את המשוב?')) {
             const success = await deleteFeedback(feedbackId);
@@ -2030,6 +2086,9 @@
       btn.addEventListener("click", () => {
         const selectedClass = isCompliment ? "selected-positive" : "selected-negative";
         btn.classList.toggle(selectedClass);
+        if (sounds.click) sounds.click.play().catch(() => {});
+        btn.classList.add('pulse-animation');
+        setTimeout(() => btn.classList.remove('pulse-animation'), 250);
       });
       quickTagsEl.appendChild(btn);
     });
@@ -2063,6 +2122,8 @@
       weekSummary.textContent = "אין נתונים לשבוע הזה.";
     } else if (weekCompliments > weekRemarks) {
       weekSummary.textContent = "שבוע חיובי! יותר מחמאות מהערות.";
+    } else if (weekCompliments === weekRemarks) {
+      weekSummary.textContent = "איזון – אותה כמות מחמאות והערות.";
     } else {
       weekSummary.textContent = "שבוע ביקורתי. יותר הערות ממחמאות.";
     }
@@ -2176,6 +2237,7 @@
       const deleteBtn = card.querySelector("button[data-delete-id]");
       deleteBtn.addEventListener("click", async (e) => {
         e.stopPropagation();
+        if (sounds.click) sounds.click.play().catch(() => {});
         if (confirm(`למחוק את המורה ${t.name}? כל המשובים עליו יימחקו.`)) {
           const success = await deleteTeacher(t.id);
           if (success) {
@@ -2245,6 +2307,7 @@
       
       const deleteBtn = item.querySelector('.delete-feedback-btn');
       deleteBtn.addEventListener('click', async () => {
+        if (sounds.click) sounds.click.play().catch(() => {});
         if (confirm('למחוק את המשוב?')) {
           const success = await deleteFeedback(e.id);
           if (success) {
@@ -2262,23 +2325,39 @@
   }
 
   // ---------- Event Listeners ----------
-  document.addEventListener("DOMContentLoaded", async () => {
-    // טעינת נתונים
-    await loadData();
-    setupRealtimeUpdates();
-
-    // נסה לטעון את המשתמש אוטומטית מ-Cookie
+  document.addEventListener("DOMContentLoaded", () => {
+    // זיהוי מהיר לפי עוגיות – קודם כל
     autoLoginUser();
 
+    // טען נתונים ברקע (לא חוסם את הטעינה של המסך)
+    loadData().then(() => {
+      // אם בינתיים נכנסו למסכי נתונים – תרענן
+      if (appState.currentScreen === "teachers") renderTeacherList();
+      if (appState.currentScreen === "teacher-profile") renderTeacherProfile();
+      if (appState.currentScreen === "reports") renderReportsScreen();
+      if (appState.currentScreen === "leaderboard") renderLeaderboardScreen();
+      if (appState.currentScreen === "admin") renderAdminScreen();
+    });
+
+    setupRealtimeUpdates();
+
     // Login
-    document.getElementById("login-button").addEventListener("click", handleLogin);
+    document.getElementById("login-button").addEventListener("click", () => {
+      if (sounds.click) sounds.click.play().catch(() => {});
+      handleLogin();
+    });
     document.getElementById("login-password").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") handleLogin();
+      if (e.key === "Enter") {
+        if (sounds.click) sounds.click.play().catch(() => {});
+        handleLogin();
+      }
     });
 
     // Logout
     document.getElementById("user-chip").addEventListener("click", () => {
-      if (appState.currentUser && confirm("להתנתק?")) {
+      if (!appState.currentUser) return;
+      if (sounds.click) sounds.click.play().catch(() => {});
+      if (confirm("להתנתק?")) {
         handleLogout();
       }
     });
@@ -2286,6 +2365,7 @@
     // Tile clicks
     document.querySelectorAll(".tile").forEach(tile => {
       tile.addEventListener("click", () => {
+        if (sounds.click) sounds.click.play().catch(() => {});
         const action = tile.dataset.action;
         if (action === "view-teachers") {
           showScreen("teachers");
@@ -2312,40 +2392,50 @@
     // Back links
     document.querySelectorAll(".back-link").forEach(link => {
       link.addEventListener("click", () => {
+        if (sounds.click) sounds.click.play().catch(() => {});
         const target = link.dataset.backTo;
         if (target) showScreen(target);
       });
     });
 
     // Search
-    document.getElementById("teacher-search").addEventListener("input", renderTeacherList);
+    document.getElementById("teacher-search").addEventListener("input", () => {
+      if (sounds.click) sounds.click.play().catch(() => {});
+      renderTeacherList();
+    });
 
     // Admin feedback search
-    document.getElementById("admin-feedback-search")?.addEventListener("input", renderAdminFeedbackList);
+    document.getElementById("admin-feedback-search")?.addEventListener("input", () => {
+      renderAdminFeedbackList();
+    });
 
     // Teacher profile buttons
     document.getElementById("btn-profile-compliment").addEventListener("click", () => {
+      if (sounds.click) sounds.click.play().catch(() => {});
       appState.feedbackType = "compliment";
       showScreen("feedback");
     });
     
     document.getElementById("btn-profile-remark").addEventListener("click", () => {
+      if (sounds.click) sounds.click.play().catch(() => {});
       appState.feedbackType = "remark";
       showScreen("feedback");
     });
 
     // Feedback back
     document.getElementById("feedback-back").addEventListener("click", () => {
+      if (sounds.click) sounds.click.play().catch(() => {});
       showScreen("teacher-profile");
     });
 
-    // ---------- Modified Submit Feedback Function ----------
+    // ---------- Submit Feedback (instant UI + sounds) ----------
     document.getElementById("feedback-submit-button").addEventListener("click", async () => {
       const teacherId = appState.selectedTeacherId;
       const type = appState.feedbackType;
       
       if (!teacherId || !type) {
         showErrorAnimation();
+        if (sounds.error) sounds.error.play().catch(() => {});
         return;
       }
 
@@ -2354,19 +2444,19 @@
       
       const quickTagsWrap = document.getElementById("quick-tags");
       const tagButtons = Array.from(quickTagsWrap.querySelectorAll(".quick-tag"));
-      const tags = tagButtons.filter(btn => 
-        btn.classList.contains("selected-positive") || 
-        btn.classList.contains("selected-negative")
-      ).map(btn => btn.textContent);
+      const tags = tagButtons
+        .filter(btn => btn.classList.contains("selected-positive") || btn.classList.contains("selected-negative"))
+        .map(btn => btn.textContent);
 
       if (tags.length === 0 && !text) {
         showErrorAnimation();
+        if (sounds.error) sounds.error.play().catch(() => {});
         return;
       }
 
       const userName = getDisplayNameForUser(appState.currentUser);
 
-      const success = await saveFeedback({
+      const newRow = await saveFeedback({
         teacherId,
         type,
         tags,
@@ -2374,21 +2464,31 @@
         user: userName
       });
 
-      if (success) {
-        // Show animation instead of alert
+      if (newRow) {
+        // צליל הצלחה
+        if (sounds.send) sounds.send.play().catch(() => {});
+
+        // אנימציית טוסט
         showFeedbackAnimation(type, teacher.name);
-        
-        // Return to teacher profile after a short delay
+
+        // עדכון מיידי של המסכים הרלוונטיים
+        renderTeacherProfile();
+        renderReportsScreen();
+        renderLeaderboardScreen();
+
+        // חזרה למסך המורה אחרי שנייה
         setTimeout(() => {
           showScreen("teacher-profile");
         }, 1000);
       } else {
         showErrorAnimation();
+        if (sounds.error) sounds.error.play().catch(() => {});
       }
     });
 
     // Admin - Add teacher
     document.getElementById("admin-add-teacher").addEventListener("click", async () => {
+      if (sounds.click) sounds.click.play().catch(() => {});
       const nameInput = document.getElementById("admin-new-name");
       const subjectInput = document.getElementById("admin-new-subject");
       const name = nameInput.value.trim();
@@ -2415,11 +2515,13 @@
 
     // Help button
     document.getElementById("help-button").addEventListener("click", () => {
+      if (sounds.click) sounds.click.play().catch(() => {});
       alert("מערכת משוב למורים\n\n• התחברות עם כל שם משתמש\n• adir/1234 לאדמין\n• כל המשובים נשמרים ב-Supabase ונראים לכולם\n• המערכת זוכרת אותך אוטומטית בפעם הבאה!");
     });
 
     // Notifications
     document.getElementById("notif-button").addEventListener("click", () => {
+      if (sounds.click) sounds.click.play().catch(() => {});
       const panel = document.getElementById("notif-panel");
       panel.classList.toggle("open");
     });
