@@ -1504,18 +1504,29 @@
 
   // ---------- Sounds & FX - גיימינג ----------
   const sounds = {
-    send: new Audio('https://assets.mixkit.co/sfx/download/mixkit-video-game-win-2016.wav'),
-    error: new Audio('https://assets.mixkit.co/sfx/download/mixkit-retro-arcade-lose-2027.wav'),
-    click: new Audio('https://assets.mixkit.co/sfx/download/mixkit-arcade-mechanical-bling-210.wav')
-  };
-  sounds.send.volume = 0.5;
-  sounds.error.volume = 0.45;
-  sounds.click.volume = 0.35;
+  send: new Audio('https://assets.mixkit.co/sfx/download/mixkit-video-game-win-2016.wav'),
+  error: new Audio('https://assets.mixkit.co/sfx/download/mixkit-retro-arcade-lose-2027.wav'),
+  click: new Audio('https://assets.mixkit.co/sfx/download/mixkit-arcade-mechanical-bling-210.wav')
+};
+sounds.send.volume = 0.5;
+sounds.error.volume = 0.45;
+sounds.click.volume = 0.35;
 
-  const quickTagSets = {
-    compliment: ["מסביר ברור", "יחס טוב", "שומר על סדר", "נותן משוב מועיל"],
-    remark: ["הסבר לא ברור", "ציון לא הוגן", "דיבור לא מכבד", "מאחר לשיעור"]
-  };
+const quickTagSets = {
+  compliment: ["מסביר ברור", "יחס טוב", "שומר על סדר", "נותן משוב מועיל"],
+  remark: ["הסבר לא ברור", "ציון לא הוגן", "דיבור לא מכבד", "מאחר לשיעור"]
+}; // ← ← ← חובה !!
+
+// פונקציה כללית לניגון סאונד
+function playSound(name) {
+  const sound = sounds[name];
+  if (!sound) return;
+
+  sound.currentTime = 0;
+  sound.play().catch(() => {
+    // למנוע בעיות autoplay
+  });
+}
 
   // ---------- State ----------
   const appState = {
