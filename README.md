@@ -1485,29 +1485,26 @@
   }
 
   // ---------- Animation Functions ----------
-function showFeedbackAnimation(type, teacherName) {
-  // Create toast notification
-  const toast = document.createElement('div');
-  toast.className = `feedback-toast ${type}`;
-  
-  const iconClass = type === 'compliment' ? 'fas fa-heart' : 'fas fa-exclamation-triangle';
-  const title = type === 'compliment' ? 'מחמאה נשלחה!' : 'הערה נשלחה';
-  const message = type === 'compliment' 
-    ? `המחמאה למורה ${teacherName} נשמרה בהצלחה`
-    : `הוסך הערה למורה ${teacherName}`;  // שיניתי כאן
-  
-  toast.innerHTML = `
-    <div class="toast-icon ${type}">
-      <i class="${iconClass}"></i>
-    </div>
-    <div class="toast-content">
-      <div class="toast-title">${title}</div>
-      <div class="toast-message">${message}</div>
-    </div>
-  `;
-  
-  // ... rest of the function remains the same
-}
+  function showFeedbackAnimation(type, teacherName) {
+    // Create toast notification
+    const toast = document.createElement('div');
+    toast.className = `feedback-toast ${type}`;
+    
+    const iconClass = type === 'compliment' ? 'fas fa-heart' : 'fas fa-exclamation-triangle';
+    const title = type === 'compliment' ? 'מחמאה נשלחה!' : 'הערה נשלחה';
+    const message = type === 'compliment' 
+      ? `המחמאה למורה ${teacherName} נשמרה בהצלחה`
+      : `ההערה למורה ${teacherName} נרשמה במערכת`;
+    
+    toast.innerHTML = `
+      <div class="toast-icon ${type}">
+        <i class="${iconClass}"></i>
+      </div>
+      <div class="toast-content">
+        <div class="toast-title">${title}</div>
+        <div class="toast-message">${message}</div>
+      </div>
+    `;
     
     document.body.appendChild(toast);
     
