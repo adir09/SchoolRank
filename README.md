@@ -840,6 +840,21 @@
       background: linear-gradient(90deg, #10b981, #3b82f6);
       border-radius: 999px;
     }
+
+    .delete-feedback-btn {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .delete-feedback-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
   </style>
 </head>
 <body>
@@ -1217,6 +1232,22 @@
           </div>
           <div id="admin-teacher-list" class="teacher-list"></div>
         </div>
+
+        <div class="admin-panel" style="grid-column: 1 / -1;">
+          <div class="admin-panel-title">
+            <i class="fas fa-comments"></i>
+            <span>ניהול משובים (אדמין)</span>
+          </div>
+          <div class="search-bar">
+            <input id="admin-feedback-search" class="search-input" type="text" placeholder="חיפוש משובים...">
+            <div class="search-icon"><i class="fas fa-search"></i></div>
+          </div>
+          <div id="admin-feedback-list" class="feedback-list"></div>
+          <div id="admin-feedback-empty" class="feedback-empty">
+            <i class="fas fa-inbox"></i>
+            <div>אין משובים.</div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1352,6 +1383,58 @@
       return true;
     } catch (error) {
       console.error('❌ שגיאה בשמירת משוב:', error);
+      return false;
+    }
+  }
+
+  async function deleteFeedback(feedbackId) {
+    try {
+      const { error } = await supabase
+        .from('feedback')
+        .delete()
+        .eq('id', feedbackId);
+
+      if (error) throw error;
+
+      // עדכן סטטיסטיקות - צריך להוריד את הספירה
+      const feedback = feedbackEntries.find(f => f.id === feedbackId);
+      if (feedback) {
+        await updateStudentStatsAfterDelete(feedback.user_name, feedback.type);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('❌ שגיאה במחיקת משוב:', error);
+      return false;
+    }
+  }
+
+  async function updateStudentStatsAfterDelete(userName, type) {
+    try {
+      const { data: existingStat, error: checkError } = await supabase
+        .from('student_stats')
+        .select('*')
+        .eq('user_name', userName)
+        .single();
+
+      if (checkError) throw checkError;
+
+      if (existingStat) {
+        const updateData = type === 'compliment' 
+          ? { compliments: Math.max(0, existingStat.compliments - 1) }
+          : { remarks: Math.max(0, existingStat.remarks - 1) };
+
+        const { error: updateError } = await supabase
+          .from('student_stats')
+          .update(updateData)
+          .eq('user_name', userName);
+
+        if (updateError) throw updateError;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('❌ שגיאה בעדכון סטטיסטיקות אחרי מחיקה:', error);
       return false;
     }
   }
@@ -1851,6 +1934,77 @@
       
       container.appendChild(card);
     });
+
+    // רינדור רשימת המשובים למחיקה
+    renderAdminFeedbackList();
+  }
+
+  function renderAdminFeedbackList() {
+    const container = document.getElementById("admin-feedback-list");
+    const emptyEl = document.getElementById("admin-feedback-empty");
+    const searchValue = document.getElementById("admin-feedback-search").value.trim().toLowerCase();
+    
+    let filtered = feedbackEntries;
+    
+    if (searchValue) {
+      filtered = feedbackEntries.filter(f => 
+        f.text?.toLowerCase().includes(searchValue) ||
+        f.user_name?.toLowerCase().includes(searchValue) ||
+        f.tags?.some(tag => tag.toLowerCase().includes(searchValue))
+      );
+    }
+
+    container.innerHTML = "";
+
+    if (filtered.length === 0) {
+      emptyEl.style.display = "block";
+      container.style.display = "none";
+      return;
+    }
+
+    emptyEl.style.display = "none";
+    container.style.display = "flex";
+
+    filtered.slice(0, 20).forEach(f => {
+      const teacher = getTeacherById(f.teacher_id);
+      const item = document.createElement("div");
+      item.className = "feedback-item";
+      item.innerHTML = `
+        <div>${f.text || "<i>אין טקסט</i>"}</div>
+        <div class="feedback-tags">
+          ${f.tags ? f.tags.map(tag => `<span class="tag-pill">${tag}</span>`).join("") : ''}
+        </div>
+        <div class="feedback-meta-line">
+          <div>
+            <span>${f.type === "compliment" ? "👍 מחמאה" : "⚠️ הערה"} - ${f.user_name}</span>
+            <span> - ${teacher?.name || "מורה לא ידוע"}</span>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <span>${formatDateShort(f.created_at)}</span>
+            <button class="delete-feedback-btn" data-feedback-id="${f.id}">
+              <i class="fas fa-trash"></i>
+              מחק
+            </button>
+          </div>
+        </div>
+      `;
+      
+      const deleteBtn = item.querySelector(".delete-feedback-btn");
+      deleteBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        if (confirm("למחוק את המשוב?")) {
+          const success = await deleteFeedback(f.id);
+          if (success) {
+            await loadData();
+            renderAdminScreen();
+          } else {
+            alert("הייתה בעיה במחיקת המשוב.");
+          }
+        }
+      });
+      
+      container.appendChild(item);
+    });
   }
 
   // ---------- Event Listeners ----------
@@ -1911,6 +2065,7 @@
 
     // Search
     document.getElementById("teacher-search").addEventListener("input", renderTeacherList);
+    document.getElementById("admin-feedback-search").addEventListener("input", renderAdminFeedbackList);
 
     // Teacher profile buttons
     document.getElementById("btn-profile-compliment").addEventListener("click", () => {
@@ -1928,7 +2083,7 @@
       showScreen("teacher-profile");
     });
 
-    // Submit feedback
+    // Submit feedback - ללא הודעות הצלחה
     document.getElementById("feedback-submit-button").addEventListener("click", async () => {
       const teacherId = appState.selectedTeacherId;
       const type = appState.feedbackType;
@@ -1964,7 +2119,7 @@
       });
 
       if (success) {
-        alert(`${type === "compliment" ? "מחמאה" : "הערה"} נשמרה בהצלחה!`);
+        // ללא הודעת הצלחה - מעבר אוטומטי חזרה
         showScreen("teacher-profile");
       } else {
         alert("הייתה בעיה בשמירה, נסה שוב.");
