@@ -902,15 +902,9 @@
     }
 
     @keyframes pulse {
-      0% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(1.05);
-      }
-      100% {
-        transform: scale(1);
-      }
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
     }
 
     @keyframes checkmark {
@@ -925,6 +919,37 @@
         transform: scale(1);
         opacity: 1;
       }
+    }
+
+    @keyframes cardPop {
+      0% {
+        transform: translateY(12px) scale(0.96);
+        opacity: 0;
+      }
+      100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes screenGlow {
+      0% {
+        box-shadow: 0 0 0 rgba(56, 189, 248, 0);
+      }
+      50% {
+        box-shadow: 0 0 30px rgba(56, 189, 248, 0.7);
+      }
+      100% {
+        box-shadow: 0 0 0 rgba(56, 189, 248, 0);
+      }
+    }
+
+    .screen-highlight {
+      animation: screenGlow 0.7s ease-out;
+    }
+
+    .card-pop {
+      animation: cardPop 0.45s ease-out;
     }
 
     .feedback-toast {
@@ -1074,6 +1099,9 @@
     </div>
     <div class="notif-sub">אין פה ספאם, רק תובנות קצרות.</div>
     <div id="notif-list" class="notif-list"></div>
+    <div id="notif-empty" class="notif-empty" style="display:none;">
+      כרגע אין לך התראות מיוחדות. תמשיך לתת משובים 🙂
+    </div>
   </div>
 
   <!-- Top Bar -->
@@ -1467,7 +1495,6 @@
   const SUPABASE_URL = 'https://xidfthnboggokcsloglt.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpZGZ0aG5ib2dnb2tjc2xvZ2x0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQzMTIwNzUsImV4cCI6MjA3OTg4ODA3NX0.fEPS2FJYlcZ4DOv7I0RBEcwZBfT0MdRGslk9cp_2GwU';
 
-  // אתחול Supabase
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // ---------- נתונים גלובליים ----------
@@ -1475,14 +1502,14 @@
   let feedbackEntries = [];
   let studentStats = {};
 
-  // ---------- Sounds & FX ----------
+  // ---------- Sounds & FX - גיימינג ----------
   const sounds = {
-    send: new Audio('https://assets.mixkit.co/sfx/download/mixkit-correct-answer-tone-2870.wav'),
-    error: new Audio('https://assets.mixkit.co/sfx/download/mixkit-click-error-1110.wav'),
-    click: new Audio('https://assets.mixkit.co/sfx/download/mixkit-select-click-1109.wav')
+    send: new Audio('https://assets.mixkit.co/sfx/download/mixkit-video-game-win-2016.wav'),
+    error: new Audio('https://assets.mixkit.co/sfx/download/mixkit-retro-arcade-lose-2027.wav'),
+    click: new Audio('https://assets.mixkit.co/sfx/download/mixkit-arcade-mechanical-bling-210.wav')
   };
-  sounds.send.volume = 0.4;
-  sounds.error.volume = 0.4;
+  sounds.send.volume = 0.5;
+  sounds.error.volume = 0.45;
   sounds.click.volume = 0.35;
 
   const quickTagSets = {
@@ -1498,11 +1525,11 @@
     feedbackType: null
   };
 
-  // ---------- פונקציות Cookies ----------
+  // ---------- Cookies ----------
   function setCookie(name, value, days) {
     const expires = new Date();
     expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+    document.cookie = name + '=' + value + ';expires=' + expires.toUTCString() + ';path=/';
   }
 
   function getCookie(name) {
@@ -1520,15 +1547,14 @@
     document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
   }
 
-  // ---------- Animation Functions ----------
+  // ---------- Animations / FX ----------
   function showFeedbackAnimation(type, teacherName) {
-    // Create toast notification
     const toast = document.createElement('div');
-    toast.className = `feedback-toast ${type}`;
+    toast.className = 'feedback-toast ' + type;
     
     const iconClass = type === 'compliment' ? 'fas fa-heart' : 'fas fa-exclamation-triangle';
     const title = type === 'compliment' ? 'מחמאה נשלחה!' : 'הערה נשלחה';
-    const message = type === 'compliment' 
+    const message = type === 'compliment'
       ? `המחמאה למורה ${teacherName} נשמרה בהצלחה`
       : `ההערה למורה ${teacherName} נרשמה במערכת`;
     
@@ -1544,27 +1570,20 @@
     
     document.body.appendChild(toast);
     
-    // Add pulse animation to the submit button
     const submitBtn = document.getElementById('feedback-submit-button');
     if (submitBtn) {
       submitBtn.classList.add('pulse-animation');
-      setTimeout(() => {
-        submitBtn.classList.remove('pulse-animation');
-      }, 600);
+      setTimeout(() => submitBtn.classList.remove('pulse-animation'), 600);
     }
     
-    // Create floating particles for compliments
     if (type === 'compliment') {
       createFloatingParticles();
     }
     
-    // Remove toast after 3 seconds
     setTimeout(() => {
       toast.classList.add('fade-out');
       setTimeout(() => {
-        if (toast.parentNode) {
-          toast.parentNode.removeChild(toast);
-        }
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
       }, 500);
     }, 3000);
   }
@@ -1573,24 +1592,20 @@
     const container = document.getElementById('floating-particles');
     const types = ['heart', 'star', 'sparkle'];
     
-    // Create 15 particles
     for (let i = 0; i < 15; i++) {
       setTimeout(() => {
         const particle = document.createElement('div');
         const type = types[Math.floor(Math.random() * types.length)];
         
-        particle.className = `particle ${type}`;
-        particle.style.left = `${Math.random() * 100}%`;
-        particle.style.top = `${80 + Math.random() * 20}%`;
-        particle.style.animationDelay = `${Math.random() * 0.5}s`;
+        particle.className = 'particle ' + type;
+        particle.style.left = (Math.random() * 100) + '%';
+        particle.style.top = (80 + Math.random() * 20) + '%';
+        particle.style.animationDelay = (Math.random() * 0.5) + 's';
         
         container.appendChild(particle);
         
-        // Remove particle after animation
         setTimeout(() => {
-          if (particle.parentNode) {
-            particle.parentNode.removeChild(particle);
-          }
+          if (particle.parentNode) particle.parentNode.removeChild(particle);
         }, 2000);
       }, i * 100);
     }
@@ -1600,16 +1615,42 @@
     const submitBtn = document.getElementById('feedback-submit-button');
     if (submitBtn) {
       submitBtn.classList.add('shake-animation');
-      setTimeout(() => {
-        submitBtn.classList.remove('shake-animation');
-      }, 500);
+      setTimeout(() => submitBtn.classList.remove('shake-animation'), 500);
     }
   }
 
-  // ---------- פונקציות שמירה וטעינה ----------
+  // אפקט כשנכנסים למסך מורה / דוחות
+  function applyScreenEffects(name) {
+    if (name === 'teacher-profile') {
+      const screen = document.getElementById('screen-teacher-profile');
+      if (screen) {
+        screen.classList.add('screen-highlight');
+        setTimeout(() => screen.classList.remove('screen-highlight'), 700);
+      }
+      document.querySelectorAll('#screen-teacher-profile .stat-card').forEach((card, index) => {
+        card.classList.remove('card-pop');
+        setTimeout(() => card.classList.add('card-pop'), 80 * index);
+        setTimeout(() => card.classList.remove('card-pop'), 600 + 80 * index);
+      });
+    }
+
+    if (name === 'reports') {
+      const screen = document.getElementById('screen-reports');
+      if (screen) {
+        screen.classList.add('screen-highlight');
+        setTimeout(() => screen.classList.remove('screen-highlight'), 700);
+      }
+      document.querySelectorAll('#screen-reports .report-summary-card').forEach((card, index) => {
+        card.classList.remove('card-pop');
+        setTimeout(() => card.classList.add('card-pop'), 80 * index);
+        setTimeout(() => card.classList.remove('card-pop'), 600 + 80 * index);
+      });
+    }
+  }
+
+  // ---------- טעינה ושמירה ----------
   async function loadData() {
     try {
-      // טען מורים
       const { data: teachersData, error: teachersError } = await supabase
         .from('teachers')
         .select('*')
@@ -1618,7 +1659,6 @@
       if (teachersError) throw teachersError;
       teachers = teachersData || [];
 
-      // טען משובים
       const { data: feedbackData, error: feedbackError } = await supabase
         .from('feedback')
         .select('*')
@@ -1627,14 +1667,12 @@
       if (feedbackError) throw feedbackError;
       feedbackEntries = feedbackData || [];
 
-      // טען סטטיסטיקות
       const { data: statsData, error: statsError } = await supabase
         .from('student_stats')
         .select('*');
       
       if (statsError) throw statsError;
       
-      // המר את הסטטיסטיקות לאובייקט
       studentStats = {};
       if (statsData) {
         statsData.forEach(stat => {
@@ -1646,11 +1684,10 @@
       }
 
       updateSyncStatus(true);
+      updateNotifications();
       console.log('✅ נתונים נטענו בהצלחה');
-
     } catch (error) {
       console.error('❌ שגיאה בטעינת נתונים:', error);
-      // נתוני ברירת מחדל במקרה של שגיאה
       teachers = [
         { id: 1, name: "אורן", subject: "אנגלית" },
         { id: 2, name: "אורית", subject: "מתמטיקה" },
@@ -1664,6 +1701,7 @@
       feedbackEntries = [];
       studentStats = {};
       updateSyncStatus(false);
+      updateNotifications();
     }
   }
 
@@ -1683,13 +1721,10 @@
 
       if (error) throw error;
 
-      // ------- עדכון מיידי במצב מקומי בלי רענון -------
       if (data) {
-        // דוחפים לראש הרשימה המקומית
         feedbackEntries.unshift(data);
       }
 
-      // עדכון סטטיסטיקות מקומי ללוח מדרגים
       if (!studentStats[feedback.user]) {
         studentStats[feedback.user] = { compliments: 0, remarks: 0 };
       }
@@ -1699,9 +1734,8 @@
         studentStats[feedback.user].remarks++;
       }
 
-      // עדכון טבלה student_stats ב-DB
       await updateStudentStats(feedback.user, feedback.type);
-
+      updateNotifications();
       return data;
     } catch (error) {
       console.error('❌ שגיאה בשמירת משוב:', error);
@@ -1726,7 +1760,6 @@
 
   async function updateStudentStats(userName, type) {
     try {
-      // בדוק אם המשתמש כבר קיים
       const { data: existingStat, error: checkError } = await supabase
         .from('student_stats')
         .select('*')
@@ -1736,7 +1769,6 @@
       if (checkError && checkError.code !== 'PGRST116') throw checkError;
 
       if (existingStat) {
-        // עדכן סטטיסטיקה קיימת
         const updateData = type === 'compliment' 
           ? { compliments: existingStat.compliments + 1 }
           : { remarks: existingStat.remarks + 1 };
@@ -1748,7 +1780,6 @@
 
         if (updateError) throw updateError;
       } else {
-        // צור סטטיסטיקה חדשה
         const newStat = {
           user_name: userName,
           compliments: type === 'compliment' ? 1 : 0,
@@ -1786,7 +1817,6 @@
 
   async function deleteTeacher(teacherId) {
     try {
-      // מחק תחילה את כל המשובים של המורה
       const { error: feedbackError } = await supabase
         .from('feedback')
         .delete()
@@ -1794,7 +1824,6 @@
 
       if (feedbackError) throw feedbackError;
 
-      // מחק את המורה
       const { error: teacherError } = await supabase
         .from('teachers')
         .delete()
@@ -1809,47 +1838,152 @@
     }
   }
 
-  // ---------- האזנה לשינויים בזמן אמת ----------
+  // ---------- Realtime ----------
   function setupRealtimeUpdates() {
-    // האזן לשינויים במשובים
     supabase
       .channel('feedback-changes')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'feedback' },
-        (payload) => {
-          console.log('שינוי במשובים:', payload);
-          loadData(); // טען מחדש את הנתונים (גיבוי)
-        }
+        () => { loadData(); }
       )
       .subscribe();
 
-    // האזן לשינויים במורים
     supabase
       .channel('teachers-changes')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'teachers' },
-        (payload) => {
-          console.log('שינוי במורים:', payload);
-          loadData(); // טען מחדש את הנתונים (גיבוי)
-        }
+        () => { loadData(); }
       )
       .subscribe();
   }
 
   function updateSyncStatus(isOnline) {
     const syncStatus = document.getElementById('sync-status');
-    if (syncStatus) {
-      if (isOnline) {
-        syncStatus.className = 'sync-status sync-online';
-        syncStatus.innerHTML = '<i class="fas fa-database"></i><span>מחובר - נתונים משותפים</span>';
-      } else {
-        syncStatus.className = 'sync-status sync-offline';
-        syncStatus.innerHTML = '<i class="fas fa-cloud-slash"></i><span>לא מחובר - נתונים מקומיים בלבד</span>';
-      }
+    if (!syncStatus) return;
+    if (isOnline) {
+      syncStatus.className = 'sync-status sync-online';
+      syncStatus.innerHTML = '<i class="fas fa-database"></i><span>מחובר - נתונים משותפים</span>';
+    } else {
+      syncStatus.className = 'sync-status sync-offline';
+      syncStatus.innerHTML = '<i class="fas fa-cloud-slash"></i><span>לא מחובר - נתונים מקומיים בלבד</span>';
     }
   }
 
-  // ---------- פונקציות עזר ----------
+  // ---------- Notifications חכמות ----------
+  function updateNotifications() {
+    const badge = document.getElementById('notif-badge');
+    const list = document.getElementById('notif-list');
+    const emptyEl = document.getElementById('notif-empty');
+
+    if (!badge || !list || !emptyEl) return;
+
+    list.innerHTML = '';
+    emptyEl.style.display = 'none';
+
+    if (!appState.currentUser) {
+      badge.style.display = 'none';
+      emptyEl.style.display = 'block';
+      emptyEl.textContent = 'כדי לראות התראות – תתחבר למערכת.';
+      return;
+    }
+
+    const userName = getDisplayNameForUser(appState.currentUser);
+    const userEntries = feedbackEntries.filter(f => f.user_name === userName);
+    const notifs = [];
+
+    const now = new Date();
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    if (userEntries.length === 0) {
+      notifs.push({
+        title: 'עדיין לא כתבת משובים',
+        text: 'המשובים שלך יכולים לשנות איך השיעורים נראים. תנסה לכתוב אחד היום.',
+        icon: 'fas fa-pen'
+      });
+    } else {
+      const last = userEntries.slice().sort((a,b) => new Date(b.created_at) - new Date(a.created_at))[0];
+      const lastDate = new Date(last.created_at);
+      const diffDays = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
+      if (diffDays >= 7) {
+        notifs.push({
+          title: 'עבר שבוע בלי משוב',
+          text: 'כבר ' + diffDays + ' ימים לא כתבת שום משוב. אם יש לך מה להגיד – זה הזמן.',
+          icon: 'fas fa-hourglass-half'
+        });
+      }
+
+      const compliments = userEntries.filter(f => f.type === 'compliment').length;
+      const remarks = userEntries.filter(f => f.type === 'remark').length;
+
+      if (compliments > remarks + 2) {
+        notifs.push({
+          title: 'אתה יותר בצד המחמאות',
+          text: 'יש לך יותר מחמאות מהערות. יפה – אתה יודע לפרגן כשמגיע.',
+          icon: 'fas fa-heart'
+        });
+      } else if (remarks > compliments + 2) {
+        notifs.push({
+          title: 'הרבה הערות, מעט מחמאות',
+          text: 'יש לך יותר הערות ממחמאות. אם יש מורה שעשה משהו טוב – שווה גם לכתוב לו.',
+          icon: 'fas fa-balance-scale'
+        });
+      }
+
+      const weekEntries = userEntries.filter(f => new Date(f.created_at) >= weekAgo);
+      if (weekEntries.length > 0) {
+        const byTeacher = {};
+        weekEntries.forEach(f => {
+          if (!byTeacher[f.teacher_id]) byTeacher[f.teacher_id] = { compliments: 0, remarks: 0 };
+          if (f.type === 'compliment') byTeacher[f.teacher_id].compliments++;
+          else byTeacher[f.teacher_id].remarks++;
+        });
+        let topTeacherId = null;
+        let topTotal = 0;
+        Object.keys(byTeacher).forEach(id => {
+          const total = byTeacher[id].compliments + byTeacher[id].remarks;
+          if (total > topTotal) {
+            topTotal = total;
+            topTeacherId = parseInt(id);
+          }
+        });
+        if (topTeacherId) {
+          const t = getTeacherById(topTeacherId);
+          if (t) {
+            notifs.push({
+              title: 'המורה שאתה הכי מדרג השבוע',
+              text: `בימים האחרונים נתת הכי הרבה משובים למורה ${t.name}.`,
+              icon: 'fas fa-user-check'
+            });
+          }
+        }
+      }
+    }
+
+    if (notifs.length === 0) {
+      badge.style.display = 'none';
+      emptyEl.style.display = 'block';
+      emptyEl.textContent = 'כרגע אין לך התראות מיוחדות. תמשיך לתת משובים 🙂';
+      return;
+    }
+
+    badge.style.display = 'flex';
+    badge.textContent = notifs.length;
+
+    notifs.forEach(n => {
+      const el = document.createElement('div');
+      el.className = 'notif-item';
+      el.innerHTML = `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <i class="${n.icon}"></i>
+          <strong>${n.title}</strong>
+        </div>
+        <div style="font-size:13px;color:#cbd5e1;">${n.text}</div>
+      `;
+      list.appendChild(el);
+    });
+  }
+
+  // ---------- Helpers ----------
   function showScreen(name) {
     document.querySelectorAll(".screen").forEach(s => {
       s.classList.toggle("active", s.id === "screen-" + name);
@@ -1862,6 +1996,8 @@
     if (name === "reports") renderReportsScreen();
     if (name === "leaderboard") renderLeaderboardScreen();
     if (name === "admin") renderAdminScreen();
+
+    applyScreenEffects(name);
   }
 
   function getTeacherById(id) {
@@ -1895,58 +2031,53 @@
     }
 
     let user = { username, role: "student" };
-    
-    // אדמין
     if (username === "adir" && password === "1234") {
       user.role = "admin";
     }
 
     appState.currentUser = user;
-    
-    // שמור את פרטי המשתמש ב-Cookie למשך 30 יום
     setCookie('teacherFeedbackUser', JSON.stringify(user), 30);
-    
-    // עדכון UI
-    document.getElementById("user-chip").innerHTML = `<i class="fas fa-user"></i><span>מחובר: ${user.role === "admin" ? "אדמין" : "תלמיד"}</span>`;
+
+    document.getElementById("user-chip").innerHTML =
+      '<i class="fas fa-user"></i><span>מחובר: ' + (user.role === "admin" ? "אדמין" : "תלמיד") + '</span>';
     document.getElementById("admin-tile").style.display = user.role === "admin" ? "block" : "none";
-    
+
+    updateNotifications();
     showScreen("home");
   }
 
   function handleLogout() {
     appState.currentUser = null;
-    // מחק את ה-Cookie
     deleteCookie('teacherFeedbackUser');
-    document.getElementById("user-chip").innerHTML = '<i class="fas fa-user"></i><span>לא מחובר</span>';
+    document.getElementById("user-chip").innerHTML =
+      '<i class="fas fa-user"></i><span>לא מחובר</span>';
     document.getElementById("admin-tile").style.display = "none";
+    updateNotifications();
     showScreen("login");
   }
 
-  // ---------- טעינה אוטומטית של משתמש ----------
   function autoLoginUser() {
     const userCookie = getCookie('teacherFeedbackUser');
-    if (userCookie) {
-      try {
-        const user = JSON.parse(userCookie);
-        appState.currentUser = user;
-        
-        // עדכון UI
-        document.getElementById("user-chip").innerHTML = `<i class="fas fa-user"></i><span>מחובר: ${user.role === "admin" ? "אדמין" : "תלמיד"}</span>`;
-        document.getElementById("admin-tile").style.display = user.role === "admin" ? "block" : "none";
-        
-        // מעבר אוטומטי למסך הבית
-        showScreen("home");
-        
-        console.log('✅ המשתמש נטען אוטומטית מ-Cookie');
-      } catch (error) {
-        console.error('❌ שגיאה בטעינת המשתמש מ-Cookie:', error);
-        // במקרה של שגיאה, מחק את ה-Cookie הפגום
-        deleteCookie('teacherFeedbackUser');
-      }
+    if (!userCookie) return;
+
+    try {
+      const user = JSON.parse(userCookie);
+      appState.currentUser = user;
+
+      document.getElementById("user-chip").innerHTML =
+        '<i class="fas fa-user"></i><span>מחובר: ' + (user.role === "admin" ? "אדמין" : "תלמיד") + '</span>';
+      document.getElementById("admin-tile").style.display = user.role === "admin" ? "block" : "none";
+
+      updateNotifications();
+      showScreen("home");
+      console.log('✅ המשתמש נטען אוטומטית מ-Cookie');
+    } catch (error) {
+      console.error('❌ שגיאה בטעינת המשתמש מ-Cookie:', error);
+      deleteCookie('teacherFeedbackUser');
     }
   }
 
-  // ---------- Render Functions ----------
+  // ---------- Render ----------
   function renderTeacherList() {
     const container = document.getElementById("teacher-list");
     const searchValue = document.getElementById("teacher-search").value.trim().toLowerCase();
@@ -1981,7 +2112,7 @@
         </div>
       `;
       card.addEventListener("click", () => {
-        if (sounds.click) sounds.click.play().catch(() => {});
+        sounds.click.play().catch(() => {});
         appState.selectedTeacherId = t.id;
         showScreen("teacher-profile");
       });
@@ -2022,7 +2153,6 @@
       const item = document.createElement("div");
       item.className = "feedback-item";
       
-      // אם המשתמש הוא אדמין, הוסף כפתור מחיקה
       const deleteButton = appState.currentUser?.role === "admin" ? 
         `<button class="delete-feedback-btn" data-feedback-id="${e.id}">
           <i class="fas fa-trash"></i> מחק
@@ -2040,12 +2170,11 @@
         ${deleteButton ? `<div class="feedback-actions">${deleteButton}</div>` : ''}
       `;
       
-      // הוסף מאזין לכפתור המחיקה אם קיים
       if (appState.currentUser?.role === "admin") {
         const deleteBtn = item.querySelector('.delete-feedback-btn');
         deleteBtn.addEventListener('click', async (event) => {
           event.stopPropagation();
-          if (sounds.click) sounds.click.play().catch(() => {});
+          sounds.click.play().catch(() => {});
           const feedbackId = parseInt(deleteBtn.dataset.feedbackId);
           if (confirm('למחוק את המשוב?')) {
             const success = await deleteFeedback(feedbackId);
@@ -2069,7 +2198,7 @@
     const isCompliment = type === "compliment";
 
     document.getElementById("feedback-title").textContent = 
-      `${isCompliment ? "הוספת מחמאה" : "הוספת הערה"} למורה ${teacher.name}`;
+      (isCompliment ? "הוספת מחמאה" : "הוספת הערה") + " למורה " + teacher.name;
     
     document.getElementById("feedback-subtitle").textContent = 
       isCompliment ? "תכתוב מה היה טוב" : "תשמור על כנות";
@@ -2086,7 +2215,7 @@
       btn.addEventListener("click", () => {
         const selectedClass = isCompliment ? "selected-positive" : "selected-negative";
         btn.classList.toggle(selectedClass);
-        if (sounds.click) sounds.click.play().catch(() => {});
+        sounds.click.play().catch(() => {});
         btn.classList.add('pulse-animation');
         setTimeout(() => btn.classList.remove('pulse-animation'), 250);
       });
@@ -2095,20 +2224,20 @@
 
     const submitBtn = document.getElementById("feedback-submit-button");
     submitBtn.textContent = isCompliment ? "שליחת מחמאה" : "שליחת הערה";
-    submitBtn.className = `btn btn-full ${isCompliment ? "btn-green" : "btn-red"}`;
+    submitBtn.className = "btn btn-full " + (isCompliment ? "btn-green" : "btn-red");
     
     document.getElementById("feedback-text").value = "";
   }
 
   function renderReportsScreen() {
-    const userEntries = feedbackEntries.filter(f => f.user_name === getDisplayNameForUser(appState.currentUser));
+    const userName = getDisplayNameForUser(appState.currentUser);
+    const userEntries = feedbackEntries.filter(f => f.user_name === userName);
     const totalCompliments = userEntries.filter(f => f.type === "compliment").length;
     const totalRemarks = userEntries.filter(f => f.type === "remark").length;
 
     document.getElementById("reports-total-compliments").textContent = totalCompliments;
     document.getElementById("reports-total-remarks").textContent = totalRemarks;
 
-    // נתונים שבועיים
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const weekEntries = userEntries.filter(f => new Date(f.created_at) >= weekAgo);
     const weekCompliments = weekEntries.filter(f => f.type === "compliment").length;
@@ -2128,7 +2257,6 @@
       weekSummary.textContent = "שבוע ביקורתי. יותר הערות ממחמאות.";
     }
 
-    // פעילות אחרונה
     const latestContainer = document.getElementById("reports-latest-list");
     const emptyEl = document.getElementById("reports-empty");
     
@@ -2237,7 +2365,7 @@
       const deleteBtn = card.querySelector("button[data-delete-id]");
       deleteBtn.addEventListener("click", async (e) => {
         e.stopPropagation();
-        if (sounds.click) sounds.click.play().catch(() => {});
+        sounds.click.play().catch(() => {});
         if (confirm(`למחוק את המורה ${t.name}? כל המשובים עליו יימחקו.`)) {
           const success = await deleteTeacher(t.id);
           if (success) {
@@ -2253,7 +2381,6 @@
       container.appendChild(card);
     });
 
-    // Render feedback management section
     renderAdminFeedbackList();
   }
 
@@ -2307,7 +2434,7 @@
       
       const deleteBtn = item.querySelector('.delete-feedback-btn');
       deleteBtn.addEventListener('click', async () => {
-        if (sounds.click) sounds.click.play().catch(() => {});
+        sounds.click.play().catch(() => {});
         if (confirm('למחוק את המשוב?')) {
           const success = await deleteFeedback(e.id);
           if (success) {
@@ -2324,14 +2451,11 @@
     });
   }
 
-  // ---------- Event Listeners ----------
+  // ---------- Events ----------
   document.addEventListener("DOMContentLoaded", () => {
-    // זיהוי מהיר לפי עוגיות – קודם כל
     autoLoginUser();
 
-    // טען נתונים ברקע (לא חוסם את הטעינה של המסך)
     loadData().then(() => {
-      // אם בינתיים נכנסו למסכי נתונים – תרענן
       if (appState.currentScreen === "teachers") renderTeacherList();
       if (appState.currentScreen === "teacher-profile") renderTeacherProfile();
       if (appState.currentScreen === "reports") renderReportsScreen();
@@ -2341,31 +2465,28 @@
 
     setupRealtimeUpdates();
 
-    // Login
     document.getElementById("login-button").addEventListener("click", () => {
-      if (sounds.click) sounds.click.play().catch(() => {});
+      sounds.click.play().catch(() => {});
       handleLogin();
     });
     document.getElementById("login-password").addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
-        if (sounds.click) sounds.click.play().catch(() => {});
+        sounds.click.play().catch(() => {});
         handleLogin();
       }
     });
 
-    // Logout
     document.getElementById("user-chip").addEventListener("click", () => {
       if (!appState.currentUser) return;
-      if (sounds.click) sounds.click.play().catch(() => {});
+      sounds.click.play().catch(() => {});
       if (confirm("להתנתק?")) {
         handleLogout();
       }
     });
 
-    // Tile clicks
     document.querySelectorAll(".tile").forEach(tile => {
       tile.addEventListener("click", () => {
-        if (sounds.click) sounds.click.play().catch(() => {});
+        sounds.click.play().catch(() => {});
         const action = tile.dataset.action;
         if (action === "view-teachers") {
           showScreen("teachers");
@@ -2389,53 +2510,47 @@
       });
     });
 
-    // Back links
     document.querySelectorAll(".back-link").forEach(link => {
       link.addEventListener("click", () => {
-        if (sounds.click) sounds.click.play().catch(() => {});
+        sounds.click.play().catch(() => {});
         const target = link.dataset.backTo;
         if (target) showScreen(target);
       });
     });
 
-    // Search
     document.getElementById("teacher-search").addEventListener("input", () => {
-      if (sounds.click) sounds.click.play().catch(() => {});
+      sounds.click.play().catch(() => {});
       renderTeacherList();
     });
 
-    // Admin feedback search
     document.getElementById("admin-feedback-search")?.addEventListener("input", () => {
       renderAdminFeedbackList();
     });
 
-    // Teacher profile buttons
     document.getElementById("btn-profile-compliment").addEventListener("click", () => {
-      if (sounds.click) sounds.click.play().catch(() => {});
+      sounds.click.play().catch(() => {});
       appState.feedbackType = "compliment";
       showScreen("feedback");
     });
     
     document.getElementById("btn-profile-remark").addEventListener("click", () => {
-      if (sounds.click) sounds.click.play().catch(() => {});
+      sounds.click.play().catch(() => {});
       appState.feedbackType = "remark";
       showScreen("feedback");
     });
 
-    // Feedback back
     document.getElementById("feedback-back").addEventListener("click", () => {
-      if (sounds.click) sounds.click.play().catch(() => {});
+      sounds.click.play().catch(() => {});
       showScreen("teacher-profile");
     });
 
-    // ---------- Submit Feedback (instant UI + sounds) ----------
     document.getElementById("feedback-submit-button").addEventListener("click", async () => {
       const teacherId = appState.selectedTeacherId;
       const type = appState.feedbackType;
       
       if (!teacherId || !type) {
         showErrorAnimation();
-        if (sounds.error) sounds.error.play().catch(() => {});
+        sounds.error.play().catch(() => {});
         return;
       }
 
@@ -2450,7 +2565,7 @@
 
       if (tags.length === 0 && !text) {
         showErrorAnimation();
-        if (sounds.error) sounds.error.play().catch(() => {});
+        sounds.error.play().catch(() => {});
         return;
       }
 
@@ -2465,30 +2580,24 @@
       });
 
       if (newRow) {
-        // צליל הצלחה
-        if (sounds.send) sounds.send.play().catch(() => {});
-
-        // אנימציית טוסט
+        sounds.send.play().catch(() => {});
         showFeedbackAnimation(type, teacher.name);
 
-        // עדכון מיידי של המסכים הרלוונטיים
         renderTeacherProfile();
         renderReportsScreen();
         renderLeaderboardScreen();
 
-        // חזרה למסך המורה אחרי שנייה
         setTimeout(() => {
           showScreen("teacher-profile");
         }, 1000);
       } else {
         showErrorAnimation();
-        if (sounds.error) sounds.error.play().catch(() => {});
+        sounds.error.play().catch(() => {});
       }
     });
 
-    // Admin - Add teacher
     document.getElementById("admin-add-teacher").addEventListener("click", async () => {
-      if (sounds.click) sounds.click.play().catch(() => {});
+      sounds.click.play().catch(() => {});
       const nameInput = document.getElementById("admin-new-name");
       const subjectInput = document.getElementById("admin-new-subject");
       const name = nameInput.value.trim();
@@ -2513,17 +2622,17 @@
       }
     });
 
-    // Help button
     document.getElementById("help-button").addEventListener("click", () => {
-      if (sounds.click) sounds.click.play().catch(() => {});
+      sounds.click.play().catch(() => {});
       alert("מערכת משוב למורים\n\n• התחברות עם כל שם משתמש\n• adir/1234 לאדמין\n• כל המשובים נשמרים ב-Supabase ונראים לכולם\n• המערכת זוכרת אותך אוטומטית בפעם הבאה!");
     });
 
-    // Notifications
     document.getElementById("notif-button").addEventListener("click", () => {
-      if (sounds.click) sounds.click.play().catch(() => {});
+      sounds.click.play().catch(() => {});
       const panel = document.getElementById("notif-panel");
       panel.classList.toggle("open");
+      const badge = document.getElementById("notif-badge");
+      if (badge) badge.style.display = 'none';
     });
   });
 </script>
