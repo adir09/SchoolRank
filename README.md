@@ -1503,14 +1503,18 @@
   let studentStats = {};
 
   // ---------- Sounds & FX - גיימינג ----------
-  const sounds = {
-  send: new Audio('[https://assets.mixkit.co/sfx/download/mixkit-video-game-win-2016.wav](https://elements.envato.com/pop-QKTA234?utm_source=mixkit&utm_medium=referral&utm_campaign=elements_mixkit_cs_sfx_tag_31JULY2024)'),
-  error: new Audio('https://assets.mixkit.co/sfx/download/mixkit-retro-arcade-lose-2027.wav'),
-  click: new Audio('https://assets.mixkit.co/sfx/download/mixkit-arcade-mechanical-bling-210.wav')
+  cconst sounds = {
+  send: new Audio('sounds/send.mp3'),
+  error: new Audio('sounds/error.mp3'),
+  click: new Audio('sounds/click.mp3'),
+  open: new Audio('sounds/open.mp3')
 };
+
 sounds.send.volume = 0.5;
 sounds.error.volume = 0.45;
 sounds.click.volume = 0.35;
+sounds.open.volume = 0.4;
+
 
 const quickTagSets = {
   compliment: ["מסביר ברור", "יחס טוב", "שומר על סדר", "נותן משוב מועיל"],
