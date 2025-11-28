@@ -1503,7 +1503,7 @@
   let studentStats = {};
 
   // ---------- Sounds & FX - גיימינג ----------
-  cconst sounds = {
+  const sounds = {
   send: new Audio('sounds/send.mp3'),
   error: new Audio('sounds/error.mp3'),
   click: new Audio('sounds/click.mp3'),
@@ -1515,11 +1515,11 @@ sounds.error.volume = 0.45;
 sounds.click.volume = 0.35;
 sounds.open.volume = 0.4;
 
-
 const quickTagSets = {
   compliment: ["מסביר ברור", "יחס טוב", "שומר על סדר", "נותן משוב מועיל"],
   remark: ["הסבר לא ברור", "ציון לא הוגן", "דיבור לא מכבד", "מאחר לשיעור"]
-}; // ← ← ← חובה !!
+};
+// ← ← ← חובה !!
 
 // פונקציה כללית לניגון סאונד
 function playSound(name) {
