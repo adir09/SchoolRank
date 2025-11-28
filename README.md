@@ -1504,7 +1504,7 @@
 
   // ---------- Sounds & FX - גיימינג ----------
   const sounds = {
-  send: new Audio('https://assets.mixkit.co/sfx/download/mixkit-video-game-win-2016.wav'),
+  send: new Audio('[https://assets.mixkit.co/sfx/download/mixkit-video-game-win-2016.wav](https://elements.envato.com/pop-QKTA234?utm_source=mixkit&utm_medium=referral&utm_campaign=elements_mixkit_cs_sfx_tag_31JULY2024)'),
   error: new Audio('https://assets.mixkit.co/sfx/download/mixkit-retro-arcade-lose-2027.wav'),
   click: new Audio('https://assets.mixkit.co/sfx/download/mixkit-arcade-mechanical-bling-210.wav')
 };
