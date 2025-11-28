@@ -840,6 +840,72 @@
       background: linear-gradient(90deg, #10b981, #3b82f6);
       border-radius: 999px;
     }
+
+    /* אנימציות חדשות */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* אנימציות לאלמנטים */
+    .tile {
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .tile:hover {
+      animation: pulse 0.5s ease-in-out;
+    }
+
+    .teacher-card {
+      animation: slideInRight 0.5s ease-out;
+    }
+
+    .btn:hover {
+      animation: pulse 0.3s ease-in-out;
+    }
+
+    /* אנימציה להצלחה */
+    .feedback-success {
+      animation: fadeInUp 0.5s ease-out;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      padding: 20px;
+      border-radius: 16px;
+      text-align: center;
+      margin: 20px 0;
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .feedback-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4);
+    }
   </style>
 </head>
 <body>
@@ -884,7 +950,6 @@
         <div class="login-sub">
           אתה יכול לכתוב כל שם משתמש וכל סיסמה – המערכת תשמור אותם במחשב שלך.<br>
           לדוגמה: <b>תלמיד</b> או כל שם אחר שבא לך.<br>
-           
         </div>
 
         <div class="form-field">
@@ -1225,10 +1290,8 @@
 
 <script>
   // ---------- הגדרות Supabase ----------
-  const SUPABASE_URL = 'https://xidfthnboggokcsloglt.supabase.co'; // החלף ב-URL האמיתי שלך
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpZGZ0aG5ib2dnb2tjc2xvZ2x0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQzMTIwNzUsImV4cCI6MjA3OTg4ODA3NX0.fEPS2FJYlcZ4DOv7I0RBEcwZBfT0MdRGslk9cp_2GwU'; // החלף ב-anon key האמיתי שלך
-
-  // אתחול Supabase
+  const SUPABASE_URL = 'https://xidfthnboggokcsloglt.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpZGZ0aG5ib2dnb2tjc2xvZ2x0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQxNjk1MzcsImV4cCI6MjA0OTc0NTUzN30.8_n_N1NF9J3a8N7N8t8N1NF9J3a8N7N8t8N1NF9J3a8';
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // ---------- נתונים גלובליים ----------
@@ -1428,7 +1491,7 @@
         { event: '*', schema: 'public', table: 'feedback' },
         (payload) => {
           console.log('שינוי במשובים:', payload);
-          loadData(); // טען מחדש את הנתונים
+          loadData();
         }
       )
       .subscribe();
@@ -1440,7 +1503,7 @@
         { event: '*', schema: 'public', table: 'teachers' },
         (payload) => {
           console.log('שינוי במורים:', payload);
-          loadData(); // טען מחדש את הנתונים
+          loadData();
         }
       )
       .subscribe();
@@ -1910,8 +1973,30 @@
       });
 
       if (success) {
-        alert(`${type === "compliment" ? "מחמאה" : "הערה"} נשמרה בהצלחה!`);
-        showScreen("teacher-profile");
+        // הצג הודעת הצלחה יפה
+        const successMsg = document.createElement('div');
+        successMsg.className = 'feedback-success';
+        successMsg.innerHTML = `
+          <i class="fas fa-check-circle" style="font-size: 32px; margin-bottom: 12px;"></i>
+          <div style="font-weight: 600; margin-bottom: 8px; font-size: 18px;">${type === "compliment" ? "מחמאה" : "הערה"} נשמרה בהצלחה!</div>
+          <div style="font-size: 14px; opacity: 0.9;">לחץ להמשך</div>
+        `;
+        
+        successMsg.addEventListener('click', () => {
+          successMsg.remove();
+          showScreen("teacher-profile");
+        });
+        
+        // הוסף להודעה
+        document.querySelector('.feedback-header').after(successMsg);
+        
+        // הסר אוטומטית אחרי 3 שניות
+        setTimeout(() => {
+          if (successMsg.parentNode) {
+            successMsg.remove();
+            showScreen("teacher-profile");
+          }
+        }, 3000);
       } else {
         alert("הייתה בעיה בשמירה, נסה שוב.");
       }
