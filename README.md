@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
@@ -70,7 +69,42 @@
       border-radius: 0 0 20px 20px;
       margin-bottom: 20px;
     }
-    .logo { font-weight: 900; font-size: 24px; background: linear-gradient(90deg, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .logo { 
+      font-weight: 900; 
+      font-size: 24px; 
+      background: linear-gradient(90deg, #ffffff, #94a3b8); 
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent; 
+    }
+
+    /* אזור ימין של ההדר */
+    .header-right {
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    /* כפתור התנתקות */
+    .btn-logout {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(15,23,42,0.7);
+      color: #e5e7eb;
+      font-size: 12px;
+      cursor: pointer;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      transition: 0.15s;
+    }
+    .btn-logout:hover {
+      background: rgba(30,64,175,0.8);
+      border-color: rgba(129,140,248,0.9);
+    }
+    .btn-logout:active {
+      transform: scale(0.96);
+    }
 
     /* Screens */
     .screen { display: none; padding: 20px; flex: 1; overflow-y: auto; animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
@@ -186,10 +220,7 @@
         max-width: 400px; margin: 0 auto; text-align: center;
     }
 
-    /* שדות הלוגין */
-    .form-field {
-      margin-bottom: 16px;
-    }
+    .form-field { margin-bottom: 16px; }
     .form-label {
       font-size: 13px;
       margin-bottom: 6px;
@@ -214,7 +245,7 @@
       box-shadow: 0 0 0 2px rgba(34,197,94,0.3);
     }
 
-    /* דוחות – סטייל חדש */
+    /* דוחות – סטייל */
     .reports-section {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -263,9 +294,15 @@
   <div class="app">
     <header>
       <div class="logo">SchoolRank</div>
-      <div id="user-chip" style="font-size:14px; color:#cbd5e1; display:flex; align-items:center; gap:10px;">
+      <div class="header-right">
+        <div id="user-chip" style="font-size:14px; color:#cbd5e1; display:flex; align-items:center; gap:10px;">
           <i class="fas fa-user-circle" style="font-size:20px;"></i> 
           <span>אורח</span>
+        </div>
+        <button id="logout-btn" class="btn-logout" onclick="app.logout()" style="display:none;">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>התנתקות</span>
+        </button>
       </div>
     </header>
 
@@ -503,7 +540,6 @@
           כאן אפשר למחוק מחמאות והערות (למשל אם נשלחו בטעות או לא מכבדות).
         </p>
         <div id="admin-feedback-list" class="glass" style="padding:16px; border-radius:20px; max-height:400px; overflow-y:auto;">
-          <!-- ימולא ב-JS -->
         </div>
       </div>
     </section>
@@ -565,11 +601,7 @@ const app = {
     const saved = localStorage.getItem('tf_user');
     if (saved) {
       app.user = JSON.parse(saved);
-      const chip = document.querySelector('#user-chip span');
-      if (chip && app.user) {
-        const roleLabel = app.user.role === 'admin' ? 'אדמין' : 'תלמיד';
-        chip.innerText = `מחובר: ${roleLabel} (${app.user.name})`;
-      }
+      app.updateUserChip();
       app.showScreen('home');
     } else {
       app.showScreen('login');
@@ -578,6 +610,29 @@ const app = {
     await app.fetchData();
     app.setupRealtime();
     app.updateLeaderboard();
+  },
+
+  updateUserChip: () => {
+    const chip = document.querySelector('#user-chip span');
+    const logoutBtn = document.getElementById('logout-btn');
+    if (app.user && chip) {
+      const roleLabel = app.user.role === 'admin' ? 'אדמין' : 'תלמיד';
+      chip.innerText = `מחובר: ${roleLabel} (${app.user.name})`;
+      if (logoutBtn) logoutBtn.style.display = 'flex';
+    } else {
+      if (chip) chip.innerText = 'אורח';
+      if (logoutBtn) logoutBtn.style.display = 'none';
+    }
+  },
+
+  logout: () => {
+    app.user = null;
+    localStorage.removeItem('tf_user');
+    app.mode = null;
+    app.selTeacher = null;
+    app.updateUserChip();
+    sfx.click();
+    app.showScreen('login');
   },
 
   fetchData: async () => {
@@ -605,10 +660,8 @@ const app = {
     sfx.click();
 
     if (mode) {
-      // נכנסנו דרך "הוספת מחמאה" או "הוספת הערה"
       app.mode = mode;
     } else if (scr === 'teachers') {
-      // צפייה במורים בלבד
       app.mode = null;
     }
 
@@ -620,24 +673,21 @@ const app = {
     const scr = document.getElementById('s-' + id);
     if (scr) scr.classList.add('active');
   
-    // להראות/להסתיר את ה-header לפי המסך
     const header = document.querySelector('header');
+    const logoutBtn = document.getElementById('logout-btn');
     if (header) {
       if (id === 'login') {
-        header.style.display = 'none';   // במסך התחברות אין לוגו למעלה
+        header.style.display = 'none';
       } else {
-        header.style.display = 'flex';   // בשאר המסכים כן לוגו
+        header.style.display = 'flex';
       }
+    }
+    if (logoutBtn) {
+      logoutBtn.style.display = (id === 'login' || !app.user) ? 'none' : 'flex';
     }
 
     if (id === 'home') {
-      if (app.user) {
-        const chip = document.querySelector('#user-chip span');
-        if (chip) {
-          const roleLabel = app.user.role === 'admin' ? 'אדמין' : 'תלמיד';
-          chip.innerText = `מחובר: ${roleLabel} (${app.user.name})`;
-        }
-      }
+      app.updateUserChip();
       const adminBtn = document.getElementById('btn-admin');
       if (adminBtn) adminBtn.style.display = app.user && app.user.role === 'admin' ? 'flex' : 'none';
       app.updateLeaderboard();
@@ -691,7 +741,6 @@ const app = {
       const d = document.createElement('div');
       d.className = 't-item glass';
 
-      // במצב מחמאה/הערה – לחיצה פותחת טופס. במצב צפייה – רק רואים נתונים.
       if (app.mode === 'compliment' || app.mode === 'remark') {
         d.onclick = () => app.prepFeedback(t);
       } else {
@@ -821,7 +870,6 @@ const app = {
     });
   },
 
-  // דוחות
   renderReports: async () => {
     if (!app.user || !app.user.name) return;
 
@@ -832,7 +880,6 @@ const app = {
 
     reports = reports || [];
 
-    // סיכום כללי
     const totalCompliments = reports.filter(r => r.type === 'compliment').length;
     const totalRemarks = reports.filter(r => r.type === 'remark').length;
 
@@ -841,7 +888,6 @@ const app = {
     if (elTotalPos) elTotalPos.textContent = totalCompliments;
     if (elTotalNeg) elTotalNeg.textContent = totalRemarks;
 
-    // סיכום שבועי
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const weekEntries = reports.filter(r => new Date(r.created_at) >= weekAgo);
 
@@ -867,7 +913,6 @@ const app = {
       }
     }
 
-    // משובים אחרונים
     const listEl = document.getElementById('reports-latest-list');
     const emptyEl = document.getElementById('reports-empty');
     if (!listEl || !emptyEl) return;
@@ -919,9 +964,7 @@ const app = {
     });
   },
 
-  // ניהול מורים + משובים
   renderAdmin: async () => {
-    // חלק 1: מורים
     const list = document.getElementById('admin-list');
     if (list) {
       list.innerHTML = '';
@@ -936,7 +979,6 @@ const app = {
       });
     }
 
-    // חלק 2: משובים
     const fbListEl = document.getElementById('admin-feedback-list');
     if (!fbListEl) return;
     fbListEl.innerHTML = '<div style="color:#94a3b8; font-size:14px;">טוען משובים...</div>';
@@ -1053,7 +1095,7 @@ const app = {
   }
 };
 
-// Login Logic – כמו בקוד המקורי (adir/1234 = אדמין)
+// Login Logic
 const loginBtn = document.getElementById('login-button');
 if (loginBtn) {
   loginBtn.onclick = () => {
@@ -1072,12 +1114,7 @@ if (loginBtn) {
     };
 
     localStorage.setItem('tf_user', JSON.stringify(app.user));
-
-    const chip = document.querySelector('#user-chip span');
-    if (chip) {
-      const roleLabel = isAdmin ? 'אדמין' : 'תלמיד';
-      chip.innerText = `מחובר: ${roleLabel} (${username})`;
-    }
+    app.updateUserChip();
 
     sfx.success();
     app.showScreen('home');
@@ -1115,7 +1152,6 @@ function triggerConfetti(icon1, icon2, icon3) {
   }
 }
 
-// Init
 document.addEventListener('DOMContentLoaded', app.init);
 </script>
 </body>
