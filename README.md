@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
@@ -476,18 +477,30 @@
       </div>
     </section>
 
+    <!-- אדמין עם ניהול מורים + ניהול משובים -->
     <section id="s-admin" class="screen">
       <div style="max-width:800px; margin:0 auto;">
         <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;" onclick="app.nav('home')">
           <i class="fas fa-arrow-right"></i> חזרה
         </button>
+
+        <!-- חלק 1: ניהול מורים -->
         <h2>ניהול מורים</h2>
         <div class="glass" style="padding:20px; border-radius:20px; margin-bottom:20px;">
           <input id="new-t-name" placeholder="שם מורה חדש">
           <input id="new-t-sub" placeholder="מקצוע">
           <button class="btn btn-success" onclick="app.addTeacher()">הוסף מורה</button>
         </div>
-        <div id="admin-list"></div>
+        <div id="admin-list" style="margin-bottom:30px;"></div>
+
+        <!-- חלק 2: ניהול משובים -->
+        <h2 style="margin-bottom:10px;">ניהול משובים</h2>
+        <p style="color:#94a3b8; font-size:14px; margin-top:0; margin-bottom:10px;">
+          כאן אפשר למחוק מחמאות והערות (למשל אם נשלחו בטעות או לא מכבדות).
+        </p>
+        <div id="admin-feedback-list" class="glass" style="padding:16px; border-radius:20px; max-height:400px; overflow-y:auto;">
+          <!-- ימולא ב-JS -->
+        </div>
       </div>
     </section>
 
@@ -575,6 +588,7 @@ const app = {
           app.updateLeaderboard();
           if (app.user) app.renderReports();
           app.renderTeachers();
+          app.renderAdmin();
         }
       )
       .subscribe();
@@ -871,17 +885,97 @@ const app = {
     });
   },
 
-  renderAdmin: () => {
+  // ניהול מורים + ניהול משובים
+  renderAdmin: async () => {
+    // חלק 1: מורים
     const list = document.getElementById('admin-list');
-    list.innerHTML = '';
-    app.teachers.forEach(t => {
-      list.innerHTML += `
-        <div class="glass" style="padding:15px; margin-bottom:10px; display:flex; justify-content:space-between; border-radius:12px; align-items:center;">
-          <span>${t.name} ${t.subject ? `- ${t.subject}` : ''}</span>
-          <button onclick="app.delTeacher(${t.id})" style="background:#ef4444; border:none; color:white; border-radius:8px; padding:8px 12px; cursor:pointer;">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>`;
+    if (list) {
+      list.innerHTML = '';
+      app.teachers.forEach(t => {
+        list.innerHTML += `
+          <div class="glass" style="padding:15px; margin-bottom:10px; display:flex; justify-content:space-between; border-radius:12px; align-items:center;">
+            <span>${t.name} ${t.subject ? `- ${t.subject}` : ''}</span>
+            <button onclick="app.delTeacher(${t.id})" style="background:#ef4444; border:none; color:white; border-radius:8px; padding:8px 12px; cursor:pointer;">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>`;
+      });
+    }
+
+    // חלק 2: משובים
+    const fbListEl = document.getElementById('admin-feedback-list');
+    if (!fbListEl) return;
+    fbListEl.innerHTML = '<div style="color:#94a3b8; font-size:14px;">טוען משובים...</div>';
+
+    let { data: feed } = await supabase
+      .from('feedback')
+      .select('id, created_at, type, user_name, text, tags, teachers(name)')
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    feed = feed || [];
+
+    if (feed.length === 0) {
+      fbListEl.innerHTML = '<div style="padding:10px; text-align:center; color:#94a3b8;">אין עדיין משובים במערכת.</div>';
+      return;
+    }
+
+    fbListEl.innerHTML = '';
+
+    feed.forEach(r => {
+      const isPos = r.type === 'compliment';
+      const typeColor = isPos ? 'var(--success)' : 'var(--danger)';
+      const typeLabel = isPos ? 'מחמאה' : 'הערה';
+      const typeIcon = isPos ? 'fas fa-heart' : 'fas fa-bolt';
+      const teacherName = r.teachers ? r.teachers.name : 'מורה לא ידוע';
+      const date = new Date(r.created_at).toLocaleString('he-IL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      const tagsHtml = r.tags && r.tags.length
+        ? r.tags.map(tag => `
+            <span style="background:${isPos ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'};
+                         color:${typeColor};
+                         padding:3px 8px;
+                         border-radius:999px;
+                         font-size:11px;">
+              ${tag}
+            </span>`
+          ).join(' ')
+        : '';
+
+      const shortText = r.text
+        ? (r.text.length > 80 ? r.text.slice(0, 80) + '...' : r.text)
+        : '';
+
+      fbListEl.innerHTML += `
+        <div style="display:flex; justify-content:space-between; gap:10px; padding:10px 0; border-bottom:1px solid rgba(148,163,184,0.25);">
+          <div style="flex:1;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <div style="font-size:13px; color:#94a3b8;">
+                <span style="color:${typeColor}; font-weight:600;">
+                  <i class="${typeIcon}"></i> ${typeLabel}
+                </span>
+                &nbsp;|&nbsp; מורה: <strong>${teacherName}</strong>
+                &nbsp;|&nbsp; תלמיד: <strong>${r.user_name || '—'}</strong>
+              </div>
+              <div style="font-size:11px; color:#64748b;">${date}</div>
+            </div>
+            ${tagsHtml ? `<div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:4px;">${tagsHtml}</div>` : ''}
+            ${shortText ? `<div style="font-size:12px; color:#cbd5e1;">${shortText}</div>` : ''}
+          </div>
+          <div style="display:flex; align-items:center;">
+            <button onclick="app.deleteFeedback(${r.id})"
+                    style="background:#ef4444; border:none; color:white; border-radius:999px; padding:6px 10px; cursor:pointer; font-size:12px; display:flex; align-items:center; gap:4px;">
+              <i class="fas fa-trash"></i> מחק
+            </button>
+          </div>
+        </div>
+      `;
     });
   },
   
@@ -906,6 +1000,23 @@ const app = {
       app.renderAdmin();
       app.renderTeachers();
     }
+  },
+
+  deleteFeedback: async (id) => {
+    if (!app.user || app.user.role !== 'admin') {
+      alert('רק אדמין יכול למחוק משובים');
+      return;
+    }
+
+    if (!confirm('למחוק את המשוב הזה? אי אפשר לבטל.')) return;
+
+    await supabase.from('feedback').delete().eq('id', id);
+
+    // רענון מסכים שקשורים למשובים
+    app.renderReports();
+    app.renderTeachers();
+    app.updateLeaderboard();
+    app.renderAdmin();
   }
 };
 
