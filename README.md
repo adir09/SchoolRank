@@ -3,1005 +3,696 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>מערכת משוב למורים | 2.0</title>
+  <title>SchoolRank | מערכת משוב</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --primary: #3b82f6;
-      --primary-glow: rgba(59, 130, 246, 0.5);
-      --secondary: #8b5cf6;
+      --primary: #4f46e5;
       --success: #10b981;
       --danger: #ef4444;
-      --dark-bg: #0f172a;
-      --card-bg: rgba(30, 41, 59, 0.7);
-      --glass-border: rgba(255, 255, 255, 0.08);
-      --text-main: #f1f5f9;
-      --text-muted: #94a3b8;
+      --dark-bg: #0b0f19;
+      --card-bg: rgba(30, 41, 59, 0.65);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --text-main: #f8fafc;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
 
     body {
+      margin: 0;
       font-family: 'Rubik', sans-serif;
       background-color: var(--dark-bg);
       color: var(--text-main);
-      line-height: 1.6;
-      min-height: 100vh;
       overflow-x: hidden;
+      min-height: 100vh;
     }
 
-    /* רקע אנימטיבי */
-    .bg-animation {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
+    /* רקע חי וזז */
+    .bg-animate {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+      background: radial-gradient(circle at 50% 50%, #1e293b, #000);
       overflow: hidden;
-      background: radial-gradient(circle at top right, #1e1b4b, #0f172a);
     }
-
-    .blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(60px);
-      opacity: 0.4;
-      animation: float 20s infinite ease-in-out;
+    .orb {
+      position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4;
+      animation: floatOrb 10s infinite alternate ease-in-out;
     }
+    .orb-1 { width: 400px; height: 400px; background: #4f46e5; top: -100px; left: -100px; }
+    .orb-2 { width: 300px; height: 300px; background: #ec4899; bottom: -50px; right: -50px; animation-delay: -2s; }
+    @keyframes floatOrb { from { transform: translate(0,0); } to { transform: translate(30px, 40px); } }
 
-    .blob-1 { width: 300px; height: 300px; background: #3b82f6; top: -50px; left: -50px; animation-delay: 0s; }
-    .blob-2 { width: 400px; height: 400px; background: #8b5cf6; bottom: -100px; right: -50px; animation-delay: -5s; }
-    .blob-3 { width: 200px; height: 200px; background: #10b981; top: 40%; left: 40%; animation-delay: -10s; opacity: 0.2; }
-
-    @keyframes float {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(30px, -50px) scale(1.1); }
-      66% { transform: translate(-20px, 20px) scale(0.9); }
-    }
-
-    /* Glassmorphism Utility */
+    /* Glass UI */
     .glass {
       background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--glass-border);
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     }
 
-    .app {
-      max-width: 800px;
-      margin: 0 auto;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      position: relative;
+    /* --- שינוי מרכזי: הרחבת האפליקציה --- */
+    .app { 
+      max-width: 1200px; /* רחב יותר למסכי דסקטופ */
+      margin: 0 auto; 
+      min-height: 100vh; 
+      display: flex; 
+      flex-direction: column; 
     }
 
     /* Header */
-    .app-header {
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(10px);
+    header {
+      padding: 20px; display: flex; justify-content: space-between; align-items: center;
+      background: rgba(11, 15, 25, 0.8); backdrop-filter: blur(10px); z-index: 50;
       border-bottom: 1px solid var(--glass-border);
+      border-radius: 0 0 20px 20px;
+      margin-bottom: 20px;
+    }
+    .logo { font-weight: 900; font-size: 24px; background: linear-gradient(90deg, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    /* Screens */
+    .screen { display: none; padding: 20px; flex: 1; overflow-y: auto; animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .screen.active { display: block; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+    /* --- שינוי מרכזי: גריד חדש --- */
+    .menu-grid { 
+      display: grid; 
+      grid-template-columns: repeat(3, 1fr); /* 3 עמודות */
+      gap: 20px; 
+      margin-top: 20px; 
     }
 
-    .logo-area {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    /* התאמה למובייל */
+    @media (max-width: 900px) {
+      .menu-grid { grid-template-columns: 1fr; }
+      .app { max-width: 100%; }
     }
 
-    .logo-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 20px;
-      box-shadow: 0 0 15px var(--primary-glow);
-    }
-
-    .app-title {
-      font-weight: 700;
-      font-size: 20px;
-      letter-spacing: -0.5px;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    .icon-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      border: 1px solid var(--glass-border);
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    /* --- שינוי מרכזי: כרטיסיות בעיצוב החדש --- */
+    .card-btn {
+      padding: 24px; 
+      border-radius: 16px; 
       cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
+      transition: all 0.2s; 
+      position: relative; 
+      overflow: hidden;
+      display: flex; /* מסדר אייקון וטקסט בשורה */
+      align-items: flex-start;
+      gap: 20px;
+      text-align: right;
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(255,255,255,0.05);
+      min-height: 150px;
     }
 
-    .icon-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateY(-2px);
+    .card-btn:hover { 
+      transform: translateY(-5px); 
+      background: rgba(30, 41, 59, 0.95);
+      border-color: rgba(255,255,255,0.2);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    
+    .card-btn:active { transform: scale(0.98); }
+
+    /* ריבוע האייקון */
+    .card-icon-box {
+      width: 50px; height: 50px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; color: white;
+      flex-shrink: 0;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
 
-    .notif-badge {
-      position: absolute;
-      top: -2px;
-      right: -2px;
-      background: var(--danger);
-      color: white;
-      font-size: 10px;
-      font-weight: bold;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid var(--dark-bg);
-    }
+    .card-content h3 { margin: 0 0 10px 0; font-size: 20px; color: #fff; font-weight: 700; }
+    .card-content span { font-size: 14px; color: #94a3b8; line-height: 1.5; display: block; }
 
-    /* Main Content */
-    .app-main {
-      padding: 24px 20px;
-      flex: 1;
-      padding-bottom: 80px;
+    /* Inputs */
+    input, textarea {
+      width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border);
+      border-radius: 12px; padding: 14px; color: #fff; font-family: inherit; font-size: 16px;
+      margin-bottom: 12px; outline: none; transition: 0.3s;
     }
-
-    .screen {
-      display: none;
-      animation: fadeIn 0.4s ease-out;
-    }
-
-    .screen.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    input:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); }
 
     /* Buttons */
     .btn {
-      border: none;
-      outline: none;
-      border-radius: 14px;
-      padding: 14px 24px;
-      font-size: 16px;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      transition: transform 0.1s, box-shadow 0.2s;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+      width: 100%; padding: 16px; border-radius: 14px; border: none; font-weight: 700; font-size: 16px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: 0.2s; color: white;
     }
+    .btn-primary { background: linear-gradient(135deg, #4f46e5, #6366f1); box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); }
+    .btn-success { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+    .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+    .btn:active { transform: scale(0.95); }
 
-    .btn:active { transform: scale(0.96); }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary), #2563eb);
-      color: white;
-      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    /* Lists */
+    .t-item {
+      display: flex; align-items: center; justify-content: space-between; padding: 16px;
+      border-radius: 16px; margin-bottom: 10px; cursor: pointer; transition: 0.2s;
     }
-
-    .btn-success {
-      background: linear-gradient(135deg, var(--success), #059669);
-      color: white;
-      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-    }
-
-    .btn-danger {
-      background: linear-gradient(135deg, var(--danger), #dc2626);
-      color: white;
-      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
-    }
-
-    .btn-full { width: 100%; }
-
-    /* Login Screen */
-    .login-card {
-      max-width: 400px;
-      margin: 40px auto;
-      padding: 32px;
-      border-radius: 24px;
-      text-align: center;
-    }
-
-    .login-title { font-size: 28px; margin-bottom: 10px; font-weight: 700; }
-    .input-group { margin-bottom: 20px; text-align: right; }
-    .input-label { display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-muted); }
-    
-    .styled-input {
-      width: 100%;
-      background: rgba(15, 23, 42, 0.5);
-      border: 1px solid var(--glass-border);
-      border-radius: 12px;
-      padding: 14px;
-      color: white;
-      font-size: 16px;
-      font-family: inherit;
-      transition: all 0.3s;
-    }
-    
-    .styled-input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-      outline: none;
-    }
-
-    /* Dashboard Tiles */
-    .grid-menu {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 16px;
-    }
-
-    .menu-tile {
-      border-radius: 20px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 12px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .menu-tile::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .menu-tile:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-    }
-    .menu-tile:hover::before { opacity: 1; }
-
-    .tile-icon {
-      font-size: 32px;
-      margin-bottom: 4px;
-    }
-    .tile-title { font-weight: 600; font-size: 16px; }
-    .tile-sub { font-size: 12px; color: var(--text-muted); }
-
-    /* Teachers List */
-    .teacher-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px;
-      border-radius: 16px;
-      margin-bottom: 12px;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    
-    .teacher-card:hover { background: rgba(255, 255, 255, 0.08); }
-
-    .teacher-info { display: flex; align-items: center; gap: 16px; }
-    
+    .t-item:hover { background: rgba(255,255,255,0.1); transform: translateX(-5px); }
     .avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      font-weight: 700;
-      color: white;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 18px; margin-left: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
 
-    /* Stats & Profile */
-    .profile-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 12px;
-      margin: 20px 0;
+    /* Tags */
+    .tags-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
+    .tag {
+      padding: 8px 16px; border-radius: 20px; font-size: 14px; cursor: pointer;
+      border: 1px solid var(--glass-border); background: rgba(255,255,255,0.05); transition: 0.2s;
+    }
+    .tag.active-pos { background: var(--success); border-color: var(--success); transform: scale(1.05); box-shadow: 0 0 15px rgba(16,185,129,0.5); }
+    .tag.active-neg { background: var(--danger); border-color: var(--danger); transform: scale(1.05); box-shadow: 0 0 15px rgba(239,68,68,0.5); }
+
+    /* FX */
+    @keyframes shakeScreen {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px) rotate(-1deg); }
+      75% { transform: translateX(10px) rotate(1deg); }
+    }
+    .shake-fx { animation: shakeScreen 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+    
+    .overlay-flash {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100;
+      opacity: 0; transition: opacity 0.5s;
     }
 
-    .stat-box {
-      background: rgba(255,255,255,0.03);
-      padding: 16px;
-      border-radius: 16px;
-      text-align: center;
-      border: 1px solid var(--glass-border);
+    .particle {
+      position: fixed; pointer-events: none; z-index: 9999;
+      animation: flyOut 1s ease-out forwards; font-size: 24px;
     }
-
-    .stat-val { font-size: 24px; font-weight: 700; display: block; }
-    .stat-lbl { font-size: 12px; color: var(--text-muted); }
-
-    .text-green { color: var(--success); }
-    .text-red { color: var(--danger); }
-    .text-blue { color: var(--primary); }
-
-    /* Feedback Form */
-    .tags-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 16px 0;
-    }
-
-    .tag-btn {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--glass-border);
-      color: var(--text-muted);
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .tag-btn.selected {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-      box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+    @keyframes flyOut {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(1.5) rotate(var(--rot)); opacity: 0; }
     }
     
-    .tag-btn.selected-neg {
-      background: var(--danger);
-      color: white;
-      border-color: var(--danger);
-      box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+    /* Login Centering */
+    .login-container {
+        max-width: 400px; margin: 0 auto; text-align: center;
     }
-
-    .big-textarea {
-      width: 100%;
-      min-height: 120px;
-      background: rgba(15, 23, 42, 0.5);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      padding: 16px;
-      color: white;
-      font-family: inherit;
-      font-size: 16px;
-      resize: vertical;
-      margin-bottom: 20px;
-    }
-
-    /* Toast Notification */
-    .toast {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: rgba(30, 41, 59, 0.95);
-      border: 1px solid var(--glass-border);
-      padding: 16px 24px;
-      border-radius: 50px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-      z-index: 1000;
-      opacity: 0;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
-
-    .toast i { font-size: 20px; }
-
-    /* Leaderboard */
-    .leaderboard-row {
-      display: flex;
-      align-items: center;
-      padding: 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    .rank-num {
-      width: 30px;
-      font-weight: 700;
-      color: var(--text-muted);
-    }
-    .rank-1 { color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-    .rank-2 { color: #c0c0c0; }
-    .rank-3 { color: #cd7f32; }
-
-    /* Particles / Confetti */
-    .particle {
-      position: absolute;
-      pointer-events: none;
-      animation: pop 0.6s ease-out forwards;
-    }
-
-    @keyframes pop {
-      0% { transform: translate(0, 0) scale(1); opacity: 1; }
-      100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
-    }
-
-    /* Utility */
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .back-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .back-btn:hover { color: white; }
 
   </style>
 </head>
 <body>
 
-  <div class="bg-animation">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
+  <div class="bg-animate">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
   </div>
+  <div id="flash-fx" class="overlay-flash"></div>
 
   <div class="app">
-    <header class="app-header">
-      <div class="logo-area">
-        <div class="logo-icon"><i class="fas fa-graduation-cap"></i></div>
-        <div class="app-title">TeacherFeed</div>
-      </div>
-      <div class="header-actions">
-        <button class="icon-btn" id="notif-btn" onclick="soundManager.play('click')">
-          <i class="fas fa-bell"></i>
-          <span class="notif-badge" id="notif-badge" style="display:none">0</span>
-        </button>
-        <button class="icon-btn" id="logout-btn" style="display:none" onclick="app.logout()">
-          <i class="fas fa-sign-out-alt"></i>
-        </button>
+    <header>
+      <div class="logo">SchoolRank</div>
+      <div id="user-chip" style="font-size:14px; color:#cbd5e1; display:flex; align-items:center; gap:10px;">
+          <i class="fas fa-user-circle" style="font-size:20px;"></i> 
+          <span>אורח</span>
       </div>
     </header>
 
-    <main class="app-main">
+    <section id="s-login" class="screen active">
+        <div class="login-container">
+          <h1 style="font-size:32px; margin-bottom:10px;">כניסה למערכת</h1>
+          <p style="color:#94a3b8; margin-bottom:30px;">השפע על השיעור הבא שלך.</p>
+          
+          <div class="glass" style="padding:24px; border-radius:24px; text-align:right;">
+            <label style="font-size:12px; margin-bottom:6px; display:block; color:#94a3b8;">שם משתמש</label>
+            <input type="text" id="inp-user" placeholder="איך קוראים לך?">
+            <button class="btn btn-primary" id="btn-login" style="margin-top:10px;">
+              התחל לשחק <i class="fas fa-gamepad"></i>
+            </button>
+          </div>
+      </div>
+    </section>
+
+    <section id="s-home" class="screen">
+      <div style="text-align:right; margin-bottom:30px;">
+        <h1 style="font-size:36px; margin-bottom:5px;">מה אתה רוצה לעשות היום?</h1>
+        <p style="color:#94a3b8; font-size:18px;">מערכת משוב. לא מושלמת, אבל לפחות היא בצד שלך.</p>
+      </div>
       
-      <section id="screen-login" class="screen active">
-        <div class="login-card glass">
-          <div class="login-title">ברוכים הבאים</div>
-          <div style="color:var(--text-muted); margin-bottom:24px;">המקום שלך להשפיע על הלמידה</div>
-          
-          <div class="input-group">
-            <label class="input-label">שם משתמש</label>
-            <input type="text" id="login-username" class="styled-input" placeholder="לדוגמה: דניאל">
-          </div>
-          
-          <div class="input-group">
-            <label class="input-label">סיסמה (אופציונלי)</label>
-            <input type="password" id="login-password" class="styled-input" placeholder="••••••">
-          </div>
-
-          <button class="btn btn-primary btn-full" onclick="app.login()">
-            התחברות למערכת <i class="fas fa-arrow-left"></i>
-          </button>
-        </div>
-      </section>
-
-      <section id="screen-home" class="screen">
-        <h2 style="margin-bottom: 8px;">שלום, <span id="user-greeting" class="text-blue"></span> 👋</h2>
-        <p style="color:var(--text-muted); margin-bottom: 24px;">מה תרצה לעשות היום?</p>
-
-        <div class="grid-menu">
-          <div class="menu-tile glass" onclick="app.navTo('teachers', 'compliment')">
-            <div class="tile-icon text-green"><i class="fas fa-heart"></i></div>
-            <div class="tile-title">לפרגן למורה</div>
-            <div class="tile-sub">מגיע להם מילה טובה</div>
-          </div>
-
-          <div class="menu-tile glass" onclick="app.navTo('teachers', 'remark')">
-            <div class="tile-icon text-red"><i class="fas fa-comment-slash"></i></div>
-            <div class="tile-title">להעיר למורה</div>
-            <div class="tile-sub">חשוב שידעו מה לשפר</div>
-          </div>
-
-          <div class="menu-tile glass" onclick="app.navTo('leaderboard')">
-            <div class="tile-icon text-blue"><i class="fas fa-trophy"></i></div>
-            <div class="tile-title">טבלת מובילים</div>
-            <div class="tile-sub">מי התלמיד הכי משפיע?</div>
-          </div>
-
-          <div class="menu-tile glass" onclick="app.navTo('reports')">
-            <div class="tile-icon" style="color:#f59e0b"><i class="fas fa-chart-pie"></i></div>
-            <div class="tile-title">הדוחות שלי</div>
-            <div class="tile-sub">היסטוריית הפעילות שלך</div>
-          </div>
-
-           <div class="menu-tile glass" id="admin-tile" style="display:none" onclick="app.navTo('admin')">
-            <div class="tile-icon" style="color:#8b5cf6"><i class="fas fa-shield-alt"></i></div>
-            <div class="tile-title">ניהול (Admin)</div>
-            <div class="tile-sub">הוספת מורים ונתונים</div>
-          </div>
-        </div>
-      </section>
-
-      <section id="screen-teachers" class="screen">
-        <div class="section-header">
-          <h2>בחירת מורה</h2>
-          <button class="back-btn" onclick="app.navTo('home')"><i class="fas fa-arrow-right"></i> חזרה</button>
-        </div>
-        <input type="text" id="search-teacher" class="styled-input" placeholder="חיפוש מורה..." style="margin-bottom:20px;" oninput="app.renderTeacherList()">
-        <div id="teachers-container"></div>
-      </section>
-
-      <section id="screen-feedback" class="screen">
-        <div class="section-header">
-          <button class="back-btn" onclick="app.navTo('teachers')"><i class="fas fa-arrow-right"></i> ביטול</button>
-        </div>
-
-        <div class="glass" style="padding:24px; border-radius:24px; text-align:center;">
-          <div class="avatar" id="feedback-avatar" style="width:80px; height:80px; font-size:32px; margin:0 auto 16px;"></div>
-          <h2 id="feedback-teacher-name">שם המורה</h2>
-          <div id="feedback-subject" style="color:var(--text-muted); margin-bottom:20px;">מקצוע</div>
-
-          <div class="profile-stats">
-            <div class="stat-box">
-              <span class="stat-val text-green" id="stat-comp">0</span>
-              <span class="stat-lbl">מחמאות</span>
-            </div>
-            <div class="stat-box">
-              <span class="stat-val text-red" id="stat-rem">0</span>
-              <span class="stat-lbl">הערות</span>
-            </div>
-            <div class="stat-box">
-              <span class="stat-val text-blue" id="stat-score">0</span>
-              <span class="stat-lbl">ציון</span>
-            </div>
-          </div>
-
-          <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:20px 0;">
-
-          <h3 style="text-align:right; margin-bottom:12px;">מה תרצה להגיד?</h3>
-          <div id="quick-tags" class="tags-container"></div>
-          
-          <textarea id="feedback-text" class="big-textarea" placeholder="כתוב כאן בפירוט (אופציונלי)..."></textarea>
-
-          <button id="btn-submit" class="btn btn-full btn-primary" onclick="app.submitFeedback()">
-            שלח משוב
-          </button>
-        </div>
-      </section>
-
-      <section id="screen-leaderboard" class="screen">
-        <div class="section-header">
-          <h2>המשפיענים</h2>
-          <button class="back-btn" onclick="app.navTo('home')"><i class="fas fa-arrow-right"></i> חזרה</button>
-        </div>
-        <div class="glass" style="border-radius:20px; overflow:hidden;">
-          <div id="leaderboard-list"></div>
-        </div>
-      </section>
-
-      <section id="screen-admin" class="screen">
-        <div class="section-header">
-          <h2>ניהול מערכת</h2>
-          <button class="back-btn" onclick="app.navTo('home')"><i class="fas fa-arrow-right"></i> חזרה</button>
-        </div>
+      <div class="menu-grid">
         
-        <div class="glass" style="padding:20px; border-radius:20px; margin-bottom:20px;">
-          <h3>הוספת מורה חדש</h3>
-          <div class="input-group" style="margin-top:10px;">
-            <input type="text" id="new-teacher-name" class="styled-input" placeholder="שם המורה">
+        <div class="card-btn" onclick="app.nav('teachers')" onmouseenter="sfx.hover()">
+          <div class="card-icon-box" style="background: #0f766e;">
+            <i class="fas fa-users"></i>
           </div>
-          <div class="input-group">
-            <input type="text" id="new-teacher-subject" class="styled-input" placeholder="מקצוע">
+          <div class="card-content">
+            <h3>צפייה במורים</h3>
+            <span>לעבור על כל המורים, לראות מי זוכה בנקודות.</span>
           </div>
-          <button class="btn btn-success btn-full" onclick="app.addTeacher()">הוסף למערכת</button>
         </div>
 
-        <div class="glass" style="padding:20px; border-radius:20px;">
-          <h3>רשימת מורים</h3>
-          <div id="admin-list" style="margin-top:10px;"></div>
+        <div class="card-btn" onclick="app.nav('teachers', 'compliment')" onmouseenter="sfx.hover()">
+          <div class="card-icon-box" style="background: #10b981;">
+            <i class="fas fa-heart"></i>
+          </div>
+          <div class="card-content">
+            <h3>הוספת מחמאה</h3>
+            <span>הסביר ברור, היה נחמד, היה אנושי – מגיע לו.</span>
+          </div>
         </div>
-      </section>
 
-    </main>
-  </div>
+        <div class="card-btn" onclick="app.nav('teachers', 'remark')" onmouseenter="sfx.hover()">
+          <div class="card-icon-box" style="background: #ef4444;">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <div class="card-content">
+            <h3>הוספת הערה</h3>
+            <span>לא ברור, לא הוגן, או פשוט לא. כותבים את זה.</span>
+          </div>
+        </div>
 
-  <div id="toast" class="toast">
-    <div id="toast-icon"></div>
-    <div id="toast-msg"></div>
+        <div class="card-btn" onclick="app.nav('reports')" onmouseenter="sfx.hover()">
+          <div class="card-icon-box" style="background: #3b82f6;">
+            <i class="fas fa-chart-bar"></i>
+          </div>
+          <div class="card-content">
+            <h3>הדוחות שלי</h3>
+            <span>כל מה שכבר כתבת – טוב ורע – במקום אחד.</span>
+          </div>
+        </div>
+
+        <div class="card-btn" onclick="app.nav('leaderboard')" onmouseenter="sfx.hover()">
+          <div class="card-icon-box" style="background: #6366f1;">
+            <i class="fas fa-trophy"></i>
+          </div>
+          <div class="card-content">
+            <h3>לוח מדרגים</h3>
+            <span>מי הכי פעיל במתן משובים בבית הספר?</span>
+          </div>
+        </div>
+
+        <div class="card-btn" id="btn-admin" style="display:none;" onclick="app.nav('admin')" onmouseenter="sfx.hover()">
+          <div class="card-icon-box" style="background: #a855f7;">
+            <i class="fas fa-cog"></i>
+          </div>
+          <div class="card-content">
+            <h3>ניהול מורים (אדמין)</h3>
+            <span>הוספת מורים, מחיקה וניהול רשימה.</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="s-teachers" class="screen">
+        <div style="max-width:800px; margin:0 auto;">
+          <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;" onclick="app.nav('home')">
+            <i class="fas fa-arrow-right"></i> חזרה לדשבורד
+          </button>
+          <h2 style="margin-bottom:20px;">בחר מורה מהרשימה</h2>
+          <input type="text" id="search-t" placeholder="חפש מורה..." oninput="app.renderTeachers()">
+          <div id="list-t"></div>
+      </div>
+    </section>
+
+    <section id="s-feedback" class="screen">
+      <div class="glass" style="max-width:600px; margin:0 auto; padding:30px; border-radius:24px; text-align:center;">
+        <div id="fb-avatar" class="avatar" style="width:80px; height:80px; font-size:32px; margin:0 auto 15px;"></div>
+        <h2 id="fb-name" style="margin:0;">שם המורה</h2>
+        <div id="fb-mode-label" style="margin-bottom:20px; font-size:16px; opacity:0.7; margin-top:5px;"></div>
+
+        <div id="fb-tags" class="tags-wrap" style="justify-content:center;"></div>
+        
+        <textarea id="fb-text" rows="4" placeholder="פירוט (לא חובה)..."></textarea>
+        
+        <button id="fb-submit" class="btn" style="margin-top:10px;">שלח משוב</button>
+        <button class="btn" style="background:transparent; color:#94a3b8; margin-top:10px;" onclick="app.nav('teachers')">ביטול</button>
+      </div>
+    </section>
+
+    <section id="s-reports" class="screen">
+        <div style="max-width:800px; margin:0 auto;">
+           <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;" onclick="app.nav('home')">
+            <i class="fas fa-arrow-right"></i> חזרה
+          </button>
+          <h2>📝 המשובים ששלחתי</h2>
+          <div id="user-reports-list" class="glass" style="border-radius:20px; overflow:hidden;">
+            </div>
+       </div>
+    </section>
+    
+    <section id="s-leaderboard" class="screen">
+        <div style="max-width:800px; margin:0 auto;">
+           <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;" onclick="app.nav('home')">
+            <i class="fas fa-arrow-right"></i> חזרה
+          </button>
+          <h2>🏆 טבלת האלופים</h2>
+          <div id="leaderboard-list" class="glass" style="border-radius:20px; overflow:hidden;"></div>
+       </div>
+    </section>
+
+    <section id="s-admin" class="screen">
+        <div style="max-width:800px; margin:0 auto;">
+           <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;" onclick="app.nav('home')">
+            <i class="fas fa-arrow-right"></i> חזרה
+          </button>
+          <h2>ניהול מורים</h2>
+          <div class="glass" style="padding:20px; border-radius:20px; margin-bottom:20px;">
+              <input id="new-t-name" placeholder="שם מורה חדש">
+              <input id="new-t-sub" placeholder="מקצוע">
+              <button class="btn btn-success" onclick="app.addTeacher()">הוסף מורה</button>
+          </div>
+          <div id="admin-list"></div>
+       </div>
+    </section>
+
   </div>
 
 <script>
-// --- Sound Engine (Web Audio API) ---
-// מייצר סאונד ללא צורך בקבצים חיצוניים
-const soundManager = {
+// --- SOUND ENGINE ---
+const sfx = {
   ctx: null,
-  init: function() {
+  init: () => {
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
-    this.ctx = new AudioContext();
+    sfx.ctx = new AudioContext();
   },
-  play: function(type) {
-    if (!this.ctx) this.init();
-    const t = this.ctx.currentTime;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
+  playTone: (freq, type, duration, vol = 0.1) => {
+    if (!sfx.ctx) sfx.init();
+    const osc = sfx.ctx.createOscillator();
+    const gain = sfx.ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, sfx.ctx.currentTime);
+    gain.gain.setValueAtTime(vol, sfx.ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, sfx.ctx.currentTime + duration);
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
-
-    if (type === 'click') {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(600, t);
-      osc.frequency.exponentialRampToValueAtTime(300, t + 0.1);
-      gain.gain.setValueAtTime(0.1, t);
-      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
-      osc.start(t);
-      osc.stop(t + 0.1);
-    } 
-    else if (type === 'success') {
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(440, t);
-      osc.frequency.setValueAtTime(554, t + 0.1); // C#
-      gain.gain.setValueAtTime(0.1, t);
-      gain.gain.linearRampToValueAtTime(0, t + 0.4);
-      osc.start(t);
-      osc.stop(t + 0.4);
-    }
-    else if (type === 'error') {
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(150, t);
-      osc.frequency.linearRampToValueAtTime(100, t + 0.3);
-      gain.gain.setValueAtTime(0.1, t);
-      gain.gain.linearRampToValueAtTime(0, t + 0.3);
-      osc.start(t);
-      osc.stop(t + 0.3);
-    }
-    else if (type === 'pop') {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(800, t);
-      gain.gain.setValueAtTime(0.05, t);
-      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
-      osc.start(t);
-      osc.stop(t + 0.1);
-    }
+    gain.connect(sfx.ctx.destination);
+    osc.start();
+    osc.stop(sfx.ctx.currentTime + duration);
+  },
+  hover: () => sfx.playTone(400, 'sine', 0.1, 0.02),
+  click: () => sfx.playTone(600, 'triangle', 0.1, 0.05),
+  select: () => {
+    sfx.playTone(800, 'sine', 0.1, 0.05);
+    setTimeout(() => sfx.playTone(1200, 'sine', 0.2, 0.03), 50);
+  },
+  success: () => {
+    const now = sfx.ctx.currentTime;
+    [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => { 
+      setTimeout(() => sfx.playTone(f, 'sine', 0.6, 0.1), i * 80);
+    });
+    setTimeout(() => sfx.playTone(2000, 'triangle', 0.8, 0.05), 400);
+  },
+  remark: () => {
+    sfx.playTone(150, 'sawtooth', 0.4, 0.1);
+    sfx.playTone(100, 'square', 0.5, 0.1);
+    setTimeout(() => sfx.playTone(80, 'sine', 0.6, 0.2), 100);
   }
 };
 
-// --- App Logic ---
+// --- DATA & LOGIC ---
 const SUPABASE_URL = 'https://xidfthnboggokcsloglt.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpZGZ0aG5ib2dnb2tjc2xvZ2x0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQzMTIwNzUsImV4cCI6MjA3OTg4ODA3NX0.fEPS2FJYlcZ4DOv7I0RBEcwZBfT0MdRGslk9cp_2GwU';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
-
 const app = {
   user: null,
   teachers: [],
-  feedback: [],
-  currentMode: null, // 'compliment' or 'remark'
-  selectedTeacher: null,
+  mode: null,
+  selTeacher: null,
 
   init: async () => {
-    // Check local storage for user
-    const savedUser = localStorage.getItem('tf_user');
-    if (savedUser) {
-      app.user = JSON.parse(savedUser);
-      app.postLoginSetup();
+    const saved = localStorage.getItem('tf_user');
+    if (saved) {
+      app.user = JSON.parse(saved);
+      app.showScreen('home');
     }
     await app.fetchData();
     app.setupRealtime();
   },
 
   fetchData: async () => {
-    let { data: t } = await supabase.from('teachers').select('*');
-    app.teachers = t || [];
-    let { data: f } = await supabase.from('feedback').select('*');
-    app.feedback = f || [];
+    // Note: You must ensure your 'teachers' table is available and accessible
+    let { data } = await supabase.from('teachers').select('*');
+    app.teachers = data || [];
   },
-
+  
   setupRealtime: () => {
-    supabase.channel('public:feedback').on('postgres_changes', { event: '*', schema: 'public', table: 'feedback' }, payload => {
-      app.fetchData().then(() => {
-        if (app.user) app.updateLeaderboard(); // Refresh if viewing leaderboard
-      });
-    }).subscribe();
+     supabase.channel('public:feedback').on('postgres_changes', { event: '*', schema: 'public', table: 'feedback' }, () => {
+       app.updateLeaderboard();
+     }).subscribe();
   },
 
-  login: () => {
-    const name = document.getElementById('login-username').value.trim();
-    const pass = document.getElementById('login-password').value.trim();
-    if (!name) return app.toast('נא להזין שם משתמש', 'error');
-
-    soundManager.play('success');
-    app.user = { 
-      name: name, 
-      role: (name === 'adir' && pass === '1234') ? 'admin' : 'student' 
-    };
-    
-    localStorage.setItem('tf_user', JSON.stringify(app.user));
-    app.postLoginSetup();
+  nav: (scr, mode) => {
+    sfx.click();
+    if (mode) app.mode = mode;
+    app.showScreen(scr);
   },
 
-  postLoginSetup: () => {
-    document.getElementById('screen-login').classList.remove('active');
-    document.getElementById('screen-home').classList.add('active');
-    document.getElementById('logout-btn').style.display = 'flex';
-    document.getElementById('user-greeting').innerText = app.user.name;
-    if (app.user.role === 'admin') document.getElementById('admin-tile').style.display = 'flex';
-  },
-
-  logout: () => {
-    localStorage.removeItem('tf_user');
-    location.reload();
-  },
-
-  navTo: (screenId, mode = null) => {
-    soundManager.play('click');
+  showScreen: (id) => {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('screen-' + screenId).classList.add('active');
+    document.getElementById('s-' + id).classList.add('active');
     
-    if (screenId === 'teachers') {
-      app.currentMode = mode; // Store mode
-      app.renderTeacherList();
+    if (id === 'home') {
+        const uLabel = document.querySelector('#user-chip span');
+        if(uLabel) uLabel.innerText = app.user.name;
+        
+        const adminBtn = document.getElementById('btn-admin');
+        if(app.user.role === 'admin') adminBtn.style.display = 'flex'; 
+        else adminBtn.style.display = 'none';
     }
-    if (screenId === 'leaderboard') app.renderLeaderboard();
-    if (screenId === 'admin') app.renderAdmin();
+    if (id === 'teachers') app.renderTeachers();
+    if (id === 'leaderboard') app.updateLeaderboard();
+    if (id === 'reports') app.renderReports(); // קורא לפונקציה החדשה
+    if (id === 'admin') app.renderAdmin();
   },
 
-  renderTeacherList: () => {
-    const container = document.getElementById('teachers-container');
-    const search = document.getElementById('search-teacher').value.toLowerCase();
-    container.innerHTML = '';
-
-    app.teachers.filter(t => t.name.toLowerCase().includes(search)).forEach(t => {
-      const stats = app.getStats(t.id);
-      const color = colors[t.name.length % colors.length];
-      
-      const el = document.createElement('div');
-      el.className = 'teacher-card glass';
-      el.innerHTML = `
-        <div class="teacher-info">
-          <div class="avatar" style="background:${color}">${t.name[0]}</div>
-          <div>
-            <div style="font-weight:600; font-size:16px;">${t.name}</div>
-            <div style="font-size:13px; color:var(--text-muted)">${t.subject}</div>
+  renderTeachers: () => {
+    const list = document.getElementById('list-t');
+    const term = document.getElementById('search-t').value.toLowerCase();
+    list.innerHTML = '';
+    
+    app.teachers.filter(t => t.name.toLowerCase().includes(term)).forEach(t => {
+      const d = document.createElement('div');
+      d.className = 't-item glass';
+      d.onclick = () => app.prepFeedback(t);
+      d.onmouseenter = sfx.hover;
+      d.innerHTML = `
+        <div style="display:flex; align-items:center;">
+          <div class="avatar" style="background:${stringToColor(t.name)}">${t.name[0]}</div>
+          <div style="margin-right:15px;">
+            <div style="font-weight:700;">${t.name}</div>
+            <div style="font-size:12px; opacity:0.7;">${t.subject}</div>
           </div>
         </div>
-        <div style="text-align:left">
-          <div style="font-weight:700; color:${stats.score >= 0 ? 'var(--success)' : 'var(--danger)'}">${stats.score > 0 ? '+' : ''}${stats.score}</div>
-          <div style="font-size:10px; color:var(--text-muted)">נקודות</div>
-        </div>
-      `;
-      el.onclick = () => app.openFeedback(t);
-      container.appendChild(el);
-    });
-  },
-
-  openFeedback: (teacher) => {
-    // If no mode selected (came from admin or somewhere else), default to profile view
-    if (!app.currentMode) app.currentMode = 'compliment'; 
-
-    app.selectedTeacher = teacher;
-    soundManager.play('pop');
-    
-    // UI Update
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('screen-feedback').classList.add('active');
-    
-    document.getElementById('feedback-teacher-name').innerText = teacher.name;
-    document.getElementById('feedback-subject').innerText = teacher.subject;
-    
-    const color = colors[teacher.name.length % colors.length];
-    const avatar = document.getElementById('feedback-avatar');
-    avatar.style.background = color;
-    avatar.innerText = teacher.name[0];
-
-    // Stats
-    const stats = app.getStats(teacher.id);
-    document.getElementById('stat-comp').innerText = stats.comp;
-    document.getElementById('stat-rem').innerText = stats.rem;
-    document.getElementById('stat-score').innerText = stats.score;
-
-    // Tags Setup
-    const tagsContainer = document.getElementById('quick-tags');
-    tagsContainer.innerHTML = '';
-    const tags = app.currentMode === 'compliment' 
-      ? ['הסבר ברור', 'יחס מעולה', 'שיעור מעניין', 'עוזר לתלמידים', 'סבלני']
-      : ['הסבר לא מובן', 'יחס לא מכבד', 'איחור לשיעור', 'חוסר סבלנות', 'ציון לא הוגן'];
-    
-    tags.forEach(tag => {
-      const btn = document.createElement('div');
-      btn.className = 'tag-btn';
-      btn.innerText = tag;
-      btn.onclick = function() {
-        soundManager.play('click');
-        this.classList.toggle(app.currentMode === 'compliment' ? 'selected' : 'selected-neg');
-      };
-      tagsContainer.appendChild(btn);
-    });
-
-    // Button Style
-    const btn = document.getElementById('btn-submit');
-    if (app.currentMode === 'compliment') {
-      btn.className = 'btn btn-full btn-success';
-      btn.innerHTML = '<i class="fas fa-heart"></i> שלח פירגון';
-    } else {
-      btn.className = 'btn btn-full btn-danger';
-      btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> שלח הערה';
-    }
-  },
-
-  submitFeedback: async () => {
-    const text = document.getElementById('feedback-text').value;
-    const activeTags = Array.from(document.querySelectorAll('.tag-btn.selected, .tag-btn.selected-neg')).map(e => e.innerText);
-
-    if (!text && activeTags.length === 0) return app.toast('צריך לכתוב משהו או לבחור תגיות', 'error');
-
-    const feedbackData = {
-      teacher_id: app.selectedTeacher.id,
-      user_name: app.user.name,
-      type: app.currentMode,
-      tags: activeTags,
-      text: text
-    };
-
-    // Optimistic UI
-    app.confetti();
-    soundManager.play('success');
-    app.toast(app.currentMode === 'compliment' ? 'הפרגון נשלח!' : 'ההערה נרשמה', 'success');
-    app.navTo('teachers', app.currentMode);
-
-    // Send to DB
-    await supabase.from('feedback').insert([feedbackData]);
-    document.getElementById('feedback-text').value = '';
-  },
-
-  getStats: (teacherId) => {
-    const f = app.feedback.filter(x => x.teacher_id === teacherId);
-    const comp = f.filter(x => x.type === 'compliment').length;
-    const rem = f.filter(x => x.type === 'remark').length;
-    return { comp, rem, score: comp - rem };
-  },
-
-  renderLeaderboard: () => {
-    const list = document.getElementById('leaderboard-list');
-    list.innerHTML = '';
-    
-    // Calculate top students
-    const studentCounts = {};
-    app.feedback.forEach(f => {
-      if(!studentCounts[f.user_name]) studentCounts[f.user_name] = 0;
-      studentCounts[f.user_name]++;
-    });
-
-    const sorted = Object.entries(studentCounts).sort((a,b) => b[1] - a[1]);
-
-    if (sorted.length === 0) list.innerHTML = '<div style="padding:20px; text-align:center">אין עדיין נתונים</div>';
-
-    sorted.forEach((item, index) => {
-      const rankClass = index === 0 ? 'rank-1' : (index === 1 ? 'rank-2' : (index === 2 ? 'rank-3' : ''));
-      const icon = index === 0 ? '<i class="fas fa-crown"></i>' : index + 1;
-      
-      const row = document.createElement('div');
-      row.className = 'leaderboard-row';
-      row.innerHTML = `
-        <div class="rank-num ${rankClass}">${icon}</div>
-        <div style="flex:1; font-weight:500;">${item[0]}</div>
-        <div class="tag-btn" style="border-radius:8px; cursor:default">${item[1]} משובים</div>
-      `;
-      list.appendChild(row);
-    });
-  },
-
-  renderAdmin: () => {
-    const list = document.getElementById('admin-list');
-    list.innerHTML = '';
-    app.teachers.forEach(t => {
-      const d = document.createElement('div');
-      d.className = 'teacher-card glass';
-      d.style.marginBottom = '8px';
-      d.innerHTML = `
-        <span>${t.name} (${t.subject})</span>
-        <button class="btn btn-danger" style="padding:6px 12px; font-size:12px;" onclick="app.deleteTeacher(${t.id})"><i class="fas fa-trash"></i></button>
+        <i class="fas fa-chevron-left" style="opacity:0.5"></i>
       `;
       list.appendChild(d);
     });
   },
 
+  prepFeedback: (t) => {
+    sfx.select();
+    app.selTeacher = t;
+    app.showScreen('feedback');
+    
+    const isPos = app.mode === 'compliment';
+    const av = document.getElementById('fb-avatar');
+    av.style.background = stringToColor(t.name);
+    av.innerText = t.name[0];
+    document.getElementById('fb-name').innerText = t.name;
+    document.getElementById('fb-mode-label').innerText = isPos ? 'על מה מגיע פרגון?' : 'מה צריך שיפור?';
+    
+    // Tags
+    const tags = isPos 
+      ? ['הסבר ברור', 'יחס אישי', 'שיעור כיף', 'עוזר בחומר', 'מצחיק']
+      : ['לא מובן', 'יחס מזלזל', 'משעמם', 'צעקות', 'איחור'];
+      
+    const cont = document.getElementById('fb-tags');
+    cont.innerHTML = '';
+    tags.forEach(tag => {
+      const el = document.createElement('div');
+      el.className = 'tag';
+      el.innerText = tag;
+      el.onclick = function() {
+        sfx.click();
+        this.classList.toggle(isPos ? 'active-pos' : 'active-neg');
+      };
+      cont.appendChild(el);
+    });
+    
+    const btn = document.getElementById('fb-submit');
+    btn.className = `btn ${isPos ? 'btn-success' : 'btn-danger'}`;
+    btn.innerHTML = isPos ? 'שלח פרגון <i class="fas fa-heart"></i>' : 'שלח הערה <i class="fas fa-paper-plane"></i>';
+    btn.onclick = app.submitFeedback;
+  },
+
+  submitFeedback: async () => {
+    const txt = document.getElementById('fb-text').value;
+    const tags = Array.from(document.querySelectorAll('.tag.active-pos, .tag.active-neg')).map(e => e.innerText);
+    
+    if (!txt && tags.length === 0) return alert('בחר תגית או כתוב משהו');
+    
+    const isPos = app.mode === 'compliment';
+    
+    if (isPos) {
+      sfx.success();
+      triggerConfetti('🎉', '❤️', '⭐');
+      flashScreen('#10b981');
+    } else {
+      sfx.remark();
+      triggerConfetti('⚠️', '❗', '⚡');
+      flashScreen('#ef4444');
+      document.body.classList.add('shake-fx');
+      setTimeout(() => document.body.classList.remove('shake-fx'), 500);
+    }
+    
+    await supabase.from('feedback').insert([{
+      teacher_id: app.selTeacher.id,
+      user_name: app.user.name,
+      type: app.mode,
+      tags: tags,
+      text: txt
+    }]);
+
+    document.getElementById('fb-text').value = '';
+    setTimeout(() => app.nav('home'), 1500); 
+  },
+
+  updateLeaderboard: async () => {
+     let { data: feed } = await supabase.from('feedback').select('user_name');
+     const counts = {};
+     feed.forEach(f => counts[f.user_name] = (counts[f.user_name] || 0) + 1);
+     const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 10);
+     
+     const el = document.getElementById('leaderboard-list');
+     el.innerHTML = '';
+     sorted.forEach((u, i) => {
+         el.innerHTML += `
+            <div style="display:flex; justify-content:space-between; padding:15px; border-bottom:1px solid rgba(255,255,255,0.05);">
+                <div><span style="font-weight:bold; width:20px; display:inline-block;">#${i+1}</span> ${u[0]}</div>
+                <div style="font-weight:bold; color:var(--primary)">${u[1]} נק'</div>
+            </div>
+         `;
+     });
+  },
+
+  // פונקציה חדשה: רינדור הדוחות של המשתמש הנוכחי
+  renderReports: async () => {
+    if (!app.user || !app.user.name) return;
+
+    // שליפת משובים של המשתמש הנוכחי (עם הצטרפות לשם המורה)
+    // הערה: נדרש לוודא שיש קשר (Foreign Key) בין feedback ל-teachers ב-Supabase
+    let { data: reports } = await supabase.from('feedback')
+        .select('created_at, type, tags, text, teachers(name)') 
+        .eq('user_name', app.user.name)
+        .order('created_at', { ascending: false });
+
+    const el = document.getElementById('user-reports-list');
+    el.innerHTML = '';
+    
+    if (!reports || reports.length === 0) {
+        el.innerHTML = '<div style="padding: 20px; text-align: center; color: #94a3b8; font-size:16px;">עוד לא שלחת שום משוב. התחל לשחק!</div>';
+        return;
+    }
+
+    reports.forEach(r => {
+        const isPos = r.type === 'compliment';
+        const typeColor = isPos ? 'var(--success)' : 'var(--danger)';
+        const typeIcon = isPos ? 'fas fa-heart' : 'fas fa-bolt';
+        const typeText = isPos ? 'פרגון' : 'הערה';
+        const teacherName = r.teachers ? r.teachers.name : 'מורה לא ידוע';
+        const date = new Date(r.created_at).toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        
+        // פורמט תגיות
+        const tagsHtml = r.tags.length > 0 
+            ? r.tags.map(tag => `<span style="background: ${isPos ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)'}; color: ${typeColor}; padding: 4px 8px; border-radius: 10px; font-size: 12px; white-space: nowrap;">${tag}</span>`).join(' ')
+            : '';
+
+        el.innerHTML += `
+            <div style="padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                    <div style="font-weight: 700; font-size: 18px; color: ${typeColor};">
+                        <i class="${typeIcon}"></i> ${typeText} למורה ${teacherName}
+                    </div>
+                    <div style="font-size: 12px; color: #94a3b8; text-align: left;">${date}</div>
+                </div>
+                ${tagsHtml ? `<div style="margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 8px;">${tagsHtml}</div>` : ''}
+                ${r.text ? `<p style="margin: 0; font-size: 15px; color: #cbd5e1; white-space: pre-wrap;">${r.text}</p>` : ''}
+            </div>
+        `;
+    });
+},
+
+  renderAdmin: () => {
+      const list = document.getElementById('admin-list');
+      list.innerHTML = '';
+      app.teachers.forEach(t => {
+          list.innerHTML += `<div class="glass" style="padding:15px; margin-bottom:10px; display:flex; justify-content:space-between; border-radius:12px; align-items:center;">
+            <span>${t.name}</span>
+            <button onclick="app.delTeacher(${t.id})" style="background:#ef4444; border:none; color:white; border-radius:8px; padding:8px 12px; cursor:pointer;"><i class="fas fa-trash"></i></button>
+          </div>`;
+      });
+  },
+  
   addTeacher: async () => {
-    const name = document.getElementById('new-teacher-name').value;
-    const subject = document.getElementById('new-teacher-subject').value;
-    if(name && subject) {
-      await supabase.from('teachers').insert([{name, subject}]);
-      soundManager.play('success');
-      app.renderAdmin();
-      document.getElementById('new-teacher-name').value = '';
-      document.getElementById('new-teacher-subject').value = '';
-    }
+      const name = document.getElementById('new-t-name').value;
+      const sub = document.getElementById('new-t-sub').value;
+      if(name) {
+          await supabase.from('teachers').insert([{name, subject: sub}]);
+          document.getElementById('new-t-name').value = '';
+          document.getElementById('new-t-sub').value = '';
+          app.fetchData().then(app.renderAdmin);
+      }
   },
-
-  deleteTeacher: async (id) => {
-    if(confirm('למחוק? זה ימחק גם את המשובים שלו.')) {
-      await supabase.from('feedback').delete().eq('teacher_id', id);
-      await supabase.from('teachers').delete().eq('id', id);
-      app.renderAdmin();
-    }
-  },
-
-  toast: (msg, type) => {
-    const t = document.getElementById('toast');
-    const icon = document.getElementById('toast-icon');
-    document.getElementById('toast-msg').innerText = msg;
-    
-    t.style.borderLeft = type === 'success' ? '4px solid var(--success)' : '4px solid var(--danger)';
-    icon.innerHTML = type === 'success' ? '<i class="fas fa-check-circle text-green"></i>' : '<i class="fas fa-exclamation-circle text-red"></i>';
-    
-    soundManager.play(type === 'success' ? 'success' : 'error');
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
-  },
-
-  confetti: () => {
-    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
-    for (let i = 0; i < 30; i++) {
-      const p = document.createElement('div');
-      p.className = 'particle';
-      p.style.left = '50%';
-      p.style.top = '50%';
-      p.style.width = Math.random() * 8 + 4 + 'px';
-      p.style.height = p.style.width;
-      p.style.background = colors[Math.floor(Math.random() * colors.length)];
-      p.style.borderRadius = '50%';
-      
-      const tx = (Math.random() - 0.5) * 300 + 'px';
-      const ty = (Math.random() - 0.5) * 300 + 'px';
-      p.style.setProperty('--tx', tx);
-      p.style.setProperty('--ty', ty);
-      
-      document.body.appendChild(p);
-      setTimeout(() => p.remove(), 600);
-    }
+  delTeacher: async (id) => {
+      if(confirm('למחוק מורה זה?')) {
+        await supabase.from('feedback').delete().eq('teacher_id', id);
+        await supabase.from('teachers').delete().eq('id', id);
+        app.fetchData().then(app.renderAdmin);
+      }
   }
 };
 
-// Start
+// Login Logic
+document.getElementById('btn-login').onclick = () => {
+  const u = document.getElementById('inp-user').value.trim();
+  if(!u) return;
+  sfx.success();
+  app.user = { name: u, role: (u==='adir'?'admin':'student') };
+  localStorage.setItem('tf_user', JSON.stringify(app.user));
+  app.showScreen('home');
+};
+
+// FX Helpers
+function stringToColor(str) {
+  const colors = ['#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
+  return colors[str.length % colors.length];
+}
+
+function flashScreen(color) {
+  const f = document.getElementById('flash-fx');
+  f.style.background = color;
+  f.style.opacity = 0.2;
+  setTimeout(() => f.style.opacity = 0, 300);
+}
+
+function triggerConfetti(icon1, icon2, icon3) {
+  for(let i=0; i<30; i++) {
+    const el = document.createElement('div');
+    el.className = 'particle';
+    el.innerText = [icon1, icon2, icon3][Math.floor(Math.random()*3)];
+    el.style.left = '50%';
+    el.style.top = '50%';
+    const tx = (Math.random() - 0.5) * window.innerWidth;
+    const ty = (Math.random() - 0.5) * window.innerHeight;
+    const rot = Math.random() * 360 + 'deg';
+    el.style.setProperty('--tx', `${tx}px`);
+    el.style.setProperty('--ty', `${ty}px`);
+    el.style.setProperty('--rot', rot);
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1000);
+  }
+}
+
+// Init
 document.addEventListener('DOMContentLoaded', app.init);
 </script>
 </body>
