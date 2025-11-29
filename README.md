@@ -186,7 +186,7 @@
         max-width: 400px; margin: 0 auto; text-align: center;
     }
 
-    /* שדות הלוגין החדשים */
+    /* שדות הלוגין */
     .form-field {
       margin-bottom: 16px;
     }
@@ -269,7 +269,7 @@
       </div>
     </header>
 
-    <!-- לוגין כמו המקורי (שם + סיסמה) -->
+    <!-- לוגין -->
     <section id="s-login" class="screen active">
       <div class="login-container">
         <h1 style="font-size:32px; margin-bottom:10px;">כניסה למערכת</h1>
@@ -312,6 +312,7 @@
       </div>
     </section>
 
+    <!-- דשבורד -->
     <section id="s-home" class="screen">
       <div style="text-align:right; margin-bottom:30px;">
         <h1 style="font-size:36px; margin-bottom:5px;">מה אתה רוצה לעשות היום?</h1>
@@ -383,6 +384,7 @@
       </div>
     </section>
 
+    <!-- רשימת מורים -->
     <section id="s-teachers" class="screen">
       <div style="max-width:800px; margin:0 auto;">
         <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;" onclick="app.nav('home')">
@@ -394,6 +396,7 @@
       </div>
     </section>
 
+    <!-- מסך משוב -->
     <section id="s-feedback" class="screen">
       <div class="glass" style="max-width:600px; margin:0 auto; padding:30px; border-radius:24px; text-align:center;">
         <div id="fb-avatar" class="avatar" style="width:80px; height:80px; font-size:32px; margin:0 auto 15px;"></div>
@@ -409,7 +412,7 @@
       </div>
     </section>
 
-    <!-- דוחות במבנה החדש -->
+    <!-- דוחות -->
     <section id="s-reports" class="screen">
       <div style="max-width:800px; margin:0 auto;">
         <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;" onclick="app.nav('home')">
@@ -467,6 +470,7 @@
       </div>
     </section>
 
+    <!-- לוח מדרגים -->
     <section id="s-leaderboard" class="screen">
       <div style="max-width:800px; margin:0 auto;">
         <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;" onclick="app.nav('home')">
@@ -477,7 +481,7 @@
       </div>
     </section>
 
-    <!-- אדמין עם ניהול מורים + ניהול משובים -->
+    <!-- אדמין -->
     <section id="s-admin" class="screen">
       <div style="max-width:800px; margin:0 auto;">
         <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;" onclick="app.nav('home')">
@@ -567,7 +571,10 @@ const app = {
         chip.innerText = `מחובר: ${roleLabel} (${app.user.name})`;
       }
       app.showScreen('home');
+    } else {
+      app.showScreen('login');
     }
+
     await app.fetchData();
     app.setupRealtime();
     app.updateLeaderboard();
@@ -596,14 +603,33 @@ const app = {
 
   nav: (scr, mode) => {
     sfx.click();
-    if (mode) app.mode = mode;
+
+    if (mode) {
+      // נכנסנו דרך "הוספת מחמאה" או "הוספת הערה"
+      app.mode = mode;
+    } else if (scr === 'teachers') {
+      // צפייה במורים בלבד
+      app.mode = null;
+    }
+
     app.showScreen(scr);
   },
 
   showScreen: (id) => {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById('s-' + id).classList.add('active');
-    
+    const scr = document.getElementById('s-' + id);
+    if (scr) scr.classList.add('active');
+  
+    // להראות/להסתיר את ה-header לפי המסך
+    const header = document.querySelector('header');
+    if (header) {
+      if (id === 'login') {
+        header.style.display = 'none';   // במסך התחברות אין לוגו למעלה
+      } else {
+        header.style.display = 'flex';   // בשאר המסכים כן לוגו
+      }
+    }
+
     if (id === 'home') {
       if (app.user) {
         const chip = document.querySelector('#user-chip span');
@@ -626,6 +652,7 @@ const app = {
     const list = document.getElementById('list-t');
     const termEl = document.getElementById('search-t');
     const term = termEl ? termEl.value.toLowerCase() : '';
+    if (!list) return;
     list.innerHTML = '';
 
     let teachers = app.teachers;
@@ -663,7 +690,14 @@ const app = {
 
       const d = document.createElement('div');
       d.className = 't-item glass';
-      d.onclick = () => app.prepFeedback(t);
+
+      // במצב מחמאה/הערה – לחיצה פותחת טופס. במצב צפייה – רק רואים נתונים.
+      if (app.mode === 'compliment' || app.mode === 'remark') {
+        d.onclick = () => app.prepFeedback(t);
+      } else {
+        d.onclick = null;
+      }
+
       d.onmouseenter = sfx.hover;
 
       d.innerHTML = `
@@ -787,7 +821,7 @@ const app = {
     });
   },
 
-  // דוחות – כמו המקורי אבל בעיצוב החדש
+  // דוחות
   renderReports: async () => {
     if (!app.user || !app.user.name) return;
 
@@ -885,7 +919,7 @@ const app = {
     });
   },
 
-  // ניהול מורים + ניהול משובים
+  // ניהול מורים + משובים
   renderAdmin: async () => {
     // חלק 1: מורים
     const list = document.getElementById('admin-list');
@@ -1012,7 +1046,6 @@ const app = {
 
     await supabase.from('feedback').delete().eq('id', id);
 
-    // רענון מסכים שקשורים למשובים
     app.renderReports();
     app.renderTeachers();
     app.updateLeaderboard();
