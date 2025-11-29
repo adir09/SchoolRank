@@ -310,7 +310,7 @@
     <section id="s-login" class="screen active">
       <div class="login-container">
         <h1 style="font-size:32px; margin-bottom:10px;">כניסה למערכת</h1>
-        <p style="color:#94a3b8; margin-bottom:30px;">השפעה אמיתית על השיעור הבא שלך.</p>
+        <p style="color:#94a3b8; margin-bottom:30px;"></p>
         
         <div class="glass" style="padding:24px; border-radius:24px; text-align:right;">
           
