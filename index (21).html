@@ -209,7 +209,8 @@
 
     .particle {
       position: fixed; pointer-events: none; z-index: 9999;
-      animation: flyOut 1s ease-out forwards; font-size: 24px;
+      animation: flyOut 1s ease-out forwards; 
+      font-size: 24px;
     }
     @keyframes flyOut {
       0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
@@ -597,11 +598,32 @@ const app = {
   mode: null,
   selTeacher: null,
 
+  // שמירת המשתמש בטבלת users ב-Supabase
+  saveUserToDB: async () => {
+    if (!app.user || !app.user.name) return;
+
+    const { error } = await supabase
+      .from('users')
+      .upsert(
+        [{
+          username: app.user.name,
+          role: app.user.role,
+          last_login: new Date().toISOString()
+        }],
+        { onConflict: 'username' }
+      );
+
+    if (error) {
+      console.error('שגיאה בשמירת המשתמש לטבלת users:', error);
+    }
+  },
+
   init: async () => {
     const saved = localStorage.getItem('tf_user');
     if (saved) {
       app.user = JSON.parse(saved);
       app.updateUserChip();
+      await app.saveUserToDB();
       app.showScreen('home');
     } else {
       app.showScreen('login');
@@ -1098,7 +1120,7 @@ const app = {
 // Login Logic
 const loginBtn = document.getElementById('login-button');
 if (loginBtn) {
-  loginBtn.onclick = () => {
+  loginBtn.onclick = async () => {
     const username = document.getElementById('login-username').value.trim();
     const password = document.getElementById('login-password').value.trim();
 
@@ -1116,10 +1138,13 @@ if (loginBtn) {
     localStorage.setItem('tf_user', JSON.stringify(app.user));
     app.updateUserChip();
 
+    await app.saveUserToDB();
+
     sfx.success();
     app.showScreen('home');
   };
 }
+
 
 // FX Helpers
 function stringToColor(str) {
