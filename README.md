@@ -209,7 +209,8 @@
 
     .particle {
       position: fixed; pointer-events: none; z-index: 9999;
-      animation: flyOut 1s.ease-out.forwards; font-size: 24px;
+      animation: flyOut 1s ease-out forwards; 
+      font-size: 24px;
     }
     @keyframes flyOut {
       0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
@@ -296,11 +297,11 @@
       <div class="logo">SchoolRank</div>
       <div class="header-right">
         <div id="user-chip" style="font-size:14px; color:#cbd5e1; display:flex; align-items:center; gap:10px;">
-          <i class="fas.fa-user-circle" style="font-size:20px;"></i> 
+          <i class="fas fa-user-circle" style="font-size:20px;"></i> 
           <span>אורח</span>
         </div>
         <button id="logout-btn" class="btn-logout" onclick="app.logout()" style="display:none;">
-          <i class="fas.fa-sign-out-alt"></i>
+          <i class="fas fa-sign-out-alt"></i>
           <span>התנתקות</span>
         </button>
       </div>
@@ -316,7 +317,7 @@
           
           <div class="form-field">
             <div class="form-label">
-              <i class="fas.fa-user"></i>
+              <i class="fas fa-user"></i>
               <span>שם משתמש</span>
             </div>
             <input type="text" id="login-username" class="text-input" placeholder="לדוגמה: תלמיד">
@@ -324,23 +325,23 @@
 
           <div class="form-field">
             <div class="form-label">
-              <i class="fas.fa-lock"></i>
+              <i class="fas fa-lock"></i>
               <span>סיסמה</span>
             </div>
             <input type="password" id="login-password" class="text-input" placeholder="אפשר כל דבר">
           </div>
 
           <button class="btn btn-primary" id="login-button" style="width:100%; margin-top:10px;">
-            התחברות <i class="fas.fa-sign-in-alt"></i>
+            התחברות <i class="fas fa-sign-in-alt"></i>
           </button>
 
           <div style="margin-top: 16px; padding: 12px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.3);">
             <div style="font-size: 12px; color: #93c5fd; display: flex; align-items: center; gap: 6px; margin-bottom:4px;">
-              <i class="fas.fa-cloud"></i>
+              <i class="fas fa-cloud"></i>
               <span>המערכת מחוברת ל-Supabase - כל המשובים נשמרים ונראים לכל המשתמשים!</span>
             </div>
             <div id="sync-status" style="font-size: 12px; color: #93c5fd; display:flex; align-items:center; gap:6px;">
-              <i class="fas.fa-database"></i>
+              <i class="fas fa-database"></i>
               <span>מחובר - נתונים משותפים</span>
             </div>
           </div>
@@ -358,9 +359,9 @@
       
       <div class="menu-grid">
         
-        <div class="card-btn".onclick="app.nav('teachers')" onmouseenter="sfx.hover()">
+        <div class="card-btn" onclick="app.nav('teachers')" onmouseenter="sfx.hover()">
           <div class="card-icon-box" style="background: #0f766e;">
-            <i class="fas.fa-users"></i>
+            <i class="fas fa-users"></i>
           </div>
           <div class="card-content">
             <h3>צפייה במורים</h3>
@@ -368,9 +369,9 @@
           </div>
         </div>
 
-        <div class="card-btn".onclick="app.nav('teachers', 'compliment')" onmouseenter="sfx.hover()">
+        <div class="card-btn" onclick="app.nav('teachers', 'compliment')" onmouseenter="sfx.hover()">
           <div class="card-icon-box" style="background: #10b981;">
-            <i class="fas.fa-heart"></i>
+            <i class="fas fa-heart"></i>
           </div>
           <div class="card-content">
             <h3>הוספת מחמאה</h3>
@@ -378,9 +379,9 @@
           </div>
         </div>
 
-        <div class="card-btn".onclick="app.nav('teachers', 'remark')" onmouseenter="sfx.hover()">
+        <div class="card-btn" onclick="app.nav('teachers', 'remark')" onmouseenter="sfx.hover()">
           <div class="card-icon-box" style="background: #ef4444;">
-            <i class="fas.fa-exclamation-triangle"></i>
+            <i class="fas fa-exclamation-triangle"></i>
           </div>
           <div class="card-content">
             <h3>הוספת הערה</h3>
@@ -388,9 +389,9 @@
           </div>
         </div>
 
-        <div class="card-btn".onclick="app.nav('reports')" onmouseenter="sfx.hover()">
+        <div class="card-btn" onclick="app.nav('reports')" onmouseenter="sfx.hover()">
           <div class="card-icon-box" style="background: #3b82f6;">
-            <i class="fas.fa-chart-bar"></i>
+            <i class="fas fa-chart-bar"></i>
           </div>
           <div class="card-content">
             <h3>הדוחות שלי</h3>
@@ -398,9 +399,9 @@
           </div>
         </div>
 
-        <div class="card-btn".onclick="app.nav('leaderboard')" onmouseenter="sfx.hover()">
+        <div class="card-btn" onclick="app.nav('leaderboard')" onmouseenter="sfx.hover()">
           <div class="card-icon-box" style="background: #6366f1;">
-            <i class="fas.fa-trophy"></i>
+            <i class="fas fa-trophy"></i>
           </div>
           <div class="card-content">
             <h3>לוח מדרגים</h3>
@@ -408,9 +409,9 @@
           </div>
         </div>
 
-        <div class="card-btn" id="btn-admin" style="display:none;".onclick="app.nav('admin')" onmouseenter="sfx.hover()">
+        <div class="card-btn" id="btn-admin" style="display:none;" onclick="app.nav('admin')" onmouseenter="sfx.hover()">
           <div class="card-icon-box" style="background: #a855f7;">
-            <i class="fas.fa-cog"></i>
+            <i class="fas fa-cog"></i>
           </div>
           <div class="card-content">
             <h3>ניהול מורים (אדמין)</h3>
@@ -424,8 +425,8 @@
     <!-- רשימת מורים -->
     <section id="s-teachers" class="screen">
       <div style="max-width:800px; margin:0 auto;">
-        <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;".onclick="app.nav('home')">
-          <i class="fas.fa-arrow-right"></i> חזרה לדשבורד
+        <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;" onclick="app.nav('home')">
+          <i class="fas fa-arrow-right"></i> חזרה לדשבורד
         </button>
         <h2 style="margin-bottom:20px;">בחר מורה מהרשימה</h2>
         <input type="text" id="search-t" placeholder="חפש מורה..." oninput="app.renderTeachers()">
@@ -445,15 +446,15 @@
         <textarea id="fb-text" rows="4" placeholder="פירוט (לא חובה)..."></textarea>
         
         <button id="fb-submit" class="btn" style="margin-top:10px;">שלח משוב</button>
-        <button class="btn" style="background:transparent; color:#94a3b8; margin-top:10px;"onclick="app.nav('teachers')">ביטול</button>
+        <button class="btn" style="background:transparent; color:#94a3b8; margin-top:10px;" onclick="app.nav('teachers')">ביטול</button>
       </div>
     </section>
 
     <!-- דוחות -->
     <section id="s-reports" class="screen">
       <div style="max-width:800px; margin:0 auto;">
-        <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;"onclick="app.nav('home')">
-          <i class="fas.fa-arrow-right"></i> חזרה
+        <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;" onclick="app.nav('home')">
+          <i class="fas fa-arrow-right"></i> חזרה
         </button>
 
         <h2 style="margin-bottom:20px;">הדוחות שלי</h2>
@@ -461,7 +462,7 @@
         <div class="reports-section">
           <div class="report-summary-card glass" style="border-radius:20px;">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-              <i class="fas.fa-chart-pie"></i>
+              <i class="fas fa-chart-pie"></i>
               <strong>סיכום כללי</strong>
             </div>
             <div class="report-row">
@@ -476,7 +477,7 @@
 
           <div class="report-summary-card glass" style="border-radius:20px;">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-              <i class="fas.fa-calendar-week"></i>
+              <i class="fas fa-calendar-week"></i>
               <strong>סיכום שבועי</strong>
             </div>
             <div class="report-row">
@@ -494,12 +495,12 @@
 
           <div class="report-summary-card glass" style="border-radius:20px;">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-              <i class="fas.fa-clock"></i>
+              <i class="fas fa-clock"></i>
               <strong>פעילות אחרונה</strong>
             </div>
             <div id="reports-latest-list" class="feedback-list"></div>
             <div id="reports-empty" class="feedback-empty">
-              <i class="fas.fa-inbox"></i>
+              <i class="fas fa-inbox"></i>
               <div>עדיין אין משובים.</div>
             </div>
           </div>
@@ -510,8 +511,8 @@
     <!-- לוח מדרגים -->
     <section id="s-leaderboard" class="screen">
       <div style="max-width:800px; margin:0 auto;">
-        <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;"onclick="app.nav('home')">
-          <i class="fas.fa-arrow-right"></i> חזרה
+        <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;" onclick="app.nav('home')">
+          <i class="fas fa-arrow-right"></i> חזרה
         </button>
         <h2>🏆 טבלת האלופים</h2>
         <div id="leaderboard-list" class="glass" style="border-radius:20px; overflow:hidden;"></div>
@@ -521,8 +522,8 @@
     <!-- אדמין -->
     <section id="s-admin" class="screen">
       <div style="max-width:800px; margin:0 auto;">
-        <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;"onclick="app.nav('home')">
-          <i class="fas.fa-arrow-right"></i> חזרה
+        <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;" onclick="app.nav('home')">
+          <i class="fas fa-arrow-right"></i> חזרה
         </button>
 
         <!-- חלק 1: ניהול מורים -->
@@ -530,7 +531,7 @@
         <div class="glass" style="padding:20px; border-radius:20px; margin-bottom:20px;">
           <input id="new-t-name" placeholder="שם מורה חדש">
           <input id="new-t-sub" placeholder="מקצוע">
-          <button class="btn btn-success".onclick="app.addTeacher()">הוסף מורה</button>
+          <button class="btn btn-success" onclick="app.addTeacher()">הוסף מורה</button>
         </div>
         <div id="admin-list" style="margin-bottom:30px;"></div>
 
@@ -597,22 +598,23 @@ const app = {
   mode: null,
   selTeacher: null,
 
-  // 🔹 פונקציה חדשה – שמירת משתמש לטבלת users
+  // שמירת המשתמש בטבלת users ב-Supabase
   saveUserToDB: async () => {
     if (!app.user || !app.user.name) return;
-    try {
-      await supabase
-        .from('users')
-        .upsert(
-          [{
-            username: app.user.name,
-            role: app.user.role,
-            last_login: new Date().toISOString()
-          }],
-          { onConflict: 'username' }
-        );
-    } catch (err) {
-      console.error('שגיאה בשמירת המשתמש לטבלה users:', err);
+
+    const { error } = await supabase
+      .from('users')
+      .upsert(
+        [{
+          username: app.user.name,
+          role: app.user.role,
+          last_login: new Date().toISOString()
+        }],
+        { onConflict: 'username' }
+      );
+
+    if (error) {
+      console.error('שגיאה בשמירת המשתמש לטבלת users:', error);
     }
   },
 
@@ -621,8 +623,7 @@ const app = {
     if (saved) {
       app.user = JSON.parse(saved);
       app.updateUserChip();
-      // 🔹 אם כבר יש משתמש מקומי – נוודא שהוא גם בטבלת users
-      app.saveUserToDB();
+      await app.saveUserToDB();
       app.showScreen('home');
     } else {
       app.showScreen('login');
@@ -691,8 +692,8 @@ const app = {
 
   showScreen: (id) => {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    const.scr = document.getElementById('s-' + id);
-    if (.scr).scr.classList.add('active');
+    const scr = document.getElementById('s-' + id);
+    if (scr) scr.classList.add('active');
   
     const header = document.querySelector('header');
     const logoutBtn = document.getElementById('logout-btn');
@@ -825,7 +826,7 @@ const app = {
     
     const btn = document.getElementById('fb-submit');
     btn.className = `btn ${isPos ? 'btn-success' : 'btn-danger'}`;
-    btn.innerHTML = isPos ? 'שלח פרגון <i class="fas.fa-heart"></i>' : 'שלח הערה <i class="fas.fa-paper-plane"></i>';
+    btn.innerHTML = isPos ? 'שלח פרגון <i class="fas fa-heart"></i>' : 'שלח הערה <i class="fas fa-paper-plane"></i>';
     btn.onclick = app.submitFeedback;
   },
 
@@ -951,7 +952,7 @@ const app = {
     latest.forEach(r => {
       const isPos = r.type === 'compliment';
       const typeColor = isPos ? 'var(--success)' : 'var(--danger)';
-      const typeIcon = isPos ? 'fas.fa-heart' : 'fas.fa-bolt';
+      const typeIcon = isPos ? 'fas fa-heart' : 'fas fa-bolt';
       const typeText = isPos ? 'פרגון' : 'הערה';
       const teacherName = r.teachers ? r.teachers.name : 'מורה לא ידוע';
       const date = new Date(r.created_at).toLocaleDateString('he-IL', {
@@ -994,7 +995,7 @@ const app = {
           <div class="glass" style="padding:15px; margin-bottom:10px; display:flex; justify-content:space-between; border-radius:12px; align-items:center;">
             <span>${t.name} ${t.subject ? `- ${t.subject}` : ''}</span>
             <button onclick="app.delTeacher(${t.id})" style="background:#ef4444; border:none; color:white; border-radius:8px; padding:8px 12px; cursor:pointer;">
-              <i class="fas.fa-trash"></i>
+              <i class="fas fa-trash"></i>
             </button>
           </div>`;
       });
@@ -1020,10 +1021,10 @@ const app = {
     fbListEl.innerHTML = '';
 
     feed.forEach(r => {
-      const.isPos = r.type === 'compliment';
+      const isPos = r.type === 'compliment';
       const typeColor = isPos ? 'var(--success)' : 'var(--danger)';
       const typeLabel = isPos ? 'מחמאה' : 'הערה';
-      const typeIcon = isPos ? 'fas.fa-heart' : 'fas.fa-bolt';
+      const typeIcon = isPos ? 'fas fa-heart' : 'fas fa-bolt';
       const teacherName = r.teachers ? r.teachers.name : 'מורה לא ידוע';
       const date = new Date(r.created_at).toLocaleString('he-IL', {
         day: '2-digit',
@@ -1068,7 +1069,7 @@ const app = {
           <div style="display:flex; align-items:center;">
             <button onclick="app.deleteFeedback(${r.id})"
                     style="background:#ef4444; border:none; color:white; border-radius:999px; padding:6px 10px; cursor:pointer; font-size:12px; display:flex; align-items:center; gap:4px;">
-              <i class="fas.fa-trash"></i> מחק
+              <i class="fas fa-trash"></i> מחק
             </button>
           </div>
         </div>
@@ -1137,13 +1138,13 @@ if (loginBtn) {
     localStorage.setItem('tf_user', JSON.stringify(app.user));
     app.updateUserChip();
 
-    // 🔹 שמירת המשתמש בטבלת users בכל התחברות
     await app.saveUserToDB();
 
     sfx.success();
     app.showScreen('home');
   };
 }
+
 
 // FX Helpers
 function stringToColor(str) {
