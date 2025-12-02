@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
@@ -30,7 +31,6 @@
       min-height: 100vh;
     }
 
-    /* רקע חי וזז */
     .bg-animate {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
       background: radial-gradient(circle at 50% 50%, #1e293b, #000);
@@ -44,7 +44,6 @@
     .orb-2 { width: 300px; height: 300px; background: #ec4899; bottom: -50px; right: -50px; animation-delay: -2s; }
     @keyframes floatOrb { from { transform: translate(0,0); } to { transform: translate(30px, 40px); } }
 
-    /* Glass UI */
     .glass {
       background: var(--card-bg);
       backdrop-filter: blur(16px);
@@ -61,7 +60,6 @@
       flex-direction: column; 
     }
 
-    /* Header */
     header {
       padding: 20px; display: flex; justify-content: space-between; align-items: center;
       background: rgba(11, 15, 25, 0.8); backdrop-filter: blur(10px); z-index: 50;
@@ -77,14 +75,12 @@
       -webkit-text-fill-color: transparent; 
     }
 
-    /* אזור ימין של ההדר */
     .header-right {
       display:flex;
       align-items:center;
       gap:12px;
     }
 
-    /* כפתור התנתקות */
     .btn-logout {
       padding: 6px 12px;
       border-radius: 999px;
@@ -106,7 +102,6 @@
       transform: scale(0.96);
     }
 
-    /* Screens */
     .screen { display: none; padding: 20px; flex: 1; overflow-y: auto; animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
     .screen.active { display: block; }
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -154,7 +149,6 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 24px; color: white;
       flex-shrink: 0;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
 
     .card-content h3 { margin: 0 0 10px 0; font-size: 20px; color: #fff; font-weight: 700; }
@@ -246,7 +240,6 @@
       box-shadow: 0 0 0 2px rgba(34,197,94,0.3);
     }
 
-    /* דוחות – סטייל */
     .reports-section {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -281,6 +274,30 @@
       color: #94a3b8;
       font-size: 13px;
       padding-top: 10px;
+    }
+
+    /* כרטיס מורה – חדש */
+    .teacher-card-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+      gap: 20px;
+      align-items: flex-start;
+    }
+    @media (max-width: 900px) {
+      .teacher-card-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .chip {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:11px;
+      background:rgba(15,23,42,0.7);
+      border:1px solid rgba(148,163,184,0.4);
+      color:#e5e7eb;
     }
   </style>
 </head>
@@ -434,6 +451,63 @@
       </div>
     </section>
 
+    <!-- כרטיס מורה -->
+    <section id="s-teacher-card" class="screen">
+      <div style="max-width:900px; margin:0 auto;">
+        <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;" onclick="app.showScreen('teachers')">
+          <i class="fas fa-arrow-right"></i> חזרה לרשימת המורים
+        </button>
+
+        <div class="glass" style="padding:24px; border-radius:24px;">
+          <div class="teacher-card-grid">
+            <!-- צד שמאל: פרטי מורה וסטטיסטיקות -->
+            <div>
+              <div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
+                <div id="tc-avatar" class="avatar" style="width:70px; height:70px; font-size:30px;"></div>
+                <div>
+                  <div id="tc-name" style="font-size:22px; font-weight:800;"></div>
+                  <div id="tc-subject" style="font-size:14px; color:#cbd5e1; margin-top:4px;"></div>
+                  <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;">
+                    <span class="chip">
+                      <i class="fas fa-ranking-star"></i>
+                      <span id="tc-rank">מיקום: —</span>
+                    </span>
+                    <span class="chip">
+                      <i class="fas fa-clock"></i>
+                      <span id="tc-last-activity">אין עדיין פעילות</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:10px; margin-top:10px;">
+                <div class="glass" style="flex:1; padding:12px; border-radius:16px; text-align:center;">
+                  <div style="font-size:12px; color:#94a3b8;">סה״כ מחמאות</div>
+                  <div id="tc-total-compliments" style="font-size:22px; font-weight:800; color:#22c55e;">0</div>
+                </div>
+                <div class="glass" style="flex:1; padding:12px; border-radius:16px; text-align:center;">
+                  <div style="font-size:12px; color:#94a3b8;">סה״כ הערות</div>
+                  <div id="tc-total-remarks" style="font-size:22px; font-weight:800; color:#f97316;">0</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- צד ימין: תגיות ומשובים -->
+            <div>
+              <h3 style="margin:0 0 8px 0; font-size:16px;">תגיות נפוצות</h3>
+              <div id="tc-tags-cloud" style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px;"></div>
+
+              <h3 style="margin:0 0 8px 0; font-size:16px;">משובים אחרונים</h3>
+              <div id="tc-feedback-list" style="max-height:260px; overflow-y:auto; padding-right:4px;"></div>
+              <div id="tc-no-feedback" style="font-size:13px; color:#94a3b8; text-align:center; margin-top:8px; display:none;">
+                אין עדיין משובים על המורה הזה.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- מסך משוב -->
     <section id="s-feedback" class="screen">
       <div class="glass" style="max-width:600px; margin:0 auto; padding:30px; border-radius:24px; text-align:center;">
@@ -526,7 +600,6 @@
           <i class="fas fa-arrow-right"></i> חזרה
         </button>
 
-        <!-- חלק 1: ניהול מורים -->
         <h2>ניהול מורים</h2>
         <div class="glass" style="padding:20px; border-radius:20px; margin-bottom:20px;">
           <input id="new-t-name" placeholder="שם מורה חדש">
@@ -535,7 +608,6 @@
         </div>
         <div id="admin-list" style="margin-bottom:30px;"></div>
 
-        <!-- חלק 2: ניהול משובים -->
         <h2 style="margin-bottom:10px;">ניהול משובים</h2>
         <p style="color:#94a3b8; font-size:14px; margin-top:0; margin-bottom:10px;">
           כאן אפשר למחוק מחמאות והערות (למשל אם נשלחו בטעות או לא מכבדות).
@@ -597,8 +669,8 @@ const app = {
   teachers: [],
   mode: null,
   selTeacher: null,
+  currentTeacherFeedback: [],
 
-  // שמירת המשתמש בטבלת users ב-Supabase
   saveUserToDB: async () => {
     if (!app.user || !app.user.name) return;
 
@@ -673,6 +745,7 @@ const app = {
           if (app.user) app.renderReports();
           app.renderTeachers();
           app.renderAdmin();
+          if (app.selTeacher) app.viewTeacher(app.selTeacher, false);
         }
       )
       .subscribe();
@@ -766,7 +839,7 @@ const app = {
       if (app.mode === 'compliment' || app.mode === 'remark') {
         d.onclick = () => app.prepFeedback(t);
       } else {
-        d.onclick = null;
+        d.onclick = () => app.viewTeacher(t);
       }
 
       d.onmouseenter = sfx.hover;
@@ -793,6 +866,165 @@ const app = {
 
       list.appendChild(d);
     });
+  },
+
+  viewTeacher: async (teacher, doScroll = true) => {
+    app.selTeacher = teacher;
+    sfx.select();
+    app.showScreen('teacher-card');
+
+    const av = document.getElementById('tc-avatar');
+    const nameEl = document.getElementById('tc-name');
+    const subEl = document.getElementById('tc-subject');
+    const rankEl = document.getElementById('tc-rank');
+    const lastEl = document.getElementById('tc-last-activity');
+    const posEl = document.getElementById('tc-total-compliments');
+    const negEl = document.getElementById('tc-total-remarks');
+    const tagsCloud = document.getElementById('tc-tags-cloud');
+    const fbList = document.getElementById('tc-feedback-list');
+    const noFb = document.getElementById('tc-no-feedback');
+
+    if (av) {
+      av.style.background = stringToColor(teacher.name);
+      av.innerText = teacher.name[0] || '?';
+    }
+    if (nameEl) nameEl.textContent = teacher.name || '';
+    if (subEl) subEl.textContent = teacher.subject ? `מקצוע: ${teacher.subject}` : '';
+
+    if (tagsCloud) tagsCloud.innerHTML = '';
+    if (fbList) fbList.innerHTML = '';
+    if (noFb) noFb.style.display = 'none';
+
+    let { data: feed } = await supabase
+      .from('feedback')
+      .select('*')
+      .eq('teacher_id', teacher.id)
+      .order('created_at', { ascending: false });
+
+    feed = feed || [];
+    app.currentTeacherFeedback = feed;
+
+    const totalCompliments = feed.filter(f => f.type === 'compliment').length;
+    const totalRemarks = feed.filter(f => f.type === 'remark').length;
+
+    if (posEl) posEl.textContent = totalCompliments;
+    if (negEl) negEl.textContent = totalRemarks;
+
+    if (lastEl) {
+      if (feed.length === 0) {
+        lastEl.textContent = 'אין עדיין פעילות';
+      } else {
+        const last = new Date(feed[0].created_at);
+        lastEl.textContent = last.toLocaleString('he-IL', {
+          day: '2-digit',
+          month: '2-digit',
+          year: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+    }
+
+    let { data: allFeed } = await supabase
+      .from('feedback')
+      .select('teacher_id, type');
+
+    allFeed = allFeed || [];
+    const scoreMap = {};
+    allFeed.forEach(f => {
+      if (!scoreMap[f.teacher_id]) scoreMap[f.teacher_id] = 0;
+      if (f.type === 'compliment') scoreMap[f.teacher_id] += 1;
+      if (f.type === 'remark') scoreMap[f.teacher_id] -= 1;
+    });
+
+    const teachersWithScore = app.teachers.map(t => ({
+      id: t.id,
+      name: t.name,
+      score: scoreMap[t.id] || 0
+    })).sort((a, b) => b.score - a.score);
+
+    const index = teachersWithScore.findIndex(t => t.id === teacher.id);
+    if (rankEl) {
+      if (index === -1) {
+        rankEl.textContent = 'מיקום: —';
+      } else {
+        rankEl.textContent = `מיקום: #${index + 1} מתוך ${teachersWithScore.length}`;
+      }
+    }
+
+    const tagsCount = {};
+    feed.forEach(f => {
+      (f.tags || []).forEach(tag => {
+        tagsCount[tag] = (tagsCount[tag] || 0) + 1;
+      });
+    });
+
+    if (tagsCloud) {
+      const entries = Object.entries(tagsCount).sort((a,b) => b[1] - a[1]).slice(0, 12);
+      if (entries.length === 0) {
+        tagsCloud.innerHTML = `<span style="font-size:13px; color:#94a3b8;">אין עדיין תגיות.</span>`;
+      } else {
+        entries.forEach(([tag, count]) => {
+          const span = document.createElement('span');
+          span.style.background = 'rgba(15,23,42,0.9)';
+          span.style.borderRadius = '999px';
+          span.style.padding = '4px 10px';
+          span.style.fontSize = '12px';
+          span.style.border = '1px solid rgba(148,163,184,0.7)';
+          span.style.color = '#e5e7eb';
+          span.innerText = `${tag} · ${count}`;
+          tagsCloud.appendChild(span);
+        });
+      }
+    }
+
+    if (fbList) {
+      if (feed.length === 0) {
+        if (noFb) noFb.style.display = 'block';
+      } else {
+        feed.slice(0, 8).forEach(r => {
+          const isPos = r.type === 'compliment';
+          const typeColor = isPos ? 'var(--success)' : 'var(--danger)';
+          const typeLabel = isPos ? 'מחמאה' : 'הערה';
+          const typeIcon = isPos ? 'fas fa-heart' : 'fas fa-bolt';
+          const date = new Date(r.created_at).toLocaleString('he-IL', {
+            day: '2-digit',
+            month: '2-digit',
+            year: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+
+          const tagsHtml = (r.tags || []).map(tag => `
+            <span style="background:${isPos ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}; 
+                         color:${typeColor}; padding:3px 8px; border-radius:999px; font-size:11px;">
+              ${tag}
+            </span>`).join(' ');
+
+          const textHtml = r.text 
+            ? `<div style="font-size:12px; color:#cbd5e1; margin-top:4px; white-space:pre-wrap;">${r.text}</div>`
+            : '';
+
+          fbList.innerHTML += `
+            <div style="padding:8px 0; border-bottom:1px solid rgba(148,163,184,0.3);">
+              <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px;">
+                <div style="color:${typeColor}; font-weight:600;">
+                  <i class="${typeIcon}"></i> ${typeLabel}
+                  ${r.user_name ? ` | תלמיד: ${r.user_name}` : ''}
+                </div>
+                <div style="color:#94a3b8;">${date}</div>
+              </div>
+              ${tagsHtml ? `<div style="margin-top:4px; display:flex; flex-wrap:wrap; gap:4px;">${tagsHtml}</div>` : ''}
+              ${textHtml}
+            </div>
+          `;
+        });
+      }
+    }
+
+    if (doScroll) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   },
 
   prepFeedback: (t) => {
@@ -1145,8 +1377,6 @@ if (loginBtn) {
   };
 }
 
-
-// FX Helpers
 function stringToColor(str) {
   const colors = ['#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
   return colors[str.length % colors.length];
