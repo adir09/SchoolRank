@@ -298,6 +298,25 @@
       border:1px solid rgba(148,163,184,0.4);
       color:#e5e7eb;
     }
+
+    /* דירוג כוכבים + ספירת מילים במשוב */
+    .star-rating {
+      display:flex;
+      justify-content:center;
+      gap:4px;
+      margin: 4px 0 6px 0;
+      font-size:24px;
+    }
+    .star-rating span {
+      cursor:pointer;
+      transition: transform 0.15s, color 0.15s;
+      color:#4b5563;
+    }
+    .star-rating span.active {
+      transform: scale(1.15);
+      color:#facc15;
+      text-shadow: 0 0 12px rgba(250,204,21,0.7);
+    }
   </style>
 </head>
 <body>
@@ -344,7 +363,7 @@
               <i class="fas fa-lock"></i>
               <span>סיסמה</span>
             </div>
-            <input type="password" id="login-password" class="text-input" placeholder="אפשר כל דבר">
+            <input type="password" id="login-password" class="text-input" placeholder="לפחות 4 תווים">
           </div>
 
           <button class="btn btn-primary" id="login-button" style="width:100%; margin-top:10px;">
@@ -442,7 +461,7 @@
     <section id="s-teachers" class="screen">
       <div style="max-width:800px; margin:0 auto;">
         <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;" onclick="app.nav('home')">
-          <i class="fas fa-arrow-right"></i> חזרה לדשבוד
+          <i class="fas fa-arrow-right"></i> חזרה לדשבורד
         </button>
         <h2 style="margin-bottom:20px;">בחר מורה מהרשימה</h2>
         <input type="text" id="search-t" placeholder="חפש מורה..." oninput="app.renderTeachers()">
@@ -489,6 +508,16 @@
                   <div id="tc-total-remarks" style="font-size:22px; font-weight:800; color:#f97316;">0</div>
                 </div>
               </div>
+
+              <!-- דירוג כוכבים + תיאור קצר -->
+              <div class="glass" style="margin-top:12px; padding:12px; border-radius:16px;">
+                <div style="font-size:12px; color:#94a3b8;">דירוג ממוצע</div>
+                <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+                  <div id="tc-rating-stars" style="font-size:18px;"></div>
+                  <div id="tc-rating-value" style="font-size:14px; color:#e5e7eb;"></div>
+                </div>
+                <div id="tc-summary" style="font-size:12px; color:#cbd5e1; margin-top:6px;"></div>
+              </div>
             </div>
 
             <!-- צד ימין: תגיות ומשובים -->
@@ -514,11 +543,23 @@
         <h2 id="fb-name" style="margin:0;">שם המורה</h2>
         <div id="fb-mode-label" style="margin-bottom:20px; font-size:16px; opacity:0.7; margin-top:5px;"></div>
 
+        <!-- דירוג כוכבים -->
+        <div class="star-rating" id="fb-rating"></div>
+        <div style="font-size:12px; color:#9ca3af; margin-bottom:8px;">חייב לבחור דירוג בין ⭐1 ל־⭐5</div>
+
         <div id="fb-tags" class="tags-wrap" style="justify-content:center;"></div>
         
-        <textarea id="fb-text" rows="4" placeholder="פירוט (לא חובה)..."></textarea>
+        <textarea id="fb-text" rows="4" placeholder="תכתוב משוב אמיתי: מה היה טוב / מה צריך לשפר..."></textarea>
+
+        <div id="fb-word-helper" style="font-size:12px; color:#94a3b8; margin-top:-4px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
+          <span>המשוב צריך להיות בין 5 ל־20 מילים.</span>
+          <span id="fb-word-counter">0 / 20 מילים</span>
+        </div>
+
+        <div id="fb-templates" style="margin-top:4px; margin-bottom:10px; display:flex; flex-wrap:wrap; gap:6px; justify-content:center;"></div>
         
         <button id="fb-submit" class="btn" style="margin-top:10px;">שלח משוב</button>
+        <!-- שונה ל-home במקום teachers -->
         <button class="btn" style="background:transparent; color:#94a3b8; margin-top:10px;" onclick="app.nav('home')">ביטול</button>
       </div>
     </section>
@@ -675,12 +716,21 @@ const SUPABASE_URL = 'https://xidfthnboggokcsloglt.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpZGZ0aG5ib2dnb2tjc2xvZ2x0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQzMTIwNzUsImV4cCI6MjA3OTg4ODA3NX0.fEPS2FJYlcZ4DOv7I0RBEcwZBfT0MdRGslk9cp_2GwU';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// שמירת סיסמאות בלוקאלסטורג' – לכל משתמש סיסמה קבועה
+let storedCreds = {};
+try {
+  storedCreds = JSON.parse(localStorage.getItem('tf_creds') || '{}');
+} catch(e) {
+  storedCreds = {};
+}
+
 const app = {
   user: null,
   teachers: [],
   mode: null,
   selTeacher: null,
   currentTeacherFeedback: [],
+  feedbackRating: null,   // 1-5 כוכבים
 
   saveUserToDB: async () => {
     if (!app.user || !app.user.name) return;
@@ -706,8 +756,8 @@ const app = {
     if (saved) {
       app.user = JSON.parse(saved);
       app.updateUserChip();
-      app.showScreen('home');   // להיכנס מהר
-      app.saveUserToDB();       // בלי לחכות
+      app.showScreen('home');
+      app.saveUserToDB();
     } else {
       app.showScreen('login');
     }
@@ -735,13 +785,18 @@ const app = {
     localStorage.removeItem('tf_user');
     app.mode = null;
     app.selTeacher = null;
+    app.feedbackRating = null;
     app.updateUserChip();
     sfx.click();
     app.showScreen('login');
   },
 
   fetchData: async () => {
-    let { data } = await supabase.from('teachers').select('*');
+    let { data, error } = await supabase.from('teachers').select('*');
+    if (error) {
+      console.error('שגיאה בטעינת teachers:', error);
+      showError('יש בעיה בטעינת המורים מהשרת. בדוק את החיבור או את טבלת teachers.');
+    }
     app.teachers = data || [];
   },
   
@@ -818,9 +873,14 @@ const app = {
       app.teachers = teachers;
     }
 
-    let { data: feed } = await supabase
+    // משיכת כל המשובים כדי לחשב ניקוד (כולל מחמאות קיימות)
+    let { data: feed, error } = await supabase
       .from('feedback')
       .select('teacher_id, type');
+
+    if (error) {
+      console.error('שגיאה בטעינת feedback:', error);
+    }
 
     const statsMap = {};
     (feed || []).forEach(f => {
@@ -832,7 +892,7 @@ const app = {
     });
 
     const filtered = teachers.filter(t =>
-      !term || t.name.toLowerCase().includes(term)
+      !term || (t.name || '').toLowerCase().includes(term)
     );
 
     if (filtered.length === 0) {
@@ -856,11 +916,11 @@ const app = {
       d.onmouseenter = sfx.hover;
 
       d.innerHTML = `
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%;">
           <div style="display:flex; align-items:center;">
-            <div class="avatar" style="background:${stringToColor(t.name)}">${t.name[0]}</div>
+            <div class="avatar" style="background:${stringToColor(t.name)}">${t.name ? t.name[0] : '?'}</div>
             <div style="margin-right:15px;">
-              <div style="font-weight:700;">${t.name}</div>
+              <div style="font-weight:700;">${t.name || ''}</div>
               <div style="font-size:12px; opacity:0.7;">${t.subject || ''}</div>
             </div>
           </div>
@@ -870,7 +930,7 @@ const app = {
               &nbsp;&nbsp;
               <span style="color:#f97316;">⚠ ${s.remarks}</span>
             </div>
-            <div style="opacity:0.7;">ניקוד: ${score > 0 ? '+'+score : score}</div>
+            <div style="opacity:0.8; font-weight:600;">ניקוד: ${score > 0 ? '+'+score : score}</div>
           </div>
         </div>
       `;
@@ -894,10 +954,13 @@ const app = {
     const tagsCloud = document.getElementById('tc-tags-cloud');
     const fbList = document.getElementById('tc-feedback-list');
     const noFb = document.getElementById('tc-no-feedback');
+    const ratingStarsEl = document.getElementById('tc-rating-stars');
+    const ratingValEl = document.getElementById('tc-rating-value');
+    const summaryEl = document.getElementById('tc-summary');
 
     if (av) {
       av.style.background = stringToColor(teacher.name);
-      av.innerText = teacher.name[0] || '?';
+      av.innerText = teacher.name ? teacher.name[0] : '?';
     }
     if (nameEl) nameEl.textContent = teacher.name || '';
     if (subEl) subEl.textContent = teacher.subject ? `מקצוע: ${teacher.subject}` : '';
@@ -905,12 +968,19 @@ const app = {
     if (tagsCloud) tagsCloud.innerHTML = '';
     if (fbList) fbList.innerHTML = '';
     if (noFb) noFb.style.display = 'none';
+    if (ratingStarsEl) ratingStarsEl.innerHTML = '';
+    if (ratingValEl) ratingValEl.textContent = '';
+    if (summaryEl) summaryEl.textContent = '';
 
-    let { data: feed } = await supabase
+    let { data: feed, error } = await supabase
       .from('feedback')
       .select('*')
       .eq('teacher_id', teacher.id)
       .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('שגיאה בטעינת feedback למורה:', error);
+    }
 
     feed = feed || [];
     app.currentTeacherFeedback = feed;
@@ -936,6 +1006,7 @@ const app = {
       }
     }
 
+    // חישוב מיקום לפי ניקוד (כולל מחמאות קיימות)
     let { data: allFeed } = await supabase
       .from('feedback')
       .select('teacher_id, type');
@@ -963,6 +1034,7 @@ const app = {
       }
     }
 
+    // ספירת תגיות
     const tagsCount = {};
     feed.forEach(f => {
       (f.tags || []).forEach(tag => {
@@ -970,6 +1042,7 @@ const app = {
       });
     });
 
+    // ענן תגיות
     if (tagsCloud) {
       const entries = Object.entries(tagsCount).sort((a,b) => b[1] - a[1]).slice(0, 12);
       if (entries.length === 0) {
@@ -989,6 +1062,58 @@ const app = {
       }
     }
 
+    // ממוצע דירוג כוכבים
+    let avgRating = null;
+    const rated = feed.filter(f => f.rating !== null && f.rating !== undefined);
+    if (rated.length > 0) {
+      const sum = rated.reduce((acc, f) => acc + Number(f.rating || 0), 0);
+      avgRating = sum / rated.length;
+    }
+
+    if (ratingStarsEl) {
+      if (!avgRating) {
+        ratingStarsEl.innerHTML = '☆☆☆☆☆';
+      } else {
+        let html = '';
+        const rounded = Math.round(avgRating);
+        for (let i = 1; i <= 5; i++) {
+          const filled = i <= rounded;
+          html += `<span style="color:${filled ? '#facc15' : '#4b5563'};">★</span>`;
+        }
+        ratingStarsEl.innerHTML = html;
+      }
+    }
+
+    if (ratingValEl) {
+      if (!avgRating) {
+        ratingValEl.textContent = 'אין עדיין דירוגים';
+      } else {
+        ratingValEl.textContent = `${avgRating.toFixed(1)} / 5 (${rated.length} דירוגים)`;
+      }
+    }
+
+    // תיאור קצר על המורה
+    if (summaryEl) {
+      const total = feed.length;
+      let summaryText = '';
+
+      const entries = Object.entries(tagsCount).sort((a,b) => b[1] - a[1]);
+      const topTag = entries.length > 0 ? entries[0][0] : null;
+
+      if (total === 0) {
+        summaryText = 'אין עדיין מספיק משובים כדי לתאר את המורה.';
+      } else if (totalCompliments > totalRemarks) {
+        summaryText = `התמונה הכללית חיובית – רוב המשובים הם מחמאות${topTag ? ` על "${topTag}"` : ''}.`;
+      } else if (totalCompliments < totalRemarks) {
+        summaryText = `יש יותר הערות ממחמאות – הרבה משובים מזכירים${topTag ? ` "${topTag}"` : ' נושאים לשיפור'}.`;
+      } else {
+        summaryText = 'המשובים מעורבבים – גם מחמאות וגם הערות, תלוי בשיעור ובחוויה של התלמידים.';
+      }
+
+      summaryEl.textContent = summaryText;
+    }
+
+    // משובים אחרונים
     if (fbList) {
       if (feed.length === 0) {
         if (noFb) noFb.style.display = 'block';
@@ -1041,18 +1166,19 @@ const app = {
   prepFeedback: (t) => {
     sfx.select();
     app.selTeacher = t;
+    app.feedbackRating = null;
     app.showScreen('feedback');
     
     const isPos = app.mode === 'compliment';
     const av = document.getElementById('fb-avatar');
     av.style.background = stringToColor(t.name);
-    av.innerText = t.name[0];
+    av.innerText = t.name ? t.name[0] : '?';
     document.getElementById('fb-name').innerText = t.name;
     document.getElementById('fb-mode-label').innerText = isPos ? 'על מה מגיע פרגון?' : 'מה צריך שיפור?';
     
     const tags = isPos 
       ? ['הסבר ברור', 'יחס אישי', 'שיעור כיף', 'עוזר בחומר', 'מצחיק']
-      : ['אי סמכות להיות מורה', 'יחס מזלזל', 'משעמם', 'צעקות', 'אי עמידה בתכנון'];
+      : ['לא מובן', 'יחס מזלזל', 'משעמם', 'צעקות', 'אי עמידה בתכנון'];
       
     const cont = document.getElementById('fb-tags');
     cont.innerHTML = '';
@@ -1065,6 +1191,89 @@ const app = {
         this.classList.toggle(isPos ? 'active-pos' : 'active-neg');
       };
       cont.appendChild(el);
+    });
+
+    // דירוג כוכבים
+    const ratingEl = document.getElementById('fb-rating');
+    ratingEl.innerHTML = '';
+    for (let i = 1; i <= 5; i++) {
+      const star = document.createElement('span');
+      star.innerText = '★';
+      star.dataset.value = i;
+      star.onclick = () => {
+        sfx.click();
+        app.feedbackRating = i;
+        Array.from(ratingEl.children).forEach(s => {
+          s.classList.toggle('active', Number(s.dataset.value) <= i);
+        });
+      };
+      ratingEl.appendChild(star);
+    }
+
+    // תיבת טקסט + ספירת מילים
+    const textEl = document.getElementById('fb-text');
+    textEl.value = '';
+    const counterEl = document.getElementById('fb-word-counter');
+    const updateWordCounter = () => {
+      const words = (textEl.value || '')
+        .trim()
+        .split(/\s+/)
+        .filter(w => w.length > 0);
+      const count = words.length;
+      counterEl.textContent = `${count} / 20 מילים`;
+      counterEl.style.color = (count < 5 || count > 20) ? '#f97316' : '#4ade80';
+    };
+    textEl.oninput = updateWordCounter;
+    updateWordCounter();
+
+    // תבניות / המלצה אוטומטית
+    const templatesEl = document.getElementById('fb-templates');
+    templatesEl.innerHTML = '';
+
+    const templatesPos = [
+      'המורה הסביר את החומר בצורה ברורה ועזר לי להבין לשיעור הבא.',
+      'הוא היה סבלני, הקשיב לשאלות ונתן דוגמאות שעזרו לי מאוד.',
+      'השיעור היה מעניין, פעיל ומרגיש שהוא באמת משקיע בתלמידים.'
+    ];
+    const templatesNeg = [
+      'לא הצלחתי להבין את ההסבר והייתי שמח להסבר ברור ומסודר יותר.',
+      'הרגשתי שאין הקשבה לשאלות ושיש יחס לא מכבד לתלמידים.',
+      'השיעור היה מבולגן וקשה לעקוב אחרי החומר שנלמד בכיתה.'
+    ];
+
+    const currentTemplates = isPos ? templatesPos : templatesNeg;
+
+    // כפתור "הצעה אוטומטית" – בונה טקסט לפי תגיות
+    const autoBtn = document.createElement('button');
+    autoBtn.type = 'button';
+    autoBtn.style.cssText = 'border-radius:999px; border:1px solid rgba(148,163,184,0.6); background:rgba(15,23,42,0.9); color:#e5e7eb; font-size:11px; padding:4px 10px; cursor:pointer;';
+    autoBtn.innerText = '✏ הצעה אוטומטית לפי התגיות';
+    autoBtn.onclick = () => {
+      const activeTags = Array.from(document.querySelectorAll('.tag.active-pos, .tag.active-neg')).map(e => e.innerText);
+      let base = isPos
+        ? `לדעתי ${t.name} היה מעולה בשיעור, במיוחד בגלל `
+        : `לדעתי יש דברים שצריך לשפר אצל ${t.name}, בעיקר בנושא `;
+      if (activeTags.length > 0) {
+        base += activeTags.join(' ו־ ');
+      } else {
+        base += isPos ? 'היחס וההסבר שלו.' : 'ההסבר והאווירה בכיתה.';
+      }
+      textEl.value = base;
+      updateWordCounter();
+    };
+    templatesEl.appendChild(autoBtn);
+
+    currentTemplates.forEach(txt => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.style.cssText = 'border-radius:999px; border:1px solid rgba(148,163,184,0.3); background:rgba(15,23,42,0.8); color:#e5e7eb; font-size:11px; padding:4px 10px; cursor:pointer;';
+      btn.innerText = 'הצעה';  // במקום "דוגמה"
+      btn.title = txt;
+      btn.onclick = () => {
+        textEl.value = txt;
+        updateWordCounter();
+      };
+      templatesEl.appendChild(btn);
     });
     
     const btn = document.getElementById('fb-submit');
@@ -1079,29 +1288,44 @@ const app = {
       return;
     }
 
-    const txt = document.getElementById('fb-text').value;
+    const txt = document.getElementById('fb-text').value || '';
     const tags = Array.from(document.querySelectorAll('.tag.active-pos, .tag.active-neg')).map(e => e.innerText);
-    
-    if (!txt && tags.length === 0) {
-      showError('בחר תגית או כתוב משהו');
+
+    // בדיקת מילים – בין 5 ל־20
+    const words = txt
+      .trim()
+      .split(/\s+/)
+      .filter(w => w.length > 0);
+
+    if (words.length < 5) {
+      showError('המשוב צריך להיות לפחות 5 מילים. תסביר קצת יותר 🙂');
+      return;
+    }
+    if (words.length > 20) {
+      showError('המשוב יכול להכיל עד 20 מילים. תנסה לנסח אותו קצת יותר קצר וברור.');
       return;
     }
 
-    // --- מגבלות לפי בקשתך ---
-    // 1) מגבלה לתלמיד: עד 2 משובים (מחמאות או הערות) בכל שעה
+    // דירוג חובה 1–5 כוכבים
+    if (!app.feedbackRating || app.feedbackRating < 1 || app.feedbackRating > 5) {
+      showError('צריך לבחור דירוג של 1 עד 5 כוכבים לפני שליחה.');
+      return;
+    }
+
+    // --- מגבלות ---
+    // 1) מגבלה לתלמיד: עד 2 משובים בכל 30 דקות
     // 2) מגבלה לכל מורה: עד 2 משובים ביום מאותו תלמיד
 
     const now = new Date();
-// 30 דקות אחורה במקום שעה
-const oneHourAgoISO = new Date(now.getTime() - 30 * 60 * 1000).toISOString();
+    const halfHourAgoISO = new Date(now.getTime() - 30 * 60 * 1000).toISOString();
     const startOfDayISO = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
 
-    // 1) בדיקה כמה משובים התלמיד נתן בשעה האחרונה (לכל המורים)
+    // 1) בדיקה כמה משובים התלמיד נתן ב-30 דקות האחרונות (לכל המורים)
     const { data: recentByStudent, error: err1 } = await supabase
       .from('feedback')
       .select('id')
       .eq('user_name', app.user.name)
-      .gte('created_at', oneHourAgoISO);
+      .gte('created_at', halfHourAgoISO);
 
     if (!err1 && recentByStudent && recentByStudent.length >= 2) {
       showError('הגעת למגבלה: עד 2 משובים בכל 30 דקות לכל תלמיד.');
@@ -1140,12 +1364,13 @@ const oneHourAgoISO = new Date(now.getTime() - 30 * 60 * 1000).toISOString();
       user_name: app.user.name,
       type: app.mode,
       tags: tags,
-      text: txt
+      text: txt,
+      rating: app.feedbackRating
     }]);
 
     if (insertError) {
       console.error(insertError);
-      showError('משהו השתבש בשמירת המשוב. נסה שוב עוד רגע.');
+      showError('משהו השתבש בשמירת המשוב. בדוק את טבלת feedback (כולל העמודה rating) ונסה שוב.');
       return;
     }
 
@@ -1154,7 +1379,11 @@ const oneHourAgoISO = new Date(now.getTime() - 30 * 60 * 1000).toISOString();
   },
 
   updateLeaderboard: async () => {
-    let { data: feed } = await supabase.from('feedback').select('user_name');
+    let { data: feed, error } = await supabase.from('feedback').select('user_name');
+    if (error) {
+      console.error('שגיאה בלוח מדרגים:', error);
+      return;
+    }
     const counts = {};
     (feed || []).forEach(f => {
       if (!f.user_name) return;
@@ -1178,10 +1407,15 @@ const oneHourAgoISO = new Date(now.getTime() - 30 * 60 * 1000).toISOString();
   renderReports: async () => {
     if (!app.user || !app.user.name) return;
 
-    let { data: reports } = await supabase.from('feedback')
+    let { data: reports, error } = await supabase.from('feedback')
       .select('created_at, type, tags, text, teachers(name)')
       .eq('user_name', app.user.name)
       .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('שגיאה בדוחות:', error);
+      return;
+    }
 
     reports = reports || [];
 
@@ -1288,11 +1522,17 @@ const oneHourAgoISO = new Date(now.getTime() - 30 * 60 * 1000).toISOString();
     if (!fbListEl) return;
     fbListEl.innerHTML = '<div style="color:#94a3b8; font-size:14px;">טוען משובים...</div>';
 
-    let { data: feed } = await supabase
+    let { data: feed, error } = await supabase
       .from('feedback')
       .select('id, created_at, type, user_name, text, tags, teachers(name)')
       .order('created_at', { ascending: false })
       .limit(50);
+
+    if (error) {
+      console.error('שגיאה בטעינת feedback לאדמין:', error);
+      fbListEl.innerHTML = '<div style="padding:10px; text-align:center; color:#94a3b8;">שגיאה בטעינת המשובים.</div>';
+      return;
+    }
 
     feed = feed || [];
 
@@ -1400,16 +1640,32 @@ const oneHourAgoISO = new Date(now.getTime() - 30 * 60 * 1000).toISOString();
   }
 };
 
-// Login Logic
+// Login Logic – סיסמה באמת שימושית
 const loginBtn = document.getElementById('login-button');
 if (loginBtn) {
   loginBtn.onclick = async () => {
-    const username = document.getElementById('login-username').value.trim();
-    const password = document.getElementById('login-password').value.trim();
+    const username = (document.getElementById('login-username').value || '').trim();
+    const password = (document.getElementById('login-password').value || '').trim();
 
     if (!username) {
       showError('צריך לכתוב שם משתמש');
       return;
+    }
+    if (!password || password.length < 4) {
+      showError('הסיסמה חייבת להיות לפחות 4 תווים.');
+      return;
+    }
+
+    // אם המשתמש כבר קיים – מחייב את אותה סיסמה
+    if (storedCreds[username]) {
+      if (storedCreds[username] !== password) {
+        showError('הסיסמה שגויה למשתמש הזה. נסה שוב.');
+        return;
+      }
+    } else {
+      // משתמש חדש – נשמרת לו הסיסמה שנבחרה
+      storedCreds[username] = password;
+      localStorage.setItem('tf_creds', JSON.stringify(storedCreds));
     }
 
     const isAdmin = (username === 'adir' && password === '1234');
@@ -1422,13 +1678,14 @@ if (loginBtn) {
     app.updateUserChip();
 
     sfx.success();
-    app.showScreen('home');  // להיכנס מהר
-    app.saveUserToDB();      // לשמור ברקע
+    app.showScreen('home');
+    app.saveUserToDB();
   };
 }
 
 function stringToColor(str) {
   const colors = ['#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
+  if (!str) return colors[0];
   return colors[str.length % colors.length];
 }
 
