@@ -442,7 +442,7 @@
     <section id="s-teachers" class="screen">
       <div style="max-width:800px; margin:0 auto;">
         <button class="btn" style="background:transparent; justify-content:flex-start; padding:0; margin-bottom:20px; color:#94a3b8;" onclick="app.nav('home')">
-          <i class="fas fa-arrow-right"></i> חזרה לדשבורד
+          <i class="fas fa-arrow-right"></i> חזרה לדשבוד
         </button>
         <h2 style="margin-bottom:20px;">בחר מורה מהרשימה</h2>
         <input type="text" id="search-t" placeholder="חפש מורה..." oninput="app.renderTeachers()">
@@ -519,7 +519,7 @@
         <textarea id="fb-text" rows="4" placeholder="פירוט (לא חובה)..."></textarea>
         
         <button id="fb-submit" class="btn" style="margin-top:10px;">שלח משוב</button>
-        <button class="btn" style="background:transparent; color:#94a3b8; margin-top:10px;" onclick="app.nav('teachers')">ביטול</button>
+        <button class="btn" style="background:transparent; color:#94a3b8; margin-top:10px;" onclick="app.nav('home')">ביטול</button>
       </div>
     </section>
 
@@ -616,6 +616,18 @@
       </div>
     </section>
 
+    <!-- חלון שגיאה יפה -->
+    <div id="error-modal" style="position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:200;">
+      <div onclick="event.stopPropagation()" class="glass" style="max-width:320px; width:90%; padding:18px 20px; border-radius:18px; text-align:right; background:rgba(15,23,42,0.95); box-shadow:0 20px 40px rgba(0,0,0,0.5);">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px; color:#fecaca;">
+          <i class="fas fa-exclamation-circle"></i>
+          <span style="font-weight:700;">שגיאה</span>
+        </div>
+        <div id="error-modal-text" style="font-size:14px; color:#e5e7eb;"></div>
+        <button class="btn btn-danger" style="margin-top:14px; padding:10px 0; font-size:14px;" onclick="hideErrorModal()">הבנתי</button>
+      </div>
+    </div>
+
   </div>
 
 <script>
@@ -694,8 +706,8 @@ const app = {
     if (saved) {
       app.user = JSON.parse(saved);
       app.updateUserChip();
-      await app.saveUserToDB();
-      app.showScreen('home');
+      app.showScreen('home');   // להיכנס מהר
+      app.saveUserToDB();       // בלי לחכות
     } else {
       app.showScreen('login');
     }
@@ -1040,7 +1052,7 @@ const app = {
     
     const tags = isPos 
       ? ['הסבר ברור', 'יחס אישי', 'שיעור כיף', 'עוזר בחומר', 'מצחיק']
-      : ['לא מובן', 'יחס מזלזל', 'משעמם', 'צעקות', 'איחור'];
+      : ['אי סמכות להיות מורה', 'יחס מזלזל', 'משעמם', 'צעקות', 'אי עמידה בתכנון'];
       
     const cont = document.getElementById('fb-tags');
     cont.innerHTML = '';
@@ -1063,7 +1075,7 @@ const app = {
 
   submitFeedback: async () => {
     if (!app.user) {
-      alert('צריך להתחבר למערכת קודם');
+      showError('צריך להתחבר למערכת קודם');
       return;
     }
 
@@ -1071,7 +1083,41 @@ const app = {
     const tags = Array.from(document.querySelectorAll('.tag.active-pos, .tag.active-neg')).map(e => e.innerText);
     
     if (!txt && tags.length === 0) {
-      alert('בחר תגית או כתוב משהו');
+      showError('בחר תגית או כתוב משהו');
+      return;
+    }
+
+    // --- מגבלות לפי בקשתך ---
+    // 1) מגבלה לתלמיד: עד 2 משובים (מחמאות או הערות) בכל שעה
+    // 2) מגבלה לכל מורה: עד 2 משובים ביום מאותו תלמיד
+
+    const now = new Date();
+// 30 דקות אחורה במקום שעה
+const oneHourAgoISO = new Date(now.getTime() - 30 * 60 * 1000).toISOString();
+    const startOfDayISO = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+
+    // 1) בדיקה כמה משובים התלמיד נתן בשעה האחרונה (לכל המורים)
+    const { data: recentByStudent, error: err1 } = await supabase
+      .from('feedback')
+      .select('id')
+      .eq('user_name', app.user.name)
+      .gte('created_at', oneHourAgoISO);
+
+    if (!err1 && recentByStudent && recentByStudent.length >= 2) {
+      showError('הגעת למגבלה: עד 2 משובים בכל 30 דקות לכל תלמיד.');
+      return;
+    }
+
+    // 2) בדיקה כמה משובים היום התלמיד נתן על המורה הזה
+    const { data: todayForTeacherStudent, error: err2 } = await supabase
+      .from('feedback')
+      .select('id')
+      .eq('user_name', app.user.name)
+      .eq('teacher_id', app.selTeacher.id)
+      .gte('created_at', startOfDayISO);
+
+    if (!err2 && todayForTeacherStudent && todayForTeacherStudent.length >= 2) {
+      showError('למורה הזה כבר שלחת 2 משובים היום. אי אפשר לשלוח יותר מ־2 ליום לאותו מורה.');
       return;
     }
     
@@ -1089,13 +1135,19 @@ const app = {
       setTimeout(() => document.body.classList.remove('shake-fx'), 500);
     }
     
-    await supabase.from('feedback').insert([{
+    const { error: insertError } = await supabase.from('feedback').insert([{
       teacher_id: app.selTeacher.id,
       user_name: app.user.name,
       type: app.mode,
       tags: tags,
       text: txt
     }]);
+
+    if (insertError) {
+      console.error(insertError);
+      showError('משהו השתבש בשמירת המשוב. נסה שוב עוד רגע.');
+      return;
+    }
 
     document.getElementById('fb-text').value = '';
     setTimeout(() => app.nav('home'), 1500); 
@@ -1333,7 +1385,7 @@ const app = {
 
   deleteFeedback: async (id) => {
     if (!app.user || app.user.role !== 'admin') {
-      alert('רק אדמין יכול למחוק משובים');
+      showError('רק אדמין יכול למחוק משובים');
       return;
     }
 
@@ -1356,7 +1408,7 @@ if (loginBtn) {
     const password = document.getElementById('login-password').value.trim();
 
     if (!username) {
-      alert('צריך לכתוב שם משתמש');
+      showError('צריך לכתוב שם משתמש');
       return;
     }
 
@@ -1369,10 +1421,9 @@ if (loginBtn) {
     localStorage.setItem('tf_user', JSON.stringify(app.user));
     app.updateUserChip();
 
-    await app.saveUserToDB();
-
     sfx.success();
-    app.showScreen('home');
+    app.showScreen('home');  // להיכנס מהר
+    app.saveUserToDB();      // לשמור ברקע
   };
 }
 
@@ -1404,6 +1455,22 @@ function triggerConfetti(icon1, icon2, icon3) {
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 1000);
   }
+}
+
+function showError(message) {
+  const modal = document.getElementById('error-modal');
+  const textEl = document.getElementById('error-modal-text');
+  if (!modal || !textEl) {
+    alert(message);
+    return;
+  }
+  textEl.textContent = message;
+  modal.style.display = 'flex';
+}
+
+function hideErrorModal() {
+  const modal = document.getElementById('error-modal');
+  if (modal) modal.style.display = 'none';
 }
 
 document.addEventListener('DOMContentLoaded', app.init);
